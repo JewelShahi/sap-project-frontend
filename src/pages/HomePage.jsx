@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   GitBranch, Star, CheckCircle, XCircle, RefreshCw, AlertTriangle,
@@ -49,6 +49,15 @@ export default function HomePage() {
   const [rating, setRating] = useState(3);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // useEffect(() => {
+  //   notify.success()
+  //   notify.info()
+  //   notify.warning()
+  //   notify.error()
+  //   notify.loading()
+  // }, [0]);
+  
+  
   return (
     <div className="space-y-8">
 
