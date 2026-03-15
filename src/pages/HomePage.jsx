@@ -9,6 +9,8 @@ import {
 import Animate from "@/components/animation/Animate.jsx";
 import notify from "@/components/toaster/notify";
 
+import axios from "axios";
+
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const STATS = [
   { label: "Commits", value: "12,847", trend: "+8.4%", up: true, color: "text-primary", bg: "bg-primary/10" },
