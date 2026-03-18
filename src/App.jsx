@@ -9,6 +9,7 @@ import AnalyticsPage from "@/pages/AnalyticsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import DocumentsPage from "@/pages/documents/DocumentsPage";
 
 import useTheme from "@/hooks/useTheme";
 
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/documents" element={<DocumentsPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
