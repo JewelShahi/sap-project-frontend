@@ -4,7 +4,7 @@ import { FileText, Grid, List, Plus } from "lucide-react";
 import UploadFile from "./homepage/components/UploadFile.jsx";
 import { Sun, Moon, Bell, Search, Home, BarChart2, Users, GitBranch, Zap, User, File } from "lucide-react";
 import { CheckCircle, XCircle, AlertTriangle, RefreshCw } from "lucide-react"
-import FileStatus from "./FileStatus.jsx";
+import FileStatus from "./homepage/components/FileStatus.jsx";
 
 const DocumentsPage = () => {
  const [gridView, setGridView] = useState(() => {

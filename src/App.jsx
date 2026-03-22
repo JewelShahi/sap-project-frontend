@@ -9,8 +9,10 @@ import AnalyticsPage from "@/pages/AnalyticsPage";
 import ProfilePage from "@/pages/ProfilePage"; 
 import NotFoundPage from "@/pages/NotFoundPage";
 import Login from "@/pages/Login";
+import GettingStarted from "@/pages/GettingStarted";
 import Register from "@/pages/Register";
-import DocumentsPage from "@/pages/DocumentsPage"; 
+import DocumentsPage from "@/pages/DocumentsPage";
+import Demo from "@/pages/homepage/demo.jsx"; 
 
 import useTheme from "@/hooks/useTheme";
 
@@ -32,6 +34,8 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/documents" element={<DocumentsPage />} />
+            <Route path="/getting-started" element={<GettingStarted />} />
+              <Route path="/demo" element={<Demo />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
