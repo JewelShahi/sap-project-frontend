@@ -4,8 +4,8 @@ import { Sun, Moon, Bell, Search, Home, BarChart2, Users, GitBranch, Zap, User, 
 const NAV_LINKS = [
   { icon: Home,      label: "Dashboard",      to: "/"          },
   { icon: File,      label: "Documents", to: "/documents" },
-  { icon: Users,     label: "Teams",     to: "/teams"     },
-  { icon: BarChart2, label: "Analytics", to: "/analytics" },
+  // { icon: Users,     label: "Teams",     to: "/teams"     },
+  // { icon: BarChart2, label: "Analytics", to: "/analytics" },
 ];
 
 export default function Navbar({ theme, toggleTheme }) {
@@ -57,25 +57,43 @@ export default function Navbar({ theme, toggleTheme }) {
           />
         </div> */}
 
-        <div className="indicator">
+        {/* <div className="indicator">
           <span className="indicator-item badge badge-error badge-xs" />
           <button className="btn btn-ghost btn-sm btn-circle text-base-content">
             <Bell size={15} />
           </button>
-        </div>
+        </div> */}
 
         <button
           className="btn btn-ghost btn-sm btn-circle text-base-content"
           onClick={toggleTheme}
         >
-          {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
         </button>
 
-        <NavLink to="/profile" className="avatar placeholder">
-    <div className="w-8 rounded-full bg-primary text-primary-content">
-      <span className="text-xs font-bold">MP</span>
-    </div>
-      </NavLink>
+        <NavLink
+  to="/profile"
+  className="group relative"
+>
+  <div className="
+    w-9 h-9
+    rounded-full
+    overflow-hidden
+    border border-base-300
+    transition-all duration-200
+    group-hover:border-primary
+    group-hover:shadow-md
+    group-hover:shadow-primary/30
+    group-hover:scale-105
+    active:scale-95
+  ">
+    <img
+      src="/avatar.png"
+      alt="Profile"
+      className="w-full h-full object-cover"
+    />
+  </div>
+</NavLink>
       </div>
     </div>
   );
