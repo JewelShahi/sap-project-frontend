@@ -12,144 +12,12 @@ import {
   History,
   Eye,
 } from "lucide-react";
-
-const mockDocuments = [
-  {
-    id: 1,
-    title: "Employee Handbook",
-    description:
-      "Internal company handbook with updated onboarding policies and employee guidelines.",
-    author: "Ivan Petrov",
-    status: "APPROVED",
-    activeVersion: "v3",
-    createdAt: "2026-03-01",
-    updatedAt: "2026-03-15",
-  },
-  {
-    id: 2,
-    title: "Security Policy",
-    description:
-      "Security rules and internal access requirements for company systems.",
-    author: "Georgi Ivanov",
-    status: "PENDING",
-    activeVersion: "v1",
-    createdAt: "2026-03-03",
-    updatedAt: "2026-03-14",
-  },
-  {
-    id: 3,
-    title: "Quarterly Planning",
-    description:
-      "Quarterly planning draft for team goals, milestones, and priorities.",
-    author: "Maria Dimitrova",
-    status: "DRAFT",
-    activeVersion: "v2",
-    createdAt: "2026-03-05",
-    updatedAt: "2026-03-12",
-  },
-  {
-    id: 4,
-    title: "Vendor Agreement",
-    description:
-      "Agreement document version history with approval and rejection states.",
-    author: "Nikolay Stoyanov",
-    status: "REJECTED",
-    activeVersion: "v1",
-    createdAt: "2026-03-02",
-    updatedAt: "2026-03-11",
-  },
-];
-
-const mockVersionsByDocument = {
-  1: [
-    {
-      id: 101,
-      versionNumber: "v3",
-      status: "APPROVED",
-      approvalStatus: "APPROVED",
-      author: "Ivan Petrov",
-      createdAt: "2026-03-15",
-      isActive: true,
-      summary: "Added onboarding updates and policy clarifications.",
-    },
-    {
-      id: 102,
-      versionNumber: "v2",
-      status: "PENDING",
-      approvalStatus: "PENDING",
-      author: "Ivan Petrov",
-      createdAt: "2026-03-10",
-      isActive: false,
-      summary: "Submitted revised handbook for review.",
-    },
-    {
-      id: 103,
-      versionNumber: "v1",
-      status: "APPROVED",
-      approvalStatus: "APPROVED",
-      author: "Maria Dimitrova",
-      createdAt: "2026-03-02",
-      isActive: false,
-      summary: "Initial approved version of the employee handbook.",
-    },
-    {
-      id: 104,
-      versionNumber: "v0.9",
-      status: "REJECTED",
-      approvalStatus: "REJECTED",
-      author: "Georgi Ivanov",
-      createdAt: "2026-03-01",
-      isActive: false,
-      summary: "Rejected due to missing mandatory compliance notes.",
-    },
-  ],
-  2: [
-    {
-      id: 201,
-      versionNumber: "v1",
-      status: "PENDING",
-      approvalStatus: "PENDING",
-      author: "Georgi Ivanov",
-      createdAt: "2026-03-14",
-      isActive: true,
-      summary: "Initial version waiting for review.",
-    },
-  ],
-  3: [
-    {
-      id: 301,
-      versionNumber: "v2",
-      status: "DRAFT",
-      approvalStatus: "PENDING",
-      author: "Maria Dimitrova",
-      createdAt: "2026-03-12",
-      isActive: true,
-      summary: "Draft update for quarterly priorities.",
-    },
-    {
-      id: 302,
-      versionNumber: "v1",
-      status: "APPROVED",
-      approvalStatus: "APPROVED",
-      author: "Maria Dimitrova",
-      createdAt: "2026-03-08",
-      isActive: false,
-      summary: "Initial approved planning version.",
-    },
-  ],
-  4: [
-    {
-      id: 401,
-      versionNumber: "v1",
-      status: "REJECTED",
-      approvalStatus: "REJECTED",
-      author: "Nikolay Stoyanov",
-      createdAt: "2026-03-11",
-      isActive: true,
-      summary: "Rejected because approval notes were missing.",
-    },
-  ],
-};
+import {
+  getDocumentById,
+  getVersionsByDocumentId,
+  getActiveVersionByDocumentId,
+  getUserById,
+} from "@/data/mockData";
 
 function getStatusClasses(status) {
   switch (status) {
@@ -185,8 +53,10 @@ export default function DocumentDetailsPage() {
   const { id } = useParams();
 
   const numericId = Number(id);
-  const document = mockDocuments.find((doc) => doc.id === numericId);
-  const versions = mockVersionsByDocument[numericId] || [];
+  const document = getDocumentById(numericId);
+  const versions = getVersionsByDocumentId(numericId);
+  const activeVersion = getActiveVersionByDocumentId(numericId);
+  const author = document ? getUserById(document.createdBy) : null;
 
   if (!document) {
     return (
@@ -244,15 +114,17 @@ export default function DocumentDetailsPage() {
 
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <span
-                  className={`badge gap-1 ${getStatusClasses(document.status)}`}
+                  className={`badge gap-1 ${getStatusClasses(
+                    activeVersion?.status || "UNKNOWN"
+                  )}`}
                 >
-                  {getStatusIcon(document.status)}
-                  {document.status}
+                  {getStatusIcon(activeVersion?.status || "UNKNOWN")}
+                  {activeVersion?.status || "UNKNOWN"}
                 </span>
 
                 <span className="badge badge-outline gap-1">
                   <FileText size={14} />
-                  Active {document.activeVersion}
+                  Active {activeVersion ? `v${activeVersion.versionNumber}` : "N/A"}
                 </span>
               </div>
             </div>
@@ -266,7 +138,9 @@ export default function DocumentDetailsPage() {
                 <User size={16} />
                 <span>Author</span>
               </div>
-              <h2 className="text-xl font-semibold">{document.author}</h2>
+              <h2 className="text-xl font-semibold">
+                {author?.username || "Unknown user"}
+              </h2>
             </div>
           </div>
 
@@ -276,7 +150,9 @@ export default function DocumentDetailsPage() {
                 <CheckCircle2 size={16} />
                 <span>Current Status</span>
               </div>
-              <h2 className="text-xl font-semibold">{document.status}</h2>
+              <h2 className="text-xl font-semibold">
+                {activeVersion?.status || "UNKNOWN"}
+              </h2>
             </div>
           </div>
 
@@ -287,7 +163,7 @@ export default function DocumentDetailsPage() {
                 <span>Active Version</span>
               </div>
               <h2 className="text-xl font-semibold">
-                {document.activeVersion}
+                {activeVersion ? `v${activeVersion.versionNumber}` : "N/A"}
               </h2>
             </div>
           </div>
@@ -328,7 +204,9 @@ export default function DocumentDetailsPage() {
 
                 <div>
                   <p className="text-base-content/60">Created By</p>
-                  <p className="font-medium">{document.author}</p>
+                  <p className="font-medium">
+                    {author?.username || "Unknown user"}
+                  </p>
                 </div>
 
                 <div>
@@ -367,50 +245,54 @@ export default function DocumentDetailsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {versions.map((version) => (
-                      <tr key={version.id} className="hover">
-                        <td>
-                          <div className="flex flex-col gap-1">
-                            <span className="font-semibold">
-                              {version.versionNumber}
-                            </span>
-                            {version.isActive && (
-                              <span className="badge badge-outline badge-sm w-fit">
-                                Active
+                    {versions.map((version) => {
+                      const versionAuthor = getUserById(version.authorId);
+
+                      return (
+                        <tr key={version.id} className="hover">
+                          <td>
+                            <div className="flex flex-col gap-1">
+                              <span className="font-semibold">
+                                {`v${version.versionNumber}`}
                               </span>
-                            )}
-                          </div>
-                        </td>
+                              {version.isActive && (
+                                <span className="badge badge-outline badge-sm w-fit">
+                                  Active
+                                </span>
+                              )}
+                            </div>
+                          </td>
 
-                        <td>
-                          <span
-                            className={`badge gap-1 ${getStatusClasses(
-                              version.status
-                            )}`}
-                          >
-                            {getStatusIcon(version.status)}
-                            {version.status}
-                          </span>
-                        </td>
+                          <td>
+                            <span
+                              className={`badge gap-1 ${getStatusClasses(
+                                version.status
+                              )}`}
+                            >
+                              {getStatusIcon(version.status)}
+                              {version.status}
+                            </span>
+                          </td>
 
-                        <td>{version.author}</td>
-                        <td>{version.createdAt}</td>
-                        <td className="max-w-xs">
-                          <span className="line-clamp-2 text-sm text-base-content/75">
-                            {version.summary}
-                          </span>
-                        </td>
+                          <td>{versionAuthor?.username || "Unknown user"}</td>
+                          <td>{version.createdAt}</td>
+                          <td className="max-w-xs">
+                            <span className="line-clamp-2 text-sm text-base-content/75">
+                              {version.summary}
+                            </span>
+                          </td>
 
-                        <td>
-                          <div className="flex justify-end">
-                            <button className="btn btn-sm btn-outline min-w-[90px] gap-2">
-                              <Eye size={14} className="shrink-0" />
-                              <span className="whitespace-nowrap">View</span>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          <td>
+                            <div className="flex justify-end">
+                              <button className="btn btn-sm btn-outline min-w-[90px] gap-2">
+                                <Eye size={14} className="shrink-0" />
+                                <span className="whitespace-nowrap">View</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

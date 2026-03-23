@@ -11,45 +11,7 @@ import {
   XCircle,
   PencilLine,
 } from "lucide-react";
-
-const mockDocuments = [
-  {
-    id: 1,
-    title: "Employee Handbook",
-    author: "Ivan Petrov",
-    status: "APPROVED",
-    activeVersion: "v3",
-    updatedAt: "2026-03-15",
-    description: "Internal company handbook with updated onboarding policies.",
-  },
-  {
-    id: 2,
-    title: "Security Policy",
-    author: "Georgi Ivanov",
-    status: "PENDING",
-    activeVersion: "v1",
-    updatedAt: "2026-03-14",
-    description: "Pending review for revised security and access rules.",
-  },
-  {
-    id: 3,
-    title: "Quarterly Planning",
-    author: "Maria Dimitrova",
-    status: "DRAFT",
-    activeVersion: "v2",
-    updatedAt: "2026-03-12",
-    description: "Planning draft for the upcoming quarter goals and delivery.",
-  },
-  {
-    id: 4,
-    title: "Vendor Agreement",
-    author: "Nikolay Stoyanov",
-    status: "REJECTED",
-    activeVersion: "v1",
-    updatedAt: "2026-03-11",
-    description: "Rejected version due to missing approval notes.",
-  },
-];
+import { getDocumentListItems } from "@/data/mockData";
 
 function getStatusClasses(status) {
   switch (status) {
@@ -85,8 +47,10 @@ export default function DocumentsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
+  const documents = useMemo(() => getDocumentListItems(), []);
+
   const filteredDocuments = useMemo(() => {
-    return mockDocuments.filter((doc) => {
+    return documents.filter((doc) => {
       const matchesSearch =
         doc.title.toLowerCase().includes(search.toLowerCase()) ||
         doc.author.toLowerCase().includes(search.toLowerCase());
@@ -96,21 +60,21 @@ export default function DocumentsPage() {
 
       return matchesSearch && matchesStatus;
     });
-  }, [search, statusFilter]);
+  }, [documents, search, statusFilter]);
 
   const stats = useMemo(() => {
     return {
-      total: mockDocuments.length,
-      approved: mockDocuments.filter((d) => d.status === "APPROVED").length,
-      pending: mockDocuments.filter((d) => d.status === "PENDING").length,
-      drafts: mockDocuments.filter((d) => d.status === "DRAFT").length,
+      total: documents.length,
+      approved: documents.filter((d) => d.status === "APPROVED").length,
+      pending: documents.filter((d) => d.status === "PENDING").length,
+      drafts: documents.filter((d) => d.status === "DRAFT").length,
     };
-  }, []);
+  }, [documents]);
 
   return (
     <section className="px-4 py-8 md:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
-        <div className="hero rounded-3xl bg-base-200 border border-base-300">
+        <div className="hero rounded-3xl border border-base-300 bg-base-200">
           <div className="hero-content w-full flex-col items-start justify-between gap-6 py-8 lg:flex-row lg:items-center">
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm text-base-content/70">
@@ -136,28 +100,28 @@ export default function DocumentsPage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="card bg-base-200 border border-base-300 shadow-sm">
+          <div className="card border border-base-300 bg-base-200 shadow-sm">
             <div className="card-body">
               <p className="text-sm text-base-content/70">Total Documents</p>
               <h2 className="text-3xl font-bold">{stats.total}</h2>
             </div>
           </div>
 
-          <div className="card bg-base-200 border border-base-300 shadow-sm">
+          <div className="card border border-base-300 bg-base-200 shadow-sm">
             <div className="card-body">
               <p className="text-sm text-base-content/70">Approved</p>
               <h2 className="text-3xl font-bold">{stats.approved}</h2>
             </div>
           </div>
 
-          <div className="card bg-base-200 border border-base-300 shadow-sm">
+          <div className="card border border-base-300 bg-base-200 shadow-sm">
             <div className="card-body">
               <p className="text-sm text-base-content/70">Pending Review</p>
               <h2 className="text-3xl font-bold">{stats.pending}</h2>
             </div>
           </div>
 
-          <div className="card bg-base-200 border border-base-300 shadow-sm">
+          <div className="card border border-base-300 bg-base-200 shadow-sm">
             <div className="card-body">
               <p className="text-sm text-base-content/70">Drafts</p>
               <h2 className="text-3xl font-bold">{stats.drafts}</h2>
@@ -165,7 +129,7 @@ export default function DocumentsPage() {
           </div>
         </div>
 
-        <div className="card bg-base-200 border border-base-300 shadow-sm">
+        <div className="card border border-base-300 bg-base-200 shadow-sm">
           <div className="card-body gap-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div>
@@ -177,7 +141,7 @@ export default function DocumentsPage() {
             </div>
 
             <div className="flex flex-col gap-3 lg:flex-row">
-              <label className="input input-bordered flex items-center gap-2 w-full lg:max-w-md">
+              <label className="input input-bordered flex w-full items-center gap-2 lg:max-w-md">
                 <Search size={16} className="text-base-content/60" />
                 <input
                   type="text"
@@ -188,12 +152,12 @@ export default function DocumentsPage() {
                 />
               </label>
 
-              <label className="select select-bordered flex items-center gap-2 w-full lg:max-w-xs">
+              <label className="select select-bordered flex w-full items-center gap-2 lg:max-w-xs">
                 <Filter size={16} className="text-base-content/60" />
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="bg-transparent outline-none w-full"
+                  className="w-full bg-transparent outline-none"
                 >
                   <option value="ALL">All statuses</option>
                   <option value="APPROVED">Approved</option>

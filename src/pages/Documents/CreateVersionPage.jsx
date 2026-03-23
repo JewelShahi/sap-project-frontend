@@ -10,44 +10,18 @@ import {
   X,
   History,
 } from "lucide-react";
-
-const mockDocuments = [
-  {
-    id: 1,
-    title: "Employee Handbook",
-    description:
-      "Internal company handbook with updated onboarding policies and employee guidelines.",
-    activeVersion: "v3",
-  },
-  {
-    id: 2,
-    title: "Security Policy",
-    description:
-      "Security rules and internal access requirements for company systems.",
-    activeVersion: "v1",
-  },
-  {
-    id: 3,
-    title: "Quarterly Planning",
-    description:
-      "Quarterly planning draft for team goals, milestones, and priorities.",
-    activeVersion: "v2",
-  },
-  {
-    id: 4,
-    title: "Vendor Agreement",
-    description:
-      "Agreement document version history with approval and rejection states.",
-    activeVersion: "v1",
-  },
-];
+import {
+  getDocumentById,
+  getActiveVersionByDocumentId,
+} from "@/data/mockData";
 
 export default function CreateVersionPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const numericId = Number(id);
-  const document = mockDocuments.find((doc) => doc.id === numericId);
+  const document = getDocumentById(numericId);
+  const activeVersion = getActiveVersionByDocumentId(numericId);
 
   const [formData, setFormData] = useState({
     versionLabel: "",
@@ -122,6 +96,7 @@ export default function CreateVersionPage() {
 
     console.log("Create version payload:", {
       documentId: numericId,
+      parentVersionId: activeVersion?.id || null,
       versionLabel: formData.versionLabel.trim(),
       summary: formData.summary.trim(),
       content: formData.content.trim(),
@@ -186,7 +161,7 @@ export default function CreateVersionPage() {
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <span className="badge badge-outline gap-1">
                   <FileText size={14} />
-                  Active {document.activeVersion}
+                  Active {activeVersion ? `v${activeVersion.versionNumber}` : "N/A"}
                 </span>
               </div>
             </div>
@@ -215,7 +190,7 @@ export default function CreateVersionPage() {
                   <input
                     type="text"
                     className="input input-bordered w-full"
-                    value={document.activeVersion}
+                    value={activeVersion ? `v${activeVersion.versionNumber}` : ""}
                     disabled
                   />
                 </div>
