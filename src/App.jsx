@@ -9,7 +9,9 @@ import AnalyticsPage from "@/pages/AnalyticsPage";
 import ProfilePage from "@/pages/ProfilePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import Login from "@/pages/Login";
+import GettingStarted from "@/pages/GettingStarted";
 import Register from "@/pages/Register";
+import Demo from "@/pages/homepage/demo.jsx";
 
 import DocumentsPage from "@/pages/documents/DocumentsPage";
 import DocumentDetailsPage from "@/pages/documents/DocumentDetailsPage";
@@ -40,9 +42,15 @@ export default function App() {
             <Route path="/register" element={<Register />} />
 
             <Route path="/documents" element={<DocumentsPage />} />
-            <Route path="/documents/:id/create-version" element={<CreateVersionPage />} />
+            <Route
+              path="/documents/:id/create-version"
+              element={<CreateVersionPage />}
+            />
             <Route path="/documents/create" element={<CreateDocumentPage />} />
             <Route path="/documents/:id" element={<DocumentDetailsPage />} />
+
+            <Route path="/getting-started" element={<GettingStarted />} />
+            <Route path="/demo" element={<Demo />} />
 
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
