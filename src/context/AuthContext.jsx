@@ -2,70 +2,52 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
-/**
- * AuthProvider
- *
- * Stores access / refresh tokens in localStorage and keeps a `user` object
- * in memory so any component can call `useAuth()` and get:
- *
- *   isAuthenticated  – boolean
- *   user             – null | { name, avatar, email, username, ... }
- *   login(tokens, userData)  – persist tokens, set user
- *   logout()                 – clear everything
- *   setUser(userData)        – update user in place (e.g. after profile edit)
- */
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
-  // Tracks whether we've finished reading localStorage so we don't flash
-  // the logged-out state for a frame on hard refresh.
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("access");
-    const stored = localStorage.getItem("user");
-
-    if (token) {
-      setIsAuthenticated(true);
-      if (stored) {
-        try { setUser(JSON.parse(stored)); } catch { /* ignore corrupt data */ }
+    const initializeAuth = () => {
+      const token = localStorage.getItem("access");
+      const storedUser = localStorage.getItem("user");
+      
+      if (token && storedUser) {
+        try {
+          setIsAuthenticated(true);
+          setUser(JSON.parse(storedUser));
+        } catch (e) {
+          console.error("Failed to parse stored user", e);
+          localStorage.clear();
+        }
       }
-    }
-    setReady(true);
+      setReady(true);
+    };
+
+    initializeAuth();
   }, []);
 
-  /*
-    Call after a successful login OR after registration if your API
-    returns tokens immediately.
-   */
-  const login = (tokens, userData = null) => {
+  const login = (tokens, userData) => {
     localStorage.setItem("access", tokens.access);
     localStorage.setItem("refresh", tokens.refresh);
-    if (userData) localStorage.setItem("user", JSON.stringify(userData));
-    setIsAuthenticated(true);
+    localStorage.setItem("user", JSON.stringify(userData));
+    
     setUser(userData);
+    setIsAuthenticated(true);
   };
 
-  const logout = () => {
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    localStorage.removeItem("user");
+  const logout = (redirectPath = "/login") => {
+    localStorage.clear();
     setIsAuthenticated(false);
     setUser(null);
-  };
-
-  /** Refresh the in-memory user object (e.g. after the user edits their profile). */
-  const updateUser = (userData) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+    // Use window.location for a hard reset to clear all states
+    window.location.href = redirectPath;
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, updateUser, ready }}>
-      {/* Don't render children until we've rehydrated from localStorage.
-          This prevents a flash where the navbar briefly shows "Login/Register"
-          even though the user is already authenticated. */}
-      {ready ? children : null}
+    <AuthContext.Provider value={{ isAuthenticated, user, setUser, login, logout, ready }}>
+      {/* We wait for 'ready' to avoid flickering or false redirects */}
+      {ready ? children : <div className="min-h-screen bg-base-100" />} 
     </AuthContext.Provider>
   );
 };
