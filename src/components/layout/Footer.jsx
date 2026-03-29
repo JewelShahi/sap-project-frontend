@@ -78,23 +78,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* 📍 THE INTERACTIVE MAP (NATURAL COLORS) */}
-          <div className="space-y-6">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-primary">Our Office</h4>
-            <div className="w-full h-48 rounded-2xl overflow-hidden shadow-xl border-2 border-base-300 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
-              <iframe 
-                title="Interactive SAP Map"
-                className="w-full h-full"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d23459.149971212486!2d23.302758845462364!3d42.69538284626413!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40aa856dd1517c85%3A0xffb5a61b370ddfaa!2sSofia%20Center%2C%20Sofia!5e0!3m2!1sen!2sbg!4v1774401534834!5m2!1sen!2sbg"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              ></iframe>
-              
-            </div>
-          </div>
-
         </div>
 
         {/* ── CONTRIBUTORS & BOTTOM BAR ── */}
