@@ -28,6 +28,7 @@ import VersionReviewPage from "@/pages/VersionReviewPage.jsx";
 import ReviewPage from "@/pages/ReviewPage.jsx";
 import ForbiddenPage from "@/pages/ForbiddenPage";
 import ServerErrorPage from "@/pages/ServerErrorPage";
+import ProtectedRoute from "@/components/protected-route/ProtectedRoute";
 import AdminPage from "@/pages/AdminPage.jsx";
 
 import useTheme from "@/hooks/useTheme";
@@ -49,7 +50,14 @@ export default function App() {
             <Route path="/repos" element={<ReposPage />} />
             <Route path="/teams" element={<TeamsPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
