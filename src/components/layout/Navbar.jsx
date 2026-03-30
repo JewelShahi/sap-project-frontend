@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { Sun, Moon, Zap, File, ClipboardCheck, NotepadText, Menu, X, MonitorCog, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import notify from "@/components/toaster/notify";
+import axios from "axios";
 
 const NAV_LINKS = [
   { icon: NotepadText, label: "About", to: "/getting-started" },
@@ -20,14 +21,11 @@ export default function Navbar({ theme, toggleTheme }) {
   const isLoggedIn = isAuthenticated;
   const avatarSrc = user?.avatar ?? "/avatar.png";
 
-  const handleLogout = () => {
-    notify.success("Signed out successfully");
+  const handleLogout = async () => {
     setMenuOpen(false);
-    setTimeout(() => {
-      logout();
-    }, 800);
+    await logout();
+    notify.success("Logged out successfully");
   };
-
   // Auto-close menu if screen resizes above 1000px
   useEffect(() => {
     const mq = window.matchMedia(`(min-width: ${BREAKPOINT}px)`);
@@ -58,7 +56,7 @@ export default function Navbar({ theme, toggleTheme }) {
       <div className="relative w-full h-20 border-b border-white/10 bg-base-300/50 backdrop-blur-2xl flex items-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
         <div className="w-full max-w-[1440px] mx-auto px-8 flex items-center justify-between">
 
-          {/* ── Brand (Always Far Left) ── */}
+          {/* ── Brand ── */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
               <Zap size={18} className="text-primary-content fill-current" />
@@ -68,7 +66,7 @@ export default function Navbar({ theme, toggleTheme }) {
             </span>
           </div>
 
-          {/* ── Desktop Nav Links (Shows > 1000px, pushes right side to edge) ── */}
+          {/* ── Desktop Nav Links ── */}
           <div className="hidden min-[1000px]:flex flex-1 items-center gap-2 ml-12">
             {NAV_LINKS.map(({ icon: Icon, label, to }) => (
               <NavLink
@@ -76,8 +74,7 @@ export default function Navbar({ theme, toggleTheme }) {
                 to={to}
                 end={to === "/"}
                 className={({ isActive }) =>
-                  `group relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-500 ${
-                    isActive ? "text-primary bg-primary/5" : "text-base-content/40 hover:text-base-content hover:bg-white/[0.05]"
+                  `group relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-500 ${isActive ? "text-primary bg-primary/5" : "text-base-content/40 hover:text-base-content hover:bg-white/[0.05]"
                   }`
                 }
               >
@@ -96,7 +93,7 @@ export default function Navbar({ theme, toggleTheme }) {
               {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
-            {/* ── Desktop Right UI (Shows > 1000px) ── */}
+            {/* ── Desktop Right UI ── */}
             <div className="hidden min-[1000px]:flex items-center gap-3">
               <div className="w-[1px] h-8 bg-white/5" />
 
@@ -128,9 +125,9 @@ export default function Navbar({ theme, toggleTheme }) {
               )}
             </div>
 
-            {/* ── Hamburger Button (Hidden > 1000px) ── */}
-            <button 
-              className="min-[1000px]:hidden w-11 h-11 flex items-center justify-center rounded-2xl shrink-0" 
+            {/* ── Hamburger Button ── */}
+            <button
+              className="min-[1000px]:hidden w-11 h-11 flex items-center justify-center rounded-2xl shrink-0"
               onClick={toggleMenu}
             >
               <Menu size={20} />
@@ -139,36 +136,32 @@ export default function Navbar({ theme, toggleTheme }) {
         </div>
       </div>
 
-      {/* ── Mobile Overlay (Hidden > 1000px) ── */}
-      <div 
-        className={`fixed inset-0 z-[99] min-[1000px]:hidden transition-all duration-500 ${
-          menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
+      {/* ── Mobile Overlay ── */}
+      <div
+        className={`fixed inset-0 z-[99] min-[1000px]:hidden transition-all duration-500 ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
         style={{ background: theme === "dark" ? "rgba(var(--b3), 0.8)" : "rgba(255, 255, 255, 0.4)", backdropFilter: "blur(20px)" }}
       >
         <div className="flex flex-col h-full pt-20 px-8 relative overflow-y-auto">
-          
-          {/* Close X Button */}
-          <button 
-            onClick={closeMenu} 
+
+          <button
+            onClick={closeMenu}
             className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition z-10"
           >
             <X size={22} />
           </button>
 
-          {/* Mobile Nav Links */}
           <div className="flex-1 flex flex-col justify-center gap-2">
             {NAV_LINKS.map(({ icon: Icon, label, to }) => (
               <NavLink
                 key={to}
                 to={to}
                 end={to === "/"}
-                onClick={closeMenu} 
+                onClick={closeMenu}
                 className={({ isActive }) =>
-                  `flex items-center gap-4 text-xl font-bold px-4 py-3 rounded-xl transition-all duration-200 ${
-                    isActive 
-                      ? "text-primary bg-primary/10" 
-                      : "text-base-content/50 hover:text-base-content hover:bg-white/5" 
+                  `flex items-center gap-4 text-xl font-bold px-4 py-3 rounded-xl transition-all duration-200 ${isActive
+                    ? "text-primary bg-primary/10"
+                    : "text-base-content/50 hover:text-base-content hover:bg-white/5"
                   }`
                 }
               >
@@ -177,7 +170,6 @@ export default function Navbar({ theme, toggleTheme }) {
             ))}
           </div>
 
-          {/* Mobile Bottom Menu */}
           <div className="pb-10 pt-4 border-t border-white/[0.06]">
             {isLoggedIn ? (
               <div className="flex items-center justify-between">
