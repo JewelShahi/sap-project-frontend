@@ -40,10 +40,9 @@ export function mapVersionToUi(version) {
     fileSize: version.file_size,
     checksum: version.checksum,
     summary:
-      version.summary ||
-      (version.content
+      version.content
         ? version.content.slice(0, 80) + (version.content.length > 80 ? "..." : "")
-        : "No summary available."),
+        : "No summary available.",
     authorName: version.creator_name || "Unknown user",
   };
 }

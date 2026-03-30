@@ -17,7 +17,7 @@ import AnalyticsPage from "@/pages/AnalyticsPage";
 import ProfilePage from "@/pages/ProfilePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import GettingStarted from "@/pages/GettingStarted";
-import Demo from "@/pages/homepage/demo.jsx";
+import Demo from "@/pages/homepage/Demo.jsx";
 
 import DocumentsPage from "@/pages/documents/DocumentsPage";
 import DocumentDetailsPage from "@/pages/documents/DocumentDetailsPage";

@@ -74,7 +74,7 @@ export default function DocumentDetailsPage() {
         setVersions(versionsResponse.map(mapVersionToUi));
         setUsingMockData(false);
       } catch (error) {
-        console.warn("Falling back to mock data:", error);
+        console.error("Failed to load live document data, using mock fallback:", error);
 
         const mockDocument = getDocumentById(Number(id));
         const mockVersions = getVersionsByDocumentId(Number(id));

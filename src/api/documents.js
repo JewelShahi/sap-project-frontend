@@ -1,10 +1,11 @@
-import { apiGet } from "./client";
+import api from "@/components/api/api";
 
 export async function fetchDocumentById(documentId) {
-  return apiGet(`/documents/${documentId}/`);
+  const response = await api.get(`/documents/${documentId}/`);
+  return response.data;
 }
 
 export async function fetchVersionsByDocumentId(documentId) {
-  const versions = await apiGet("/versions/");
-  return versions.filter((version) => version.document === documentId);
+  const response = await api.get(`/versions/document/${documentId}/`);
+  return response.data;
 }
