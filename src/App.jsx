@@ -25,7 +25,21 @@ import ReviewPage from "@/pages/ReviewPage.jsx";
 import ForbiddenPage from "@/pages/ForbiddenPage";
 import ServerErrorPage from "@/pages/ServerErrorPage";
 import ProtectedRoute from "@/components/protected-route/ProtectedRoute";
-import AdminPage from "@/pages/AdminPage.jsx";
+import HomePage from "@/pages/homepage/HomePage";
+import ReposPage from "@/pages/ReposPage";
+import TeamsPage from "@/pages/TeamsPage";
+import AnalyticsPage from "@/pages/AnalyticsPage";
+import ProfilePage from "@/pages/ProfilePage";
+import NotFoundPage from "@/pages/NotFoundPage";
+import GettingStarted from "@/pages/GettingStarted";
+import DocumentsPage from "@/pages/DocumentsPage";
+import Demo from "@/pages/homepage/demo.jsx";
+import VersionReviewPage from "@/pages/VersionReviewPage.jsx";
+import ReviewPage from "@/pages/ReviewPage.jsx";
+import ForbiddenPage from "@/pages/ForbiddenPage";
+import ServerErrorPage from "@/pages/ServerErrorPage";
+import ProtectedRoute from "@/components/protected-route/ProtectedRoute";
+import AuditLogPage from "@/pages/AuditLogPage";
 
 import useTheme from "@/hooks/useTheme";
 
@@ -60,7 +74,13 @@ export default function App() {
             <Route path="/server-error" element={<ServerErrorPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFoundPage />} />
-          </Routes>
+            <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+            <Route path="/admin/audit-logs" element={
+              <ProtectedRoute>
+                <AuditLogPage />
+                </ProtectedRoute>
+              } />
+            </Routes>
         </main>
 
         <ScrollUp />
