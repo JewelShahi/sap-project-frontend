@@ -1,33 +1,32 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff, Mail, Lock, AlertCircle, Loader2, ArrowRight, Shield } from "lucide-react";
-import Animate from "@/components/animation/Animate";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import Animate from "@/components/animation/Animate";
 import BackgroundEffects from "@/components/background/BackgroundEffects";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/components/api/api";
-import notify from "@/components/toaster/notify"; // ← adjust path to match your project
+import notify from "@/components/toaster/notify";
 
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
 const Login = () => {
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, login, ready } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Guard: kick out users who were already logged in when they landed here.
-  // Using a ref so this never re-fires after a fresh login() call flips isAuthenticated.
-  const alreadyAuthed = useRef(isAuthenticated);
-  useEffect(() => {
-    if (alreadyAuthed.current) {
-      notify.info("You are already logged in.");
-      navigate("/getting-started", { replace: true });
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [showPass, setShowPass] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // --- Redirect Logic ---
+  // This automatically kicks the user out of the login page if they are authed
+  useEffect(() => {
+    if (ready && isAuthenticated) {
+      const from = location.state?.from?.pathname || "/";
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, ready, navigate, location]);
 
   const set = (key) => (e) => {
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -45,54 +44,54 @@ const Login = () => {
 
   const handleSubmit = async (ev) => {
     ev.preventDefault();
-    if (!validate()) return;
+    if (!validate() || submitting) return;
 
     setSubmitting(true);
 
-    let responseData;
     try {
       const res = await api.post("/users/login/", {
         email: form.email.trim(),
         password: form.password,
       });
-      responseData = res.data;
+
+      const { access, refresh, user: apiUser } = res.data;
+
+      // Formatting the user object for our context
+      const userData = {
+        name: `${apiUser?.first_name || ''} ${apiUser?.last_name || ''}`.trim() || apiUser?.username,
+        username: apiUser?.username,
+        email: apiUser?.email,
+        avatar: apiUser?.avatar ?? null,
+      };
+
+      // 1. Update Auth State
+      login({ access, refresh }, userData);
+
+      // 2. Success Message
+      notify.success("Welcome back!");
+
+      // Note: The useEffect above will handle the navigation automatically 
+      // as soon as isAuthenticated becomes true.
     } catch (err) {
-      const errData = err.response?.data;
-      notify.error(errData?.detail ?? "Wrong email or password. Please try again.");
+      const errorMessage = err.response?.data?.detail || "Invalid email or password.";
+      notify.error(errorMessage);
+    } finally {
       setSubmitting(false);
-      return;
     }
-
-    // API succeeded — safe to build user object and navigate
-    const userData = responseData.user
-      ? {
-          name: `${responseData.user.first_name} ${responseData.user.last_name}`.trim() || responseData.user.username,
-          username: responseData.user.username,
-          email: responseData.user.email,
-          avatar: responseData.user.avatar ?? null,
-        }
-      : null;
-
-    login({ access: responseData.access, refresh: responseData.refresh }, userData);
-
-    const from = location.state?.from ?? "/";
-    navigate(from, { replace: true });
   };
+
+  if (!ready) return null;
 
   return (
     <div className="relative min-h-[100vh] w-full flex items-center justify-center overflow-hidden bg-base-100">
-
       <BackgroundEffects length={12} />
 
       <div className="relative z-10 w-full max-w-[550px] px-4 py-8">
-
         <LoginHeader />
 
         <Animate variant="fade-up" delay={100} duration={600}>
           <div className="bg-base-100/40 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] shadow-2xl p-8 md:p-12">
-
             <form onSubmit={handleSubmit} noValidate className="space-y-6">
-
               <InputField
                 label="Email Address"
                 icon={<Mail size={18} />}
@@ -123,7 +122,6 @@ const Login = () => {
                 <SubmitButton submitting={submitting} />
               </div>
             </form>
-
             <LoginFooter />
           </div>
 
@@ -139,9 +137,7 @@ const Login = () => {
   );
 };
 
-export default Login;
-
-// ─── Sub-components ────────────────────────────────────────────────────────────
+// --- Sub-components (Cleanly Organized) ---
 
 const LoginHeader = () => (
   <Animate variant="fade-up" delay={0} duration={600}>
@@ -215,3 +211,5 @@ const LoginFooter = () => (
     </p>
   </div>
 );
+
+export default Login;

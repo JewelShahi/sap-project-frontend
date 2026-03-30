@@ -17,7 +17,8 @@ import AnalyticsPage from "@/pages/AnalyticsPage";
 import ProfilePage from "@/pages/ProfilePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import GettingStarted from "@/pages/GettingStarted";
-import DocumentsPage from "@/pages/DocumentsPage";
+import DocumentsDetailsPage from "@/pages/DocumentsDetailsPage";
+import CreateDocumentPage from "./pages/homepage/CreateDocumentPage";
 import Demo from "@/pages/homepage/demo.jsx";
 import VersionReviewPage from "@/pages/VersionReviewPage.jsx";
 import ReviewPage from "@/pages/ReviewPage.jsx";
@@ -56,9 +57,6 @@ export default function App() {
         <main className="min-h-[100vh] overflow-x-hidden">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/repos" element={<ReposPage />} />
-            <Route path="/teams" element={<TeamsPage />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/profile" element={
               <ProtectedRoute>
                 <ProfilePage />
@@ -66,13 +64,15 @@ export default function App() {
             } />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/documents" element={<DocumentsPage />} />
+            <Route path="/documents/:id" element={<DocumentsDetailsPage />} />
+            <Route path="/create" element={<CreateDocumentPage />} />
             <Route path="/getting-started" element={<GettingStarted />} />
             <Route path="/demo" element={<Demo />} />
             <Route path="/version-review/:id" element={<VersionReviewPage />} />
             <Route path="/reviews" element={<ReviewPage />} />
             <Route path="/forbidden" element={<ForbiddenPage />} />
             <Route path="/server-error" element={<ServerErrorPage />} />
+            <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFoundPage />} />
             <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
             <Route path="/admin/audit-logs" element={
