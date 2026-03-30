@@ -24,6 +24,7 @@ import ReviewPage from "@/pages/ReviewPage.jsx";
 import ForbiddenPage from "@/pages/ForbiddenPage";
 import ServerErrorPage from "@/pages/ServerErrorPage";
 import ProtectedRoute from "@/components/protected-route/ProtectedRoute";
+import AdminPage from "@/pages/AdminPage.jsx";
 
 import useTheme from "@/hooks/useTheme";
 
@@ -58,6 +59,7 @@ export default function App() {
             <Route path="/reviews" element={<ReviewPage />} />
             <Route path="/forbidden" element={<ForbiddenPage />} />
             <Route path="/server-error" element={<ServerErrorPage />} />
+            <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
