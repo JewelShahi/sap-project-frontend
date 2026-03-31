@@ -35,7 +35,7 @@ export default function VersionReviewPage() {
         <Animate>
           <Link
             to="/reviews"
-            className="btn btn-sm btn-ghost border border-base-300 hover:border-primary hover:text-primary transition w-fit"
+            className="btn btn-sm btn-ghost border border-base-300 hover:white hover:text-white transition w-fit"
           >
             <ArrowLeft size={16} />
             Back to Reviews
@@ -119,17 +119,6 @@ export default function VersionReviewPage() {
                 {status === "pending" ? (
                   <div className="flex gap-4">
                     <button
-                      className="btn btn-success flex-1 shadow-md shadow-success/30"
-                      onClick={() => {
-                        setStatus("approved");
-                        notify.success("Version approved successfully");
-                      }}
-                    >
-                      <CheckCircle size={18} />
-                      Approve
-                    </button>
-
-                    <button
                       className="btn btn-error flex-1 shadow-md shadow-error/30"
                       onClick={() => {
                         setStatus("rejected");
@@ -138,6 +127,16 @@ export default function VersionReviewPage() {
                     >
                       <XCircle size={18} />
                       Reject
+                    </button>
+                    <button
+                      className="btn btn-success flex-1 shadow-md shadow-success/30"
+                      onClick={() => {
+                        setStatus("approved");
+                        notify.success("Version approved successfully");
+                      }}
+                    >
+                      <CheckCircle size={18} />
+                      Approve
                     </button>
                   </div>
                 ) : (

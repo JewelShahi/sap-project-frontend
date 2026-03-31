@@ -10,6 +10,8 @@ import {
   X,
 } from "lucide-react";
 
+import Animate from "@/components/animation/Animate.jsx";
+
 export default function CreateDocumentPage() {
   const navigate = useNavigate();
 
@@ -68,7 +70,8 @@ export default function CreateDocumentPage() {
     }
 
     if (!trimmedContent && !selectedFile) {
-      newErrors.form = "Please provide either document content or an attachment.";
+      newErrors.form =
+        "Please provide either document content or an attachment.";
     }
 
     return newErrors;
@@ -99,12 +102,15 @@ export default function CreateDocumentPage() {
     <section className="px-4 py-8 md:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="flex items-center justify-between gap-3">
-          <Link to="/documents" className="btn btn-ghost btn-sm gap-2">
+          <Link to="/documents"  className="btn btn-sm btn-ghost border border-base-300 hover:white hover:text-white transition w-fit">
             <ArrowLeft size={16} />
             Back to Documents
           </Link>
         </div>
 
+
+{/* Create Document */}
+<Animate variant="fade-down">
         <div className="hero rounded-3xl border border-base-300 bg-base-200">
           <div className="hero-content w-full flex-col items-start justify-between gap-6 py-8 lg:flex-row lg:items-center">
             <div className="space-y-3">
@@ -124,7 +130,9 @@ export default function CreateDocumentPage() {
             </div>
           </div>
         </div>
+</Animate>
 
+<Animate>
         <form onSubmit={handleSubmit} noValidate className="space-y-6">
           <div className="card border border-base-300 bg-base-200 shadow-sm">
             <div className="card-body gap-5">
@@ -279,6 +287,7 @@ export default function CreateDocumentPage() {
             </button>
           </div>
         </form>
+        </Animate>
       </div>
     </section>
   );

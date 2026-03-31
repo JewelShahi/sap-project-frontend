@@ -10,10 +10,9 @@ import {
   X,
   History,
 } from "lucide-react";
-import {
-  getDocumentById,
-  getActiveVersionByDocumentId,
-} from "@/data/mockData";
+import { getDocumentById, getActiveVersionByDocumentId } from "@/data/mockData";
+
+import Animate from "@/components/animation/Animate.jsx";
 
 export default function CreateVersionPage() {
   const { id } = useParams();
@@ -78,7 +77,8 @@ export default function CreateVersionPage() {
     }
 
     if (!trimmedContent && !selectedFile) {
-      newErrors.form = "Please provide either version content or an attachment.";
+      newErrors.form =
+        "Please provide either version content or an attachment.";
     }
 
     return newErrors;
@@ -133,13 +133,16 @@ export default function CreateVersionPage() {
         <div className="flex items-center justify-between gap-3">
           <Link
             to={`/documents/${numericId}`}
-            className="btn btn-ghost btn-sm gap-2"
+            className="btn btn-sm btn-ghost border border-base-300 hover:white hover:text-white transition w-fit"
           >
             <ArrowLeft size={16} />
             Back to Details
           </Link>
         </div>
 
+
+{/* Create Version */}
+<Animate variant="fade-down">
         <div className="hero rounded-3xl border border-base-300 bg-base-200">
           <div className="hero-content w-full flex-col items-start justify-between gap-6 py-8 lg:flex-row lg:items-center">
             <div className="space-y-3">
@@ -159,15 +162,18 @@ export default function CreateVersionPage() {
               </p>
 
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <span className="badge badge-outline gap-1">
+                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm text-white bg-primary shadow-md shadow-primary/30 border border-primary">
                   <FileText size={14} />
-                  Active {activeVersion ? `v${activeVersion.versionNumber}` : "N/A"}
+                  Active{" "}
+                  {activeVersion ? `v${activeVersion.versionNumber}` : "N/A"}
                 </span>
               </div>
             </div>
           </div>
         </div>
+</Animate>
 
+<Animate>
         <form onSubmit={handleSubmit} noValidate className="space-y-6">
           <div className="card border border-base-300 bg-base-200 shadow-sm">
             <div className="card-body gap-5">
@@ -190,7 +196,9 @@ export default function CreateVersionPage() {
                   <input
                     type="text"
                     className="input input-bordered w-full"
-                    value={activeVersion ? `v${activeVersion.versionNumber}` : ""}
+                    value={
+                      activeVersion ? `v${activeVersion.versionNumber}` : ""
+                    }
                     disabled
                   />
                 </div>
@@ -324,6 +332,7 @@ export default function CreateVersionPage() {
             </button>
           </div>
         </form>
+        </Animate>
       </div>
     </section>
   );

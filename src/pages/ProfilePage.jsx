@@ -122,7 +122,7 @@ const ProfilePage = () => {
   const handleLogOut = async () => {
     notify.success("Logging out…");
     await logout();
-    setTimeout(() => navigate("/getting-started"), 800);
+    setTimeout(() => navigate("/"), 800);
   };
 
   const handleUpdateProfile = async () => {
