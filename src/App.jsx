@@ -15,23 +15,23 @@ import ReposPage from "@/pages/ReposPage";
 import TeamsPage from "@/pages/TeamsPage";
 import AnalyticsPage from "@/pages/AnalyticsPage";
 import ProfilePage from "@/pages/ProfilePage";
-import NotFoundPage from "@/pages/NotFoundPage";
 import GettingStarted from "@/pages/GettingStarted";
-import Demo from "@/pages/homepage/Demo.jsx";
-
 import DocumentsPage from "@/pages/documents/DocumentsPage";
 import DocumentDetailsPage from "@/pages/documents/DocumentDetailsPage";
 import CreateDocumentPage from "@/pages/documents/CreateDocumentPage";
 import CreateVersionPage from "@/pages/documents/CreateVersionPage";
+import VersionReviewPage from "@/pages/VersionReviewPage";
+import ReviewPage from "@/pages/ReviewPage";
+import AdminPage from "@/pages/AdminPage";
+import AuditLogPage from "@/pages/AuditLogPage";
 
-import VersionReviewPage from "@/pages/VersionReviewPage.jsx";
-import ReviewPage from "@/pages/ReviewPage.jsx";
-import ForbiddenPage from "@/pages/ForbiddenPage";
-import ServerErrorPage from "@/pages/ServerErrorPage";
+// Protected Route component to guard routes
 import ProtectedRoute from "@/components/protected-route/ProtectedRoute";
-import AdminPage from "@/pages/AdminPage.jsx";
-import AuditLogPage from "@/pages/AuditLogPage.jsx";
-import DemoBg from "@/pages/DemoBg.jsx";
+
+// Error Pages
+import NotFoundPage from "@/pages/error-pages/NotFoundPage";
+import ServerErrorPage from "@/pages/error-pages/ServerErrorPage";
+import ForbiddenPage from "@/pages/error-pages/ForbiddenPage";
 
 import useTheme from "@/hooks/useTheme";
 
@@ -60,6 +60,14 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/profile/:id"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
@@ -72,7 +80,6 @@ export default function App() {
             <Route path="/documents/:id" element={<DocumentDetailsPage />} />
 
             <Route path="/getting-started" element={<GettingStarted />} />
-            <Route path="/demo" element={<Demo />} />
             <Route path="/version-review/:id" element={<VersionReviewPage />} />
             <Route path="/reviews" element={<ReviewPage />} />
             <Route path="/forbidden" element={<ForbiddenPage />} />
@@ -81,7 +88,6 @@ export default function App() {
             <Route path="/audit-log" element={<AuditLogPage />} />
 
             <Route path="*" element={<NotFoundPage />} />
-            <Route path="/404" element={<DemoBg />} />
           </Routes>
         </main>
 
