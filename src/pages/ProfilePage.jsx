@@ -67,6 +67,7 @@ const ProfilePage = () => {
         if (isOwnProfile) {
           // Own profile: /users/me/
           const { data } = await api.get("/users/me/");
+          console.log("Fetched own profile data:", data);
           const mapped = mapUser(data);
           setUser(mapped);
           setProfileData(mapped);
@@ -628,6 +629,7 @@ const mapUser = (data) => ({
   email: data.email,
   avatar: data.avatar || data.profile?.avatar || "",
   is_superuser: data.is_superuser,
+  is_staff: data.is_staff,
   is_active: data.is_active,
   created_at: data.created_at || data.date_joined,
   reviews_count: data.reviews_count || 0,
