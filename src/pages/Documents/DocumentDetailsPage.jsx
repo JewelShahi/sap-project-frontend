@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 
 import Animate from "@/components/animation/Animate.jsx";
-import FileStatus from "./homepage/components/FileStatus.jsx";
-import GlassCard from "./homepage/components/GlassCard.jsx";
+import FileStatus from "../homepage/components/FileStatus.jsx";
+import GlassCard from "../homepage/components/GlassCard.jsx";
 
 const mockDocuments = [
   {
