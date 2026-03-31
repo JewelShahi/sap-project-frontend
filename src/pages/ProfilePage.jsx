@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import {
   User, Mail, Calendar, ShieldCheck,
   LogOut, Edit3, Trash2, Camera, BarChart3, EyeOff, Eye,
-  Lock, ArrowLeft,
+  Lock, ArrowLeft, Crown
 } from "lucide-react";
 
 import api from "@/components/api/api";
@@ -13,9 +13,7 @@ import FluidBackground from "@/components/background/FluidBackground.jsx";
 import Animate from "@/components/animation/Animate.jsx";
 import notify from "@/components/toaster/notify";
 
-// ─────────────────────────────────────────────────────────────
-// HELPER: gradient pool (unchanged from your original)
-// ─────────────────────────────────────────────────────────────
+// Gradients
 const GRADIENTS = [
   "from-[#00F5A0] to-[#00D9F5]", "from-[#00FFA3] to-[#2EC4B6]",
   "from-[#00C9FF] to-[#92FE9D]", "from-[#11998E] to-[#38EF7D]",
@@ -41,9 +39,7 @@ const pickGradient = () => {
   };
 };
 
-// ─────────────────────────────────────────────────────────────
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────
 const ProfilePage = () => {
   const { user: authUser, logout, setUser } = useAuth();
   const navigate = useNavigate();
@@ -51,10 +47,10 @@ const ProfilePage = () => {
 
   const isOwnProfile = !id; // true → /profile | false → /profile/:id
 
-  // ── State ────────────────────────────────────────────────────
-  const [profileData, setProfileData]           = useState(null);
-  const [isLoading, setIsLoading]               = useState(true);
-  const [deletePassword, setDeletePassword]     = useState("");
+  // States
+  const [profileData, setProfileData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deletePassword, setDeletePassword] = useState("");
   const [showDeletePassword, setShowDeletePassword] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -64,12 +60,12 @@ const ProfilePage = () => {
 
   const { gradientClasses, gradientStyle } = useMemo(pickGradient, []);
 
-  // ── Fetch ────────────────────────────────────────────────────
+  // Fetch
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         if (isOwnProfile) {
-          // ── Own profile: /users/me/
+          // Own profile: /users/me/
           const { data } = await api.get("/users/me/");
           const mapped = mapUser(data);
           setUser(mapped);
@@ -77,12 +73,12 @@ const ProfilePage = () => {
           setFormData((prev) => ({
             ...prev,
             first_name: mapped.first_name,
-            last_name:  mapped.last_name,
-            username:   mapped.username,
-            avatar:     mapped.avatar,
+            last_name: mapped.last_name,
+            username: mapped.username,
+            avatar: mapped.avatar,
           }));
         } else {
-          // ── Other user: /users/<uuid>
+          // Other user: /users/<uuid>
           // Guard: only allow if the caller is authenticated
           if (!authUser) {
             navigate("/forbidden");
@@ -118,7 +114,7 @@ const ProfilePage = () => {
     fetchProfile();
   }, [id]); // re-run if the :id param changes
 
-  // ── Handlers (own profile only) ──────────────────────────────
+  // Handlers (own profile only)
   const handleLogOut = async () => {
     notify.success("Logging out…");
     await logout();
@@ -133,8 +129,8 @@ const ProfilePage = () => {
       const payload = {
         ...authUser,
         first_name: formData.first_name,
-        last_name:  formData.last_name,
-        username:   formData.username,
+        last_name: formData.last_name,
+        username: formData.username,
       };
       if (formData.password) payload.password = formData.password;
       const { data } = await api.put("/users/me/", payload);
@@ -150,8 +146,8 @@ const ProfilePage = () => {
   const handleAvatarUpdate = async () => {
     try {
       const { data } = await api.put("/users/me/", { ...authUser, avatar: formData.avatar });
-      setUser((prev)         => ({ ...prev, avatar: data.avatar }));
-      setProfileData((prev)  => ({ ...prev, avatar: data.avatar }));
+      setUser((prev) => ({ ...prev, avatar: data.avatar }));
+      setProfileData((prev) => ({ ...prev, avatar: data.avatar }));
       notify.success("Avatar updated!");
       document.getElementById("avatar_modal").close();
     } catch {
@@ -172,10 +168,10 @@ const ProfilePage = () => {
     }
   };
 
-  // ── Loading ──────────────────────────────────────────────────
+  // Loading 
   if (isLoading) return <LoadingSpinner />;
 
-  // ── Render ───────────────────────────────────────────────────
+  // Render 
   const profile = profileData;
 
   return (
@@ -196,7 +192,7 @@ const ProfilePage = () => {
 
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-          {/* ── LEFT: PROFILE CARD ── */}
+          {/* LEFT: PROFILE CARD */}
           <div className="lg:col-span-4 space-y-6">
             <Animate variant="fade-right">
               <div className="card bg-base-200/40 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden">
@@ -265,6 +261,15 @@ const ProfilePage = () => {
                     </div>
 
                     {profile?.is_superuser && (
+                      <div className="flex items-center gap-3 px-4 py-2 bg-amber-500/10 rounded-xl text-sm border border-amber-500/30 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.1)] backdrop-blur-md">
+                        <Crown size={16} className="text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.6)]" />
+                        <span className="font-bold tracking-wide uppercase text-[11px]">
+                          Superuser Access
+                        </span>
+                      </div>
+                    )}
+
+                    {profile?.is_staff && (
                       <div className="flex items-center gap-3 px-4 py-2 bg-glass-purple rounded-xl text-sm border border-purple/20 text-purple">
                         <ShieldCheck size={16} />
                         <span className="font-medium">Administrator Access</span>
@@ -294,7 +299,7 @@ const ProfilePage = () => {
             </Animate>
           </div>
 
-          {/* ── RIGHT: STATS + MANAGEMENT ── */}
+          {/* RIGHT: STATS + MANAGEMENT */}
           <div className="lg:col-span-8 space-y-8">
 
             {/* Stats Grid */}
@@ -373,7 +378,7 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* ══════════════════════ MODALS (own profile only) ══════════════════════ */}
+        {/* MODALS (own profile only) */}
         {isOwnProfile && (
           <>
             {/* Avatar Modal */}
@@ -615,30 +620,24 @@ const ProfilePage = () => {
   );
 };
 
-// ─────────────────────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────────────────────
+// HELPERS - user data can be inconsistent so normilize it for easier use
 
-/** Normalise the raw API payload into a flat profile object */
 const mapUser = (data) => ({
-  id:             data.id,
-  username:       data.username,
-  email:          data.email,
-  avatar:         data.avatar || data.profile?.avatar || "",
-  is_superuser:   data.is_superuser,
-  is_active:      data.is_active,
-  created_at:     data.created_at || data.date_joined,
-  reviews_count:  data.reviews_count  || 0,
-  pending_count:  data.pending_count  || 0,
+  id: data.id,
+  username: data.username,
+  email: data.email,
+  avatar: data.avatar || data.profile?.avatar || "",
+  is_superuser: data.is_superuser,
+  is_active: data.is_active,
+  created_at: data.created_at || data.date_joined,
+  reviews_count: data.reviews_count || 0,
+  pending_count: data.pending_count || 0,
   versions_count: data.versions_count || 0,
-  first_name:     data.first_name  || data.firstName  || data.profile?.first_name  || "",
-  last_name:      data.last_name   || data.lastName   || data.profile?.last_name   || "",
+  first_name: data.first_name || data.firstName || data.profile?.first_name || "",
+  last_name: data.last_name || data.lastName || data.profile?.last_name || "",
 });
 
-// ─────────────────────────────────────────────────────────────
-// SUB-COMPONENTS
-// ─────────────────────────────────────────────────────────────
-
+// Loading spinner
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-base-100 relative overflow-hidden">
     <div className="absolute w-64 h-64 bg-primary/20 blur-[100px] rounded-full animate-pulse" />
@@ -654,6 +653,7 @@ const LoadingSpinner = () => (
   </div>
 );
 
+// Status card component
 const StatCard = ({ icon, label, value, className }) => (
   <div className={`p-6 rounded-3xl border flex flex-col items-center justify-center gap-1 backdrop-blur-md transition-transform hover:scale-105 duration-300 ${className}`}>
     <div className="p-2 bg-white/10 rounded-xl mb-1">{icon}</div>
@@ -662,6 +662,7 @@ const StatCard = ({ icon, label, value, className }) => (
   </div>
 );
 
+// Reuseable popup modal component
 const Modal = ({ id, title, children }) => (
   <dialog id={id} className="modal backdrop-blur-md">
     <div className="modal-box bg-base-200/80 border border-white/10 shadow-2xl max-w-lg">
