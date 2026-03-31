@@ -95,14 +95,14 @@ export default function CreateDocumentPage() {
       file: selectedFile,
     });
 
-    navigate("/");
+    navigate("/documents");
   }
 
   return (
     <section className="px-4 py-8 md:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="flex items-center justify-between gap-3">
-          <Link to="/" className="btn btn-ghost btn-sm gap-2">
+          <Link to="/documents" className="btn btn-ghost btn-sm gap-2">
             <ArrowLeft size={16} />
             Back to Documents
           </Link>

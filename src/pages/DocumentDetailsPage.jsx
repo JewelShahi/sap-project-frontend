@@ -203,7 +203,7 @@ export default function DocumentDetailsPage() {
                 The requested document does not exist in the current mock data.
               </p>
               <Link
-                to="/"
+                to="/documents"
                 className="btn btn-primary mt-4 shadow-md shadow-primary/30"
               >
                 Back to Documents

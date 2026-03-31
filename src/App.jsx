@@ -48,7 +48,7 @@ export default function App() {
 
         <main className="min-h-[100vh] overflow-x-hidden">
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/documents" element={<HomePage />} />
             <Route
               path="/profile"
               element={
@@ -67,7 +67,7 @@ export default function App() {
             />
             <Route path="/documents/:id" element={<DocumentDetailsPage />} />
 
-            <Route path="/getting-started" element={<GettingStarted />} />
+            <Route path="/" element={<GettingStarted />} />
             <Route path="/demo" element={<Demo />} />
             <Route path="/version-review/:id" element={<VersionReviewPage />} />
             <Route path="/reviews" element={<ReviewPage />} />
