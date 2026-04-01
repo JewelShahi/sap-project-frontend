@@ -183,7 +183,7 @@ const ProfilePage = () => {
           <div className="max-w-5xl mx-auto mb-6">
             <button
               onClick={() => navigate(-1)}
-              className="btn btn-ghost btn-sm gap-2 rounded-xl border border-white/10 hover:bg-white/10 transition-all"
+              className="btn btn-ghost btn-sm gap-2 rounded-xl border border-base-300/50 hover:bg-base-300/50 transition-all"
             >
               <ArrowLeft size={14} /> Back
             </button>

@@ -77,7 +77,7 @@ export default function DocumentDetailsPage() {
           <div className="flex items-center justify-between w-full border-b border-base-300/10 pb-8">
             <Link
               to="/documents"
-              className="btn btn-ghost btn-sm gap-2 rounded-xl border border-white/10 hover:bg-white/10 transition-all"
+              className="btn btn-ghost btn-sm gap-2 rounded-xl border border-base-300/50 hover:bg-base-300/50 transition-all"
             >
               <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
               <span className="text-[10px] uppercase tracking-[0.2em]">Back to Documents</span>
