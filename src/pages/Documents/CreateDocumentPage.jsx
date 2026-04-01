@@ -15,7 +15,13 @@ import api from "@/components/api/api.js";
 
 export default function CreateDocumentPage() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ title: "" });
+
+  const [file, setFile] = useState(null);
+
+  const [formData, setFormData] = useState({
+    title: ""
+  });
+
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -33,28 +39,53 @@ export default function CreateDocumentPage() {
     } else if (trimmedTitle.length < 3) {
       newErrors.title = "Title must be at least 3 characters.";
     }
+
     return newErrors;
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
+
     const validationErrors = validateForm();
+
+    if (!file) {
+      validationErrors.file = "File is required.";
+    }
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
     setIsSubmitting(true);
+
     try {
       const response = await api.post("/documents/", {
         title: formData.title.trim(),
       });
+
+      const formDataToSend = new FormData();
+      formDataToSend.append("file", file);
+      formDataToSend.append("document", response.data.id);
+
+      await api.post(
+        "/versions/document/" + response.data.id + "/",
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       navigate("/documents/" + response.data.id);
+
     } catch (err) {
       if (err.response) {
+        console.log(err.response.data);
         setErrors(err.response.data);
       } else {
-        setErrors({ form: "Database Connection Failure." });
+        setErrors({ form: "Upload failed." });
       }
     } finally {
       setIsSubmitting(false);
@@ -113,8 +144,8 @@ export default function CreateDocumentPage() {
                     name="title"
                     placeholder="E.g. Internal Audit 2026"
                     className={`bg-base-300/20 border-2 rounded-2xl p-4 text-lg font-bold transition-all outline-none focus:ring-4 focus:ring-primary/10 ${errors.title
-                        ? "border-error/50 focus:border-error"
-                        : "border-base-300/30 focus:border-primary/50"
+                      ? "border-error/50 focus:border-error"
+                      : "border-base-300/30 focus:border-primary/50"
                       }`}
                     value={formData.title}
                     onChange={handleChange}
@@ -126,6 +157,43 @@ export default function CreateDocumentPage() {
                       <span className="text-[10px] font-black uppercase tracking-tighter">{errors.title}</span>
                     </div>
                   )}
+
+
+                  <label className="label mb-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-60 flex items-center gap-2">
+                      <Type size={14} className="text-primary" /> File
+                    </span>
+                  </label>
+                  <div
+                    className="border-2 border-dashed border-base-300/40 rounded-2xl p-8 text-center cursor-pointer hover:border-primary/50 transition-all"
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const droppedFile = e.dataTransfer.files[0];
+                      if (droppedFile) setFile(droppedFile);
+                    }}
+                  >
+                    <input
+                      type="file"
+                      className="hidden"
+                      id="fileUpload"
+                      accept="image/jpeg,image/png,text/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      onChange={(e) => setFile(e.target.files[0])}
+                    />
+
+                    <label htmlFor="fileUpload" className="cursor-pointer">
+                      <p className="text-sm opacity-60">
+                        Drag & drop a file here or click to upload
+                      </p>
+                      {file && (
+                        <p className="mt-2 text-primary font-bold text-xs">
+                          Selected: {file.name}
+                        </p>
+                      )}
+                    </label>
+                  </div>
+
+
                 </div>
 
                 {errors.form && (

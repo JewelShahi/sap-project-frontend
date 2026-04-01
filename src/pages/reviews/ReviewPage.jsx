@@ -1,8 +1,8 @@
 import { FileText, Clock, XCircle, Search } from "lucide-react";
 import Animate from "@/components/animation/Animate.jsx";
 import { Link } from "react-router-dom";
-import FileStatus from "./homepage/components/FileStatus.jsx";
-import GlassCard from "./homepage/components/GlassCard.jsx";
+import FileStatus from "../homepage/components/FileStatus.jsx";
+import GlassCard from "../homepage/components/GlassCard.jsx";
 import { useState } from "react";
 
 const REVIEWS = [

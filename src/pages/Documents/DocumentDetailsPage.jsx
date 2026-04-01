@@ -29,22 +29,31 @@ export default function DocumentDetailsPage() {
   const [document, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [versions, setVersions] = useState([]);
 
   useEffect(() => {
-    const fetchDocument = async () => {
+    const fetchData = async () => {
       try {
-        const res = await api.get(`/documents/${id}/`);
-        setDocument(res.data);
+        const [docRes, versionsRes] = await Promise.all([
+          api.get(`/documents/${id}/`),
+          api.get(`/versions/document/${id}/`)
+        ]);
+
+        setDocument(docRes.data);
+        setVersions(versionsRes.data);
+
       } catch (err) {
         setError("Database Linkage Failure.");
       } finally {
         setLoading(false);
       }
     };
-    fetchDocument();
+
+    fetchData();
   }, [id]);
 
-  const versions = useMemo(() => document?.versions || [], [document]);
+  console.log("VERSIONS:", versions);
+
   const activeVersion = useMemo(() =>
     document?.active_version || (versions.length ? versions[0] : null),
     [document, versions]);
@@ -196,9 +205,9 @@ export default function DocumentDetailsPage() {
                 <table className="table w-full border-separate border-spacing-0">
                   <thead className="bg-base-300/30">
                     <tr className="text-secondary uppercase text-[9px] tracking-[0.2em] font-black">
-                      <th className="py-6 px-10">Hash</th>
+                      <th className="py-6 px-10">Version</th>
                       <th className="text-center">Status</th>
-                      <th>Lead</th>
+                      <th>Reviewed By</th>
                       <th>Remarks</th>
                       <th className="text-right px-10">Command</th>
                     </tr>
@@ -208,7 +217,7 @@ export default function DocumentDetailsPage() {
                       <tr key={v.id} className="group hover:bg-base-200/50 transition-all">
                         <td className="py-6 px-10">
                           <div className="flex items-center gap-3">
-                            <span className="font-mono font-black text-lg text-primary">v{v.version_number}</span>
+                            <span className="font-mono font-black text-lg text-primary">Version {v.version_number}</span>
                             {v.is_active && (
                               <span className="bg-primary text-white text-[7px] px-2 py-0.5 rounded-md font-black uppercase tracking-tighter">Live</span>
                             )}
@@ -222,13 +231,16 @@ export default function DocumentDetailsPage() {
                         <td className="text-[11px] font-bold opacity-60 italic">{v.created_by_username || v.author}</td>
                         <td className="max-w-xs">
                           <p className="text-[10px] font-medium opacity-40 line-clamp-1 italic">
-                            {v.summary || "No manual log entry."}
+                            {v.content || "No manual log entry."}
                           </p>
                         </td>
                         <td className="text-right px-10">
-                          <button className="btn btn-ghost btn-xs rounded-lg hover:bg-primary hover:text-white transition-all font-black text-[9px] tracking-widest px-4">
+                          <Link
+                            to={`/versions/${v.id}`}
+                            className="btn btn-ghost btn-xs rounded-lg hover:bg-primary hover:text-white transition-all font-black text-[9px] tracking-widest px-4"
+                          >
                             View
-                          </button>
+                          </Link>
                         </td>
                       </tr>
                     ))}

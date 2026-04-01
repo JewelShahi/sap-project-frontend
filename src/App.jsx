@@ -20,8 +20,9 @@ import DocumentsPage from "@/pages/documents/DocumentsPage";
 import DocumentDetailsPage from "@/pages/documents/DocumentDetailsPage";
 import CreateDocumentPage from "@/pages/documents/CreateDocumentPage";
 import CreateVersionPage from "@/pages/documents/CreateVersionPage";
-import VersionReviewPage from "@/pages/VersionReviewPage";
-import ReviewPage from "@/pages/ReviewPage";
+import VersionDetailsPage from "@/pages/documents/VersionDetailsPage";
+import VersionReviewPage from "@/pages/reviews/VersionReviewPage";
+import ReviewPage from "@/pages/reviews/ReviewPage";
 import AdminPage from "@/pages/AdminPage";
 import AuditLogPage from "@/pages/AuditLogPage";
 
@@ -87,6 +88,7 @@ export default function App() {
               element={<CreateVersionPage />}
             />
             <Route path="/documents/:id" element={<DocumentDetailsPage />} />
+            <Route path="/versions/:id" element={<VersionDetailsPage />} />
 
             <Route path="/getting-started" element={<GettingStarted />} />
             <Route path="/version-review/:id" element={<VersionReviewPage />} />

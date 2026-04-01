@@ -109,8 +109,8 @@ export default function Footer() {
             <div className="text-[10px] font-bold text-base-content/40 uppercase tracking-[0.3em]">
               © 2026 SAP Hub Systems
             </div>
-            <p className="text-[11px] text-base-content/50 leading-relaxed max-w-md">
-              Created by <span className="font-bold text-base-content/80 underline decoration-primary/30">Jewel Shahi, Alexander Iliev, Alexander Ivanov, Plamen, and Krasi.</span>
+            <p className="text-[11px] text-base-content/50 leading-relaxed max-w-md whitespace-nowrap">
+              Created by <span className="font-bold text-base-content/80 underline decoration-primary/30">Jewel Shahi, Alexander Iliev, Alexander Ivanov, Plamen Nikolov and Krasimir Milanov.</span>
             </p>
           </div>
           
