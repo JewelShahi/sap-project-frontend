@@ -18,7 +18,6 @@ import Animate from "@/components/animation/Animate.jsx";
 import FileStatus from "../homepage/components/FileStatus.jsx";
 import GlassCard from "../homepage/components/GlassCard.jsx";
 import api from "@/components/api/api.js";
-import { getCurrentUser } from "@/api/auth.js";
 
 function getStatusIcon(status) {
   switch (status?.toLowerCase()) {
