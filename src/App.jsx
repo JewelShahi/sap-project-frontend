@@ -12,6 +12,7 @@ import useTheme from "@/hooks/useTheme";
 
 // Protected Route component to guard routes
 import ProtectedRoute from "@/components/protected-route/ProtectedRoute";
+import NotStaffRoute from "@/components/protected-route/NotStaffRoute";
 
 // Home and Profile pages
 import HomePage from "@/pages/homepage/HomePage";
@@ -78,13 +79,18 @@ export default function App() {
             />
             <Route path="/documents/create" element={
               <ProtectedRoute>
+                <NotStaffRoute>
                 <CreateDocumentPage />
+                </NotStaffRoute>
               </ProtectedRoute>
             } />
-            <Route
-              path="/documents/:id/create-version"
-              element={<CreateVersionPage />}
-            />
+            <Route path="/documents/:id/create-version" element= {
+              <ProtectedRoute>
+                <NotStaffRoute>
+                  <CreateVersionPage />
+                </NotStaffRoute>
+                </ProtectedRoute>
+            } />
             <Route path="/documents/:id" element={<DocumentDetailsPage />} />
             <Route path="/versions/:id" element={<VersionDetailsPage />} />
             <Route path="/version-review/:id" element={<VersionReviewPage />} />
