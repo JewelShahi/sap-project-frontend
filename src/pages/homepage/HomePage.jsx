@@ -171,9 +171,6 @@ const HomePage = () => {
               <Link to="/login" className="btn btn-primary btn-lg px-12 rounded-2xl shadow-xl shadow-primary/20 border-base-content/50 hover:border-primary hover:bg-primary/50">
                 Create Free Account
               </Link>
-              <button className="btn btn-outline btn-lg rounded-2xl border-base-content/20">
-                Contact Sales
-              </button>
             </div>
           </div>
         </Animate>
