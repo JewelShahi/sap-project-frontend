@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
 import api from "@/components/api/api";
+import Loader from "@/components/widgets/Loader";
 
 const AuthContext = createContext();
 
@@ -192,14 +193,7 @@ export const AuthProvider = ({ children }) => {
       {ready ? (
         children
       ) : (
-        <div className="min-h-screen flex items-center justify-center bg-base-100">
-          <div className="flex flex-col items-center gap-4">
-            <span className="loading loading-spinner loading-lg text-primary"></span>
-            <p className="text-sm text-base-content/70 tracking-widest uppercase font-bold">
-              Loading content...
-            </p>
-          </div>
-        </div>
+        <Loader message="Loading content..." />
       )}
     </AuthContext.Provider>
   );
