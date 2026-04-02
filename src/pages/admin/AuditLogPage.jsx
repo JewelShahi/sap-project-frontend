@@ -5,7 +5,7 @@ import api from "@/components/api/api";
 import notify from "@/components/toaster/notify";
 import Loader from "@/components/widgets/Loader.jsx"
 
-export default function AuditLogPage() {
+const AuditLogPage = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -209,3 +209,5 @@ export default function AuditLogPage() {
     </div>
   );
 }
+
+export default AuditLogPage;

@@ -14,7 +14,7 @@ const NAV_LINKS = [
 
 const BREAKPOINT = 1000;
 
-export default function Navbar({ theme, toggleTheme }) {
+const Navbar = ({ theme, toggleTheme }) => {
   // 1. Destructure isLoading from your AuthContext
   const { user, logout, isAuthenticated, isLoading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -87,7 +87,7 @@ export default function Navbar({ theme, toggleTheme }) {
                 to={to}
                 end={to === "/"}
                 className={({ isActive }) =>
-                  `group relative flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-500 ${isActive ? "text-primary bg-primary/5" : "text-base-content/40 hover:text-base-content hover:bg-white/[0.05]"
+                  `group relative flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-500 hover:bg-primary/20 ${isActive ? "text-primary bg-primary/5" : "text-base-content/40 hover:text-base-content hover:bg-white/[0.05]"
                   }`
                 }
               >
@@ -100,7 +100,7 @@ export default function Navbar({ theme, toggleTheme }) {
           {/* ── Right Side ── */}
           <div className="flex items-center gap-3 shrink-0">
             <button
-              className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/[0.02] border border-white/5 text-base-content/40 hover:text-primary transition-all shrink-0"
+              className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/[0.02] border border-white/5 text-base-content/40 hover:text-primary hover:bg-primary/10 transition-all shrink-0"
               onClick={toggleTheme}
             >
               {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
@@ -108,7 +108,7 @@ export default function Navbar({ theme, toggleTheme }) {
 
             {/* ── Notification Bell ── */}
             {showLoggedInUI && (
-              <button className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/[0.02] border border-white/5 text-base-content/40 hover:text-primary transition-all shrink-0"
+              <button className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/[0.02] border border-white/5 text-base-content/40 hover:text-primary transition-all shrink-0 hover:bg-primary/10"
               >
                 <Bell size={20} />
               </button>
@@ -191,7 +191,7 @@ export default function Navbar({ theme, toggleTheme }) {
                 end={to === "/"}
                 onClick={closeMenu}
                 className={({ isActive }) =>
-                  `flex items-center gap-4 text-xl font-bold px-4 py-3 rounded-xl transition-all duration-200 ${isActive ? "text-primary bg-primary/10" : "text-base-content/50 hover:text-base-content hover:bg-white/5"}`
+                  `flex items-center gap-4 text-xl font-bold px-4 py-3 rounded-xl transition-all duration-200 hover:bg-primary/20 ${isActive ? "text-primary bg-primary/10" : "text-base-content/50 hover:text-base-content hover:bg-white/5"}`
                 }
               >
                 <Icon size={22} /> <span>{label}</span>
@@ -226,3 +226,4 @@ export default function Navbar({ theme, toggleTheme }) {
     </nav >
   );
 }
+export default Navbar;

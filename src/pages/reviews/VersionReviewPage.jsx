@@ -14,7 +14,7 @@ import Animate from "@/components/animation/Animate.jsx";
 import FileStatus from "@/components/widgets/FileStatus.jsx";
 import notify from "@/components/toaster/notify";
 
-export default function VersionReviewPage() {
+const VersionReviewPage = () => {
   const [comment, setComment] = useState("");
 
   const [status, setStatus] = useState("pending");
@@ -174,3 +174,5 @@ export default function VersionReviewPage() {
     </div>
   );
 }
+
+export default VersionReviewPage;

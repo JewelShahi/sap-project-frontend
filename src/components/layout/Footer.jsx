@@ -17,7 +17,7 @@ const SOCIALS = [
   { icon: Twitter, label: "Twitter", url: "https://twitter.com" },
 ];
 
-export default function Footer() {
+const Footer = () => {
   return (
     <footer className="relative w-full border-t border-base-300 bg-base-100 pt-12 pb-10 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
@@ -122,3 +122,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+export default Footer;

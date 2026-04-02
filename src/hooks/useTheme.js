@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const THEME_KEY = "app-theme";
 
-export default function useTheme() {
+const useTheme = () => {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem(THEME_KEY) || "dark";
   });
@@ -17,4 +17,6 @@ export default function useTheme() {
   };
 
   return { theme, toggleTheme };
-}
+};
+
+export default useTheme;

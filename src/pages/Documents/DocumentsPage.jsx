@@ -26,7 +26,7 @@ const ICON_MAP = {
 
 const getDocumentIcon = (type) => ICON_MAP[type] || ICON_MAP.default;
 
-export default function DocumentsPage() {
+const DocumentsPage = () => {
   const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
@@ -278,3 +278,5 @@ export default function DocumentsPage() {
     </div>
   );
 }
+
+export default DocumentsPage;

@@ -16,7 +16,7 @@ import api from "@/components/api/api.js";
 import Loader from "@/components/widgets/Loader.jsx";
 import { useAuth } from "@/context/AuthContext.jsx";
 
-export default function CreateVersionPage() {
+const CreateVersionPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -315,3 +315,5 @@ export default function CreateVersionPage() {
     </section>
   );
 }
+
+export default CreateVersionPage;

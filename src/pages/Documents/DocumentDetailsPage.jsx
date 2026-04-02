@@ -24,7 +24,7 @@ const STATUS_CONFIG = {
 
 const getStatusDetails = (status) => STATUS_CONFIG[status?.toLowerCase()] || STATUS_CONFIG.default;
 
-export default function DocumentDetailsPage() {
+const DocumentDetailsPage = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const [document, setDocument] = useState(null);
@@ -272,3 +272,5 @@ export default function DocumentDetailsPage() {
     </section>
   );
 }
+
+export default DocumentDetailsPage;

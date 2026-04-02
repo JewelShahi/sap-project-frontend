@@ -34,7 +34,7 @@ const REVIEWS = [
 
 const FILTERS = ["all", "pending", "approved", "rejected"];
 
-export default function ReviewPage() {
+const ReviewPage = () => {
   const [search, setSearch] = useState("");
 
   const [filter, setFilter] = useState("all");
@@ -223,3 +223,5 @@ export default function ReviewPage() {
     </div>
   );
 }
+
+export default ReviewPage;

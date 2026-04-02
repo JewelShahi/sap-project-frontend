@@ -5,8 +5,7 @@ import Animate from "@/components/animation/Animate";
 import BackgroundEffects from "@/components/background/BackgroundEffects";
 import { useAuth } from "@/context/AuthContext"; // ← adjust path to match your project
 import api from "@/components/api/api"; // ← adjust path to match your project
-
-const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+import InputField from "./components/InputField";
 
 /**
  * Register
@@ -18,7 +17,40 @@ const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
  *    knows they can now sign in.
  *  • On API error, surface the server message in the form.
  */
-export default function Register() {
+
+
+const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+
+const SubmitButton = ({ submitting }) => {
+  return (
+    <button
+      type="submit"
+      disabled={submitting}
+      className="btn btn-primary w-full h-16 rounded-2xl shadow-2xl shadow-primary/20 hover:shadow-primary/40 transition-all border-none normal-case text-lg font-bold"
+    >
+      {submitting ? (
+        <span className="flex items-center gap-3"><Loader2 size={22} className="animate-spin" /> Processing...</span>
+      ) : (
+        <span className="flex items-center gap-2">Create Account <ArrowRight size={20} /></span>
+      )}
+    </button>
+  );
+}
+
+const RegisterFooter = () => {
+  return (
+    <div className="mt-10 pt-8 border-t border-white/5 text-center">
+      <p className="text-sm text-base-content/60 font-medium">
+        Already a member?{" "}
+        <NavLink to="/login" className="text-primary font-bold hover:text-primary-focus transition-colors">
+          Sign In
+        </NavLink>
+      </p>
+    </div>
+  );
+}
+
+const Register = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -225,7 +257,7 @@ export default function Register() {
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
 
-function RegisterHeader() {
+const RegisterHeader = () => {
   return (
     <Animate variant="fade-up" delay={0} duration={600}>
       <div className="text-center mb-10">
@@ -239,58 +271,4 @@ function RegisterHeader() {
   );
 }
 
-function InputField({ label, icon, error, isPassword, showPass, togglePass, ...props }) {
-  return (
-    <div className="space-y-2">
-      <label className="text-[10px] font-bold uppercase tracking-[0.25em] text-base-content/50 ml-1">
-        {label}
-      </label>
-      <div className={`group flex items-center gap-3 px-5 py-4 rounded-2xl bg-base-200/30 border-2 transition-all duration-300
-        ${error ? "border-error/40 bg-error/5" : "border-transparent focus-within:border-primary/50 focus-within:bg-base-100/50"}`}>
-        <div className="text-base-content/40 group-focus-within:text-primary transition-colors">
-          {icon}
-        </div>
-        <input {...props} className="bg-transparent w-full text-sm outline-none placeholder:text-base-content/30" />
-        {isPassword && (
-          <button type="button" onClick={togglePass} className="text-base-content/30 hover:text-primary transition-colors">
-            {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        )}
-      </div>
-      {error && (
-        <Animate variant="fade-in" duration={300}>
-          <p className="text-error text-[10px] font-semibold ml-1 mt-1">{error}</p>
-        </Animate>
-      )}
-    </div>
-  );
-}
-
-function SubmitButton({ submitting }) {
-  return (
-    <button
-      type="submit"
-      disabled={submitting}
-      className="btn btn-primary w-full h-16 rounded-2xl shadow-2xl shadow-primary/20 hover:shadow-primary/40 transition-all border-none normal-case text-lg font-bold"
-    >
-      {submitting ? (
-        <span className="flex items-center gap-3"><Loader2 size={22} className="animate-spin" /> Processing...</span>
-      ) : (
-        <span className="flex items-center gap-2">Create Account <ArrowRight size={20} /></span>
-      )}
-    </button>
-  );
-}
-
-function RegisterFooter() {
-  return (
-    <div className="mt-10 pt-8 border-t border-white/5 text-center">
-      <p className="text-sm text-base-content/60 font-medium">
-        Already a member?{" "}
-        <NavLink to="/login" className="text-primary font-bold hover:text-primary-focus transition-colors">
-          Sign In
-        </NavLink>
-      </p>
-    </div>
-  );
-}
+export default Register;

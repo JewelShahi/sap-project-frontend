@@ -13,7 +13,7 @@ import {
 import Animate from "@/components/animation/Animate.jsx";
 import api from "@/components/api/api.js";
 
-export default function CreateDocumentPage() {
+const CreateDocumentPage = () => {
   const navigate = useNavigate();
 
   const [file, setFile] = useState(null);
@@ -235,3 +235,5 @@ export default function CreateDocumentPage() {
     </section>
   );
 }
+
+export default CreateDocumentPage;

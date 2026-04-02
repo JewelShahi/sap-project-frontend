@@ -22,7 +22,7 @@ const STATUS_CONFIG = {
 const getStatusDetails = (status) =>
     STATUS_CONFIG[status?.toLowerCase()] || STATUS_CONFIG.default;
 
-export default function VersionDetailsPage() {
+const VersionDetailsPage = () => {
     const { id } = useParams();
     const { user } = useAuth();
 
@@ -280,3 +280,5 @@ export default function VersionDetailsPage() {
         </section>
     );
 }
+
+export default VersionDetailsPage;

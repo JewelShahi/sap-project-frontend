@@ -15,90 +15,11 @@ import BackgroundEffects from "@/components/background/BackgroundEffects";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/components/api/api";
 import notify from "@/components/toaster/notify";
+import InputField from "./components/InputField";
+
 
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
-const LoginHeader = () => {
-  return (
-    <Animate variant="fade-up" delay={0} duration={600}>
-      <div className="mb-10 text-center">
-        <span className="rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
-          Secure Access
-        </span>
-        <h1 className="mt-6 text-5xl font-black tracking-tight text-base-content">
-          Welcome back
-        </h1>
-        <p className="mt-3 font-medium italic text-base-content/60">
-          Enter your credentials to continue
-        </p>
-      </div>
-    </Animate>
-  );
-};
-
-const InputField = ({
-  label,
-  icon,
-  error,
-  isPassword,
-  showPass,
-  togglePass,
-  hasForgot,
-  ...props
-}) => {
-  return (
-    <div className="space-y-2">
-      <div className="ml-1 flex items-center justify-between">
-        <label className="text-[10px] font-bold uppercase tracking-[0.25em] text-base-content/50">
-          {label}
-        </label>
-        {hasForgot && (
-          <button
-            type="button"
-            className="text-[10px] font-bold uppercase tracking-tighter text-primary transition-colors hover:text-primary-focus"
-          >
-            Forgot Password?
-          </button>
-        )}
-      </div>
-
-      <div
-        className={`group flex items-center gap-3 rounded-2xl border-2 px-5 py-4 transition-all duration-300 ${
-          error
-            ? "border-error/40 bg-error/5"
-            : "border-transparent bg-base-200/30 focus-within:border-primary/50 focus-within:bg-base-100/50"
-        }`}
-      >
-        <div className="text-base-content/40 transition-colors group-focus-within:text-primary">
-          {icon}
-        </div>
-
-        <input
-          {...props}
-          className="w-full bg-transparent text-sm outline-none placeholder:text-base-content/30"
-        />
-
-        {isPassword && (
-          <button
-            type="button"
-            onClick={togglePass}
-            className="text-base-content/30 transition-colors hover:text-primary"
-          >
-            {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        )}
-      </div>
-
-      {error && (
-        <Animate variant="fade-in" duration={300}>
-          <p className="mt-1 ml-1 flex items-center gap-1.5 text-[11px] font-semibold text-error">
-            <AlertCircle size={12} /> {error}
-          </p>
-        </Animate>
-      )}
-    </div>
-  );
-};
 
 const SubmitButton = ({ submitting }) => {
   return (
@@ -266,6 +187,24 @@ const Login = () => {
         </Animate>
       </div>
     </div>
+  );
+};
+
+const LoginHeader = () => {
+  return (
+    <Animate variant="fade-up" delay={0} duration={600}>
+      <div className="mb-10 text-center">
+        <span className="rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+          Secure Access
+        </span>
+        <h1 className="mt-6 text-5xl font-black tracking-tight text-base-content">
+          Welcome back
+        </h1>
+        <p className="mt-3 font-medium italic text-base-content/60">
+          Enter your credentials to continue
+        </p>
+      </div>
+    </Animate>
   );
 };
 

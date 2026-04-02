@@ -35,7 +35,7 @@ const MOCK_USERS = [
   },
 ];
 
-export default function AdminPage() {
+const AdminPage = () => {
   const [users, setUsers] = useState(MOCK_USERS);
 
   // Approve / Reject deletion requests
@@ -197,3 +197,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+export default AdminPage;
