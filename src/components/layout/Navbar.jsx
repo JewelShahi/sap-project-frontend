@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { Sun, Moon, Zap, File, ClipboardCheck, NotepadText, UserRound, Menu, X, MonitorCog, LogOut } from "lucide-react";
+import { Sun, Moon, Zap, File, ClipboardCheck, House, UserRound, Menu, X, MonitorCog, LogOut, Bell } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import notify from "@/components/toaster/notify";
 
 const NAV_LINKS = [
-  { icon: NotepadText, label: "About", to: "/" },
+  { icon: House, label: "Home", to: "/" },
   { icon: File, label: "Documents", to: "/documents" },
   { icon: ClipboardCheck, label: "Reviews", to: "/reviews" },
   { icon: UserRound, label: "Users", to: "/admin" },
@@ -80,14 +80,14 @@ export default function Navbar({ theme, toggleTheme }) {
           </Link>
 
           {/* ── Desktop Nav Links ── */}
-          <div className="hidden min-[1000px]:flex flex-1 items-center gap-2 ml-12">
+          <div className="hidden nav:flex flex-1 items-center gap-2 ml-8 mr-1">
             {NAV_LINKS.map(({ icon: Icon, label, to }) => (
               <NavLink
                 key={to}
                 to={to}
                 end={to === "/"}
                 className={({ isActive }) =>
-                  `group relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-500 ${isActive ? "text-primary bg-primary/5" : "text-base-content/40 hover:text-base-content hover:bg-white/[0.05]"
+                  `group relative flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-500 ${isActive ? "text-primary bg-primary/5" : "text-base-content/40 hover:text-base-content hover:bg-white/[0.05]"
                   }`
                 }
               >
@@ -106,8 +106,16 @@ export default function Navbar({ theme, toggleTheme }) {
               {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
+            {/* ── Notification Bell ── */}
+            {showLoggedInUI && (
+              <button className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/[0.02] border border-white/5 text-base-content/40 hover:text-primary transition-all shrink-0"
+              >
+                <Bell size={20} />
+              </button>
+            )}
+
             {/* ── Desktop Right UI ── */}
-            <div className="hidden min-[1000px]:flex items-center gap-3">
+            <div className="hidden nav:flex items-center gap-3">
               <div className="w-[1px] h-8 bg-white/5" />
 
               {showLoggedInUI ? (
@@ -150,7 +158,7 @@ export default function Navbar({ theme, toggleTheme }) {
             </div>
 
             <button
-              className="min-[1000px]:hidden w-11 h-11 flex items-center justify-center rounded-2xl shrink-0"
+              className="nav:hidden w-11 h-11 flex items-center justify-center rounded-2xl shrink-0"
               onClick={toggleMenu}
             >
               <Menu size={20} />
@@ -161,7 +169,7 @@ export default function Navbar({ theme, toggleTheme }) {
 
       {/* ── Mobile Overlay ── */}
       <div
-        className={`fixed inset-0 z-[99] min-[1000px]:hidden transition-all duration-500 ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className={`fixed inset-0 z-[99] nav:hidden transition-all duration-500 ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
         style={{
           background: theme === "dark" ? "rgba(0, 0, 0, 0.50)" : "rgba(255, 255, 255, 0.1)",
           backdropFilter: "blur(20px)"

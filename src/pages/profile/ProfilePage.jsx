@@ -12,6 +12,7 @@ import api from "@/components/api/api";
 import FluidBackground from "@/components/background/FluidBackground.jsx";
 import Animate from "@/components/animation/Animate.jsx";
 import notify from "@/components/toaster/notify";
+import Loader from "@/components/widgets/Loader.jsx";
 
 // Gradients
 const GRADIENTS = [
@@ -49,7 +50,7 @@ const ProfilePage = () => {
 
   // States
   const [profileData, setProfileData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [deletePassword, setDeletePassword] = useState("");
   const [showDeletePassword, setShowDeletePassword] = useState(false);
 
@@ -107,7 +108,7 @@ const ProfilePage = () => {
       } catch {
         notify.error("Failed to load profile.");
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
@@ -169,7 +170,7 @@ const ProfilePage = () => {
   };
 
   // Loading 
-  if (isLoading) return <LoadingSpinner />;
+  if (loading) return <Loader message="Loading profile page..." />;
 
   // Render 
   const profile = profileData;
@@ -638,21 +639,6 @@ const mapUser = (data) => ({
   last_name: data.last_name || data.lastName || data.profile?.last_name || "",
 });
 
-// Loading spinner
-const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-base-100 relative overflow-hidden">
-    <div className="absolute w-64 h-64 bg-primary/20 blur-[100px] rounded-full animate-pulse" />
-    <div className="flex flex-col items-center gap-6 relative z-10">
-      <div className="relative flex items-center justify-center">
-        <span className="loading loading-ring w-20 h-20 text-primary/30 absolute" />
-        <span className="loading loading-ring w-12 h-12 text-primary" />
-      </div>
-      <p className="text-[10px] font-black text-primary/80 uppercase tracking-[0.4em] animate-pulse">
-        Loading Profile…
-      </p>
-    </div>
-  </div>
-);
 
 // Status card component
 const StatCard = ({ icon, label, value, className }) => (

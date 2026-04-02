@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 import Animate from "@/components/animation/Animate.jsx";
-import GlassCard from "../homepage/components/GlassCard.jsx";
+import GlassCard from "@/components/widgets/GlassCard.jsx";
 import api from "@/components/api/api.js";
 import { useAuth } from "@/context/AuthContext.jsx";
 

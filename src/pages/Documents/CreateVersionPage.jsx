@@ -13,6 +13,7 @@ import {
 
 import Animate from "@/components/animation/Animate.jsx";
 import api from "@/components/api/api.js";
+import Loader from "@/components/widgets/Loader.jsx";
 import { useAuth } from "@/context/AuthContext.jsx";
 
 export default function CreateVersionPage() {
@@ -130,9 +131,7 @@ export default function CreateVersionPage() {
 
   if (loading) {
     return (
-      <div className="text-center mt-10">
-        Loading...
-      </div>
+      <Loader message="Loading document and versions..." />
     );
   }
 

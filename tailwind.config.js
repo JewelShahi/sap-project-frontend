@@ -19,6 +19,10 @@ export default {
           dark: "#0F172A33", // dark overlay utility
         },
       },
+      screens: {
+        // This creates a custom breakpoint at 1070px
+        nav: "1000px",
+      },
     },
   },
 

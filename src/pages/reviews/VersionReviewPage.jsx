@@ -11,7 +11,7 @@ import {
 
 import { Link } from "react-router-dom";
 import Animate from "@/components/animation/Animate.jsx";
-import FileStatus from "../homepage/components/FileStatus.jsx";
+import FileStatus from "@/components/widgets/FileStatus.jsx";
 import notify from "@/components/toaster/notify";
 
 export default function VersionReviewPage() {

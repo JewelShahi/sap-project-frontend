@@ -7,10 +7,11 @@ import {
 } from "lucide-react";
 
 import Animate from "@/components/animation/Animate.jsx";
-import FileStatus from "../homepage/components/FileStatus.jsx";
-import GlassCard from "../homepage/components/GlassCard.jsx";
+import FileStatus from "@/components/widgets/FileStatus.jsx";
+import GlassCard from "@/components/widgets/GlassCard.jsx";
 import api from "@/components/api/api.js";
 import { useAuth } from "@/context/AuthContext.jsx";
+import Loader from "@/components/widgets/Loader.jsx";
 
 const STATUS_CONFIG = {
   approved: { icon: CheckCircle2, color: "text-success", bg: "bg-success/10", border: "border-success/20", label: "Approved" },
@@ -63,10 +64,7 @@ export default function DocumentDetailsPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-base-100 space-y-4">
-        <span className="loading loading-ring loading-lg text-primary"></span>
-        <p className="text-[10px] font-black tracking-[0.4em] uppercase text-secondary">Loading documents...</p>
-      </div>
+      <Loader message="Loading document detail..." />
     );
   }
 
@@ -194,59 +192,76 @@ export default function DocumentDetailsPage() {
         {/* Table Section */}
         {isOwner && (
           <Animate delay={0.2} className="pt-12 space-y-8">
+            {/* Divider Header */}
             <div className="flex items-center gap-4 px-2">
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-base-300/50 to-transparent"></div>
               <div className="flex items-center gap-3 mb-5">
                 <History className="text-primary" size={20} />
-                <h2 className="text-xl font-black tracking-widest uppercase ">Audit History</h2>
+                <h2 className="text-xl font-black tracking-widest uppercase">Audit History</h2>
               </div>
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-base-300/50 to-transparent"></div>
             </div>
 
+            {/* Table Container */}
             <div className="rounded-[2.5rem] border border-base-300/20 bg-base-200/10 backdrop-blur-3xl overflow-hidden shadow-inner">
               <div className="overflow-x-auto">
                 <table className="table w-full border-separate border-spacing-0">
                   <thead className="bg-base-300/30">
-                    <tr className="text-secondary uppercase text-[9px] tracking-[0.2em] font-black">
+                    <tr className="text-secondary uppercase text-[10px] tracking-[0.2em] font-black">
                       <th className="py-6 px-10">Version</th>
                       <th className="text-center">Status</th>
-                      <th>Reviewed By</th>
+                      <th>Created By</th>
                       <th>Remarks</th>
-                      <th className="text-right px-10">Command</th>
+                      <th className="text-right px-10">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-base-300/5">
-                    {versions.map((v) => (
-                      <tr key={v.id} className="group hover:bg-base-200/50 transition-all">
-                        <td className="py-6 px-10">
-                          <div className="flex items-center gap-3">
-                            <span className="font-mono font-black text-lg text-primary">Version {v.version_number}</span>
-                            {v.is_active && (
-                              <span className="bg-primary text-white text-[7px] px-2 py-0.5 rounded-md font-black uppercase tracking-tighter">Live</span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="text-center">
-                          <div className="flex justify-center scale-75 opacity-80 group-hover:opacity-100 transition-opacity">
-                            <FileStatus status={v.status.toLowerCase()} />
-                          </div>
-                        </td>
-                        <td className="text-[11px] font-bold opacity-60 italic">{v.created_by_username || v.author}</td>
-                        <td className="max-w-xs">
-                          <p className="text-[10px] font-medium opacity-40 line-clamp-1 italic">
-                            {v.content || "No manual log entry."}
-                          </p>
-                        </td>
-                        <td className="text-right px-10">
-                          <Link
-                            to={`/versions/${v.id}`}
-                            className="btn btn-ghost btn-xs rounded-lg hover:bg-primary hover:text-white transition-all font-black text-[9px] tracking-widest px-4"
-                          >
-                            View
-                          </Link>
+                    {versions.length > 0 ? (
+                      versions.map((v) => (
+                        <tr key={v.id} className="group hover:bg-base-200/50 transition-all">
+                          <td className="py-6 px-10">
+                            <div className="flex items-center gap-3">
+                              <span className="font-mono font-black text-lg text-primary">v{v.version_number}</span>
+                              {v.is_active && (
+                                <span className="bg-primary text-white text-[9px] px-2 py-0.5 rounded-md font-black uppercase shadow-sm shadow-primary/20">Live</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="text-center">
+                            <div className="flex justify-center scale-75 opacity-80 group-hover:opacity-100 transition-opacity">
+                              <FileStatus status={v.status.toLowerCase()} />
+                            </div>
+                          </td>
+                          <td className="text-[11px] font-bold opacity-60">
+                            <div className="flex flex-col">
+                              <span>{v.created_by_username || v.author}</span>
+                              <span className="text-[9px] font-medium opacity-50 uppercase tracking-tighter">
+                                {v.created_at || 'Pending Date'}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="max-w-xs">
+                            <p className="text-[10px] font-medium opacity-40 italic line-clamp-1 group-hover:opacity-100 group-hover:line-clamp-none transition-all">
+                              {v.content || "Automated system log entry."}
+                            </p>
+                          </td>
+                          <td className="text-right px-10">
+                            <Link
+                              to={`/versions/${v.id}`}
+                              className="btn btn-ghost btn-xs rounded-lg hover:bg-primary hover:text-white transition-all font-black text-[9px] tracking-widest px-4 border border-base-content/5"
+                            >
+                              Audit
+                            </Link>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="5" className="py-20 text-center opacity-30 italic text-sm tracking-widest uppercase">
+                          No historical versions found
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>

@@ -1,40 +1,41 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// Components like Navbar, Footer, Scroll
+// Layout components - Navbar, Footer, ScrollUp
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import ScrollUp from "@/components/layout/ScrollUp";
+import ScrollUp from "@/components/widgets/ScrollUp";
 
-// Login and Register
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
+// Login, Register and Authentication Provider
+import Login from "@/pages/auth/Login";
+import Register from "@/pages/auth/Register";
+import useTheme from "@/hooks/useTheme";
 
-// Pages
+// Protected Route component to guard routes
+import ProtectedRoute from "@/components/protected-route/ProtectedRoute";
+
+// Home and Profile pages
 import HomePage from "@/pages/homepage/HomePage";
-import ReposPage from "@/pages/ReposPage";
-import TeamsPage from "@/pages/TeamsPage";
-import AnalyticsPage from "@/pages/AnalyticsPage";
-import ProfilePage from "@/pages/ProfilePage";
-import GettingStarted from "@/pages/GettingStarted";
+import ProfilePage from "@/pages/profile/ProfilePage";
+
+// Document-related pages
 import DocumentsPage from "@/pages/documents/DocumentsPage";
 import DocumentDetailsPage from "@/pages/documents/DocumentDetailsPage";
 import CreateDocumentPage from "@/pages/documents/CreateDocumentPage";
 import CreateVersionPage from "@/pages/documents/CreateVersionPage";
 import VersionDetailsPage from "@/pages/documents/VersionDetailsPage";
+
+// Review and Version pages
 import VersionReviewPage from "@/pages/reviews/VersionReviewPage";
 import ReviewPage from "@/pages/reviews/ReviewPage";
-import AdminPage from "@/pages/AdminPage";
-import AuditLogPage from "@/pages/AuditLogPage";
 
-// Protected Route component to guard routes
-import ProtectedRoute from "@/components/protected-route/ProtectedRoute";
+// Admin and Audit Log
+import AdminPage from "@/pages/admin/AdminPage";
+import AuditLogPage from "@/pages/admin/AuditLogPage";
 
 // Error Pages
 import NotFoundPage from "@/pages/error-pages/NotFoundPage";
 import ServerErrorPage from "@/pages/error-pages/ServerErrorPage";
 import ForbiddenPage from "@/pages/error-pages/ForbiddenPage";
-
-import useTheme from "@/hooks/useTheme";
 
 export default function App() {
   const { theme, toggleTheme } = useTheme();
@@ -50,9 +51,6 @@ export default function App() {
         <main className="min-h-[100vh] overflow-x-hidden">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/repos" element={<ReposPage />} />
-            <Route path="/teams" element={<TeamsPage />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
             <Route
               path="/profile"
               element={
@@ -89,8 +87,6 @@ export default function App() {
             />
             <Route path="/documents/:id" element={<DocumentDetailsPage />} />
             <Route path="/versions/:id" element={<VersionDetailsPage />} />
-
-            <Route path="/getting-started" element={<GettingStarted />} />
             <Route path="/version-review/:id" element={<VersionReviewPage />} />
             <Route path="/reviews" element={<ReviewPage />} />
             <Route path="/forbidden" element={<ForbiddenPage />} />

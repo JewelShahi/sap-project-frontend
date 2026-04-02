@@ -160,26 +160,30 @@ export default function Register() {
                 />
               </div>
 
-              {/* Row 2: Username */}
-              <InputField
-                label="Username"
-                icon={<AtSign size={18} />}
-                placeholder="johndoe_dev"
-                value={form.username}
-                onChange={set("username")}
-                error={errors.username}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-              {/* Row 3: Email */}
-              <InputField
-                label="Email Address"
-                icon={<Mail size={18} />}
-                type="email"
-                placeholder="name@company.com"
-                value={form.email}
-                onChange={set("email")}
-                error={errors.email}
-              />
+                {/* Row 2: Username */}
+                <InputField
+                  label="Username"
+                  icon={<AtSign size={18} />}
+                  placeholder="johndoe_dev"
+                  value={form.username}
+                  onChange={set("username")}
+                  error={errors.username}
+                />
+
+                {/* Row 3: Email */}
+                <InputField
+                  label="Email Address"
+                  icon={<Mail size={18} />}
+                  type="email"
+                  placeholder="name@company.com"
+                  value={form.email}
+                  onChange={set("email")}
+                  error={errors.email}
+                />
+              </div>
+
 
               {/* Row 4: Password grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
