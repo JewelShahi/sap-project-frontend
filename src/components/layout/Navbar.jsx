@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { Sun, Moon, Zap, File, ClipboardCheck, House, UserRound, Menu, X, MonitorCog, LogOut, Bell } from "lucide-react";
+import { Sun, Moon, Zap, Files, ClipboardCheck, House, UserRound, Menu, X, MonitorCog, LogOut, Bell } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import notify from "@/components/toaster/notify";
 
 const NAV_LINKS = [
   { icon: House, label: "Home", to: "/" },
-  { icon: File, label: "Documents", to: "/documents" },
+  { icon: Files, label: "Documents", to: "/documents" },
   { icon: ClipboardCheck, label: "Reviews", to: "/reviews" },
   { icon: UserRound, label: "Users", to: "/admin" },
   { icon: MonitorCog, label: "Audit", to: "/audit-log" },

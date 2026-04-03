@@ -140,7 +140,7 @@ const DocumentDetailsPage = () => {
       <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/30 rounded-full blur-[80px] animate-pulse" />
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/20 rounded-full blur-[100px]" />
 
-      <div className="relative z-10 p-12 rounded-[2.5rem] 
+      <div className="relative z-10 p-12 rounded-[1.5rem] 
                   bg-white/10 backdrop-blur-xl 
                   border border-white/20 
                   shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] 
@@ -185,33 +185,35 @@ const DocumentDetailsPage = () => {
               <span className="text-[10px] uppercase tracking-[0.2em]">Back to Documents</span>
             </Link>
 
-            {(isOwner || isSuperUser || isCoAuthor) && (
-              <Link
-                to={`/documents/${id}/create-version`}
-                className="btn btn-primary btn-sm rounded-xl border-none shadow-lg shadow-primary/20 hover:scale-105 transition-all h-10 px-6"
-              >
-                <GitBranchPlus size={16} />
-                <span className="font-bold text-[10px] uppercase tracking-widest">New Version</span>
-              </Link>
-            )}
+            <div className="flex flex-row gap-4 items-center">
+              {(isOwner || isSuperUser) && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openModal("WRITE")}
+                    className="btn btn-secondary btn-sm rounded-xl"
+                  >
+                    Add Co-Author
+                  </button>
 
-            {(isOwner || isSuperUser) && (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => openModal("WRITE")}
-                  className="btn btn-secondary btn-sm rounded-xl"
-                >
-                  Add Co-Author
-                </button>
+                  <button
+                    onClick={() => openModal("READ")}
+                    className="btn btn-outline btn-sm rounded-xl btn-accent"
+                  >
+                    Add Reader
+                  </button>
+                </div>
+              )}
 
-                <button
-                  onClick={() => openModal("READ")}
-                  className="btn btn-outline btn-sm rounded-xl"
+              {(isOwner || isSuperUser || isCoAuthor) && (
+                <Link
+                  to={`/documents/${id}/create-version`}
+                  className="btn btn-primary btn-sm rounded-xl border-none shadow-lg shadow-primary/20 hover:scale-105 transition-all h-10 px-6"
                 >
-                  Add Reader
-                </button>
-              </div>
-            )}
+                  <GitBranchPlus size={16} />
+                  <span className="font-bold text-[10px] uppercase tracking-widest">New Version</span>
+                </Link>
+              )}
+            </div>
           </div>
         </Animate>
 
@@ -229,7 +231,7 @@ const DocumentDetailsPage = () => {
               </h1>
             </div>
 
-            <div className="p-10 rounded-[3rem] bg-base-200/20 border border-base-300/40 backdrop-blur-md relative group">
+            <div className="p-10 rounded-[1.5rem] bg-base-200/20 border border-base-300/40 backdrop-blur-md relative group">
               <h3 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-30 mb-6 flex items-center gap-2">
                 <Info size={14} /> Manifest Description
               </h3>
@@ -241,8 +243,8 @@ const DocumentDetailsPage = () => {
 
           {/* Metadata Sidebar */}
           <Animate delay={0.1}>
-            <GlassCard className="p-8 space-y-8 border-primary/5 shadow-2xl sticky top-24">
-              <div className="space-y-6">
+            <GlassCard className="p-8 space-y-8 border-primary/5 shadow-2xl sticky top-24 ">
+              <div className="space-y-6 rounded-[1.5rem]">
                 <div>
                   <span className="text-[9px] font-black uppercase opacity-30 tracking-[0.2em] block mb-3">Global Status</span>
                   <div className={`w-fit px-4 py-2 rounded-xl border ${statusInfo.border} ${statusInfo.bg} ${statusInfo.color} text-[10px] font-black uppercase flex items-center gap-2`}>
@@ -254,7 +256,7 @@ const DocumentDetailsPage = () => {
 
                   {/* Originator Section */}
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="h-11 w-11 rounded-full bg-base-300/20 flex items-center justify-center text-primary shadow-inner shrink-0 overflow-hidden border border-white/10">
+                    <div className="h-11 w-11 rounded-full bg-base-300/20 flex items-center justify-center text-primary shadow-inner shrink-0 overflow-hidden border border-base-300/10">
                       <img
                         src={document.created_by_avatar_url}
                         alt={document.created_by_username}
@@ -289,7 +291,7 @@ const DocumentDetailsPage = () => {
 
                 </div>
 
-                <div className="p-6 rounded-[2rem] bg-primary/10 border border-primary/20 flex items-center justify-between">
+                <div className="p-6 rounded-[1.5rem] bg-primary/10 border border-primary/20 flex items-center justify-between">
                   <div className="flex flex-col">
                     <span className="text-[8px] uppercase font-black text-primary tracking-[0.2em]">Active Release</span>
                     <span className="text-2xl font-black">v{activeVersion?.version_number || "1.0"}</span>
@@ -317,7 +319,7 @@ const DocumentDetailsPage = () => {
             </div>
 
             {/* Table Container */}
-            <div className="rounded-[2.5rem] border border-base-300/20 bg-base-200/10 backdrop-blur-3xl overflow-hidden shadow-inner">
+            <div className="rounded-[1.5rem] border border-base-300/20 bg-base-200/10 backdrop-blur-3xl overflow-hidden shadow-inner">
               <div className="overflow-x-auto">
                 <table className="table w-full border-separate border-spacing-0">
                   <thead className="bg-base-300/30">
