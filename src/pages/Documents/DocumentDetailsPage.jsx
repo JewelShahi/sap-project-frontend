@@ -12,6 +12,7 @@ import GlassCard from "@/components/widgets/GlassCard.jsx";
 import api from "@/components/api/api.js";
 import { useAuth } from "@/context/AuthContext.jsx";
 import Loader from "@/components/widgets/Loader.jsx";
+import MissingArtifact from "@/components/widgets/MissingArtifact.jsx";
 
 const STATUS_CONFIG = {
   approved: { icon: CheckCircle2, color: "text-success", bg: "bg-success/10", border: "border-success/20", label: "Approved" },
@@ -145,39 +146,12 @@ const DocumentDetailsPage = () => {
   }
 
   if (error || !document) return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-slate-950">
-      {/* Decorative Background Blobs - These make the glass effect visible */}
-      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/30 rounded-full blur-[80px] animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/20 rounded-full blur-[100px]" />
-
-      <div className="relative z-10 p-12 rounded-[1.5rem] 
-                  bg-white/10 backdrop-blur-xl 
-                  border border-white/20 
-                  shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] 
-                  text-center max-w-md w-full mx-6">
-
-        {/* Icon with a glow effect */}
-        <div className="relative inline-block mb-6">
-          <XCircle size={64} className="text-error/80 relative z-10" />
-          <div className="absolute inset-0 bg-error/20 blur-2xl rounded-full" />
-        </div>
-
-        <h2 className="text-3xl font-black uppercase tracking-tight text-white mb-2">
-          Object Not Found
-        </h2>
-
-        <p className="text-slate-300 text-sm mb-8 font-medium">
-          The digital artifact you're looking for has drifted out of reach.
-        </p>
-
-        <Link
-          to="/documents"
-          className="btn btn-primary px-8 rounded-2xl border-none hover:scale-105 transition-transform duration-200"
-        >
-          Return to Safety
-        </Link>
-      </div>
-    </div>
+    <MissingArtifact
+      title="Vault Empty"
+      message="No digital traces found in this directory. Upload a protocol to begin."
+      linkText="Go to Dashboard"
+      linkTo="/dashboard"
+    />
   );
 
   return (
