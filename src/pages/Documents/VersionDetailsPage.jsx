@@ -62,6 +62,8 @@ const VersionDetailsPage = () => {
         if (url.endsWith(".pdf")) return "pdf";
         if (url.endsWith(".md")) return "markdown";
         if (url.endsWith(".txt")) return "text";
+        if (url.endsWith(".doc") || url.endsWith(".docx")) return "word";
+        if (url.endsWith(".c") || url.endsWith(".cpp") || url.endsWith(".js") || url.endsWith(".py")) return "text";
 
         return "unknown";
     };
