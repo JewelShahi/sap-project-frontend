@@ -3,12 +3,11 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   GitBranchPlus,
-  FileText,
   Ban,
   Upload,
+  FileUp,
   Rocket,
-  X,
-  History,
+  CheckCircle2  
 } from "lucide-react";
 
 import Animate from "@/components/animation/Animate.jsx";
@@ -221,7 +220,7 @@ const CreateVersionPage = () => {
                 {/* VERSION STATUS BLOCK */}
                 <div className="flex flex-col">
                   <span className="text-[9px] font-black uppercase tracking-[0.2em mb-1">
-                    Protocol_State
+                    Protocol State
                   </span>
                   <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 px-4 py-2 rounded-lg shadow-[0_0_15px_rgba(var(--primary),0.05)]">
                     <div className="relative flex h-2 w-2">
@@ -229,7 +228,7 @@ const CreateVersionPage = () => {
                       <div className="relative inline-flex rounded-full h-2 w-2 bg-primary"></div>
                     </div>
                     <span className="text-[11px] font-mono font-black text-primary uppercase tracking-widest">
-                      Active_Node: v{activeVersion?.version_number || "0.0"}
+                      Active Node: v{activeVersion?.version_number || "0.0"}
                     </span>
                   </div>
                 </div>
@@ -252,7 +251,7 @@ const CreateVersionPage = () => {
                 <div className="bg-base-300/5 px-6 py-3 border-b border-base-300/5 flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-2">
                     <div className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.8)]" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Terminal_Input</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Terminal Input</span>
                   </div>
                 </div>
 
@@ -262,13 +261,13 @@ const CreateVersionPage = () => {
                     <div className="space-y-2">
                       <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Origin Node</label>
                       <div className="flex items-center gap-3 bg-base-300/20 border border-base-300/5 rounded-xl px-4 py-2.5 text-xs font-mono font-bold">
-                        {activeVersion ? `VERSION_v${activeVersion.version_number}` : "NULL_ROOT"}
+                        {activeVersion ? `VERSION v${activeVersion.version_number}` : "NULL ROOT"}
                       </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Target Pointer</label>
                       <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 rounded-xl px-4 py-2.5 text-xs font-mono font-bold text-primary">
-                        VERSION_v{(activeVersion?.version_number || 0) + 1}
+                        VERSION v{(activeVersion?.version_number || 0) + 1}
                       </div>
                     </div>
                   </div>
@@ -309,11 +308,11 @@ const CreateVersionPage = () => {
 
                   {/* MAIN DROPZONE - Clean Industrial Style */}
                   <div className={`relative flex-1 rounded-lg border-2 border-dashed transition-all duration-300 overflow-hidden group/zone ${file
-                      ? 'border-primary/40 bg-primary/[0.02]'
-                      : 'border-base-300/5 bg-base-300/[0.01] hover:border-base-300/20 hover:bg-base-300/[0.03]'
+                    ? 'border-primary/40 bg-primary/[0.02]'
+                    : 'border-base-300/5 bg-base-300/[0.01] hover:border-base-300/20 hover:bg-base-300/[0.03]'
                     }`}>
 
-                    {/* HIDDEN INPUT - Kept your strict accept list */}
+                    {/* HIDDEN INPUT */}
                     <input
                       type="file"
                       accept="image/jpeg,image/png,text/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -324,39 +323,58 @@ const CreateVersionPage = () => {
                     {/* VISUAL CONTENT */}
                     <div className="relative z-10 h-full flex flex-col items-center justify-center p-6">
                       {file ? (
-                        <div className="flex flex-col items-center text-center space-y-4">
-                          {/* File Icon Box */}
-                          <div className="h-14 w-14 flex items-center justify-center bg-primary/10 border border-primary/20 rounded-xl">
-                            <FileText size={28} className="text-primary" />
+                        /* SUCCESS STATE - "Payload Loaded" with Discard Button */
+                        <div className="flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-300">
+                          <div className="w-14 h-14 rounded-2xl bg-success/10 text-success flex items-center justify-center mb-4 border border-success/20">
+                            <CheckCircle2 size={28} />
                           </div>
 
                           <div className="space-y-1">
                             <p className="text-sm font-mono font-bold truncate max-w-[200px]">
                               {file.name}
                             </p>
-                            <p className="text-[10px] font-bold uppercase tracking-widest">
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="h-1 w-1 rounded-full bg-success animate-pulse" />
+                              <p className="text-[9px] uppercase font-black tracking-[0.2em] text-success/80">
+                                Payload Loaded
+                              </p>
+                            </div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">
                               {(file.size / 1024).toFixed(1)} KB — Verified
                             </p>
                           </div>
 
-                          <p className="text-[9px] font-bold uppercase tracking-wides group-hover/zone:text-primary/40 transition-colors">
-                            Click to replace source
-                          </p>
+                          <button
+                            onClick={(e) => { e.preventDefault(); handleFileChange({ target: { files: [] } }); }}
+                            className="mt-6 px-4 py-1.5 rounded-lg bg-error/5 border border-error/10 text-[9px] font-black text-error/60 hover:text-error hover:bg-error/10 transition-all z-30"
+                          >
+                            DISCARD DATA
+                          </button>
                         </div>
                       ) : (
-                        <div className="flex flex-col items-center text-center space-y-4">
-                          <div className="h-12 w-12 rounded-full border border-base-300/5 bg-base-300/[0.02] flex items-center justify-center group-hover/zone:border-primary/30 group-hover/zone:bg-primary/5 transition-all duration-300">
-                            <Upload size={20} className="group-hover/zone:text-primary transition-colors" />
+                        /* EMPTY STATE - "Source Uplink" with Type Tags */
+                        <div className="flex flex-col items-center gap-4 w-full">
+                          {/* Visual Header */}
+                          <div className="flex flex-col items-center gap-2 opacity-40 group-hover/zone:opacity-100 transition-opacity">
+                            <div className="p-4 rounded-3xl bg-base-300/5 border border-base-300/5">
+                              <FileUp size={32} strokeWidth={1.5} className="text-primary" />
+                            </div>
+                            <div className="text-center">
+                              <p className="text-[11px] font-black uppercase tracking-[0.2em]">Source Uplink</p>
+                              <p className="text-[9px] font-medium opacity-60">Drag and drop or click to initiate</p>
+                            </div>
                           </div>
 
-                          <div className="space-y-1">
-                            <h4 className="text-[11px] font-bold uppercase tracking-widest">
-                              Select Binary Source
-                            </h4>
-                            <p className="text-[9px] uppercase tracking-tighter">
-                              PDF, DOCX, PNG, JPG, or TXT
-                            </p>
+                          {/* Type Tags */}
+                          <div className="mt-2 flex flex-wrap justify-center gap-2 max-w-[280px]">
+                            {['IMG', 'PDF', 'DOC', 'TXT'].map((type) => (
+                              <span key={type} className="px-2 py-1 rounded bg-base-300/[0.03] border border-base-300/5 text-[8px] font-mono opacity-30">
+                                {type}
+                              </span>
+                            ))}
                           </div>
+
+                          <p className="mt-2 text-[9px] font-bold text-primary/40 uppercase tracking-widest">Awaiting Payload...</p>
                         </div>
                       )}
                     </div>
@@ -365,19 +383,42 @@ const CreateVersionPage = () => {
 
                 {/* COMMAND DECK - shrink-0 ensures it keeps its height at the bottom */}
                 <div className="bg-base-300/5 border border-base-300/10 p-5 rounded-2xl flex flex-col gap-4 shrink-0">
+                  {/* Commit Button */}
                   <button
-                    type="submit"
+                    type="submit" // Keep submit type for form handling
                     disabled={isSubmitting}
-                    className="group relative w-full h-14 bg-primary hover:bg-success/80 rounded-xl transition-all duration-300 text-white"
+                    className="group btn btn-primary w-full h-16 rounded-2xl border-none transition-all hover:scale-[1.02] hover:bg-success/80 active:scale-[0.98] relative overflow-hidden bg-primary/80 text-white"
                   >
-                    <span className="text-[12px] font-black uppercase tracking-[0.2em]">Commit Version</span>
+                    <div className="flex items-center justify-center gap-3 relative z-10">
+                      {isSubmitting ? (
+                        <Loader2 className="animate-spin" size={20} />
+                      ) : (
+                        <>
+                          <Rocket
+                            size={18}
+                            className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform"
+                          />
+                          <span className="text-[11px] font-black uppercase tracking-[0.2em]">
+                            Commit Version
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    {/* Subtle shine effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-base-300/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
                   </button>
 
+                  {/* Abort Button */}
                   <Link
                     to={`/documents/${id}`}
-                    className="group flex items-center justify-center gap-3 w-full h-12 rounded-xl border border-base-300/ hover:bg-error/20 transition-all duration-300"
+                    className="group flex items-center justify-center w-full h-12 rounded-xl border border-base-300/40 hover:bg-error/15 hover:border-error/20 transition-all bg-base-300/20"
                   >
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] group-hover:text-error">Abort</span>
+                    <div className="flex items-center gap-2 opacity-40 group-hover:opacity-100 group-hover:text-error transition-all">
+                      <Ban size={14} />
+                      <span className="text-[10px] font-black uppercase tracking-widest">
+                        Abort
+                      </span>
+                    </div>
                   </Link>
                 </div>
               </div>

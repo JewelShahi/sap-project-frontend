@@ -1,55 +1,39 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// Layout components - Navbar, Footer, ScrollUp
+// Layout & Widgets
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollUp from "@/components/widgets/ScrollUp";
 
-// Login and Register
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-
-// Pages
-import HomePage from "@/pages/homepage/HomePage";
-import ReposPage from "@/pages/ReposPage";
-import TeamsPage from "@/pages/TeamsPage";
-import AnalyticsPage from "@/pages/AnalyticsPage";
-import ProfilePage from "@/pages/ProfilePage";
-import NotFoundPage from "@/pages/NotFoundPage";
-import GettingStarted from "@/pages/GettingStarted";
-import DocumentsPage from "@/pages/DocumentsPage";
-import Demo from "@/pages/homepage/demo.jsx";
-import VersionReviewPage from "@/pages/VersionReviewPage.jsx";
-import ReviewPage from "@/pages/ReviewPage.jsx";
-import ForbiddenPage from "@/pages/ForbiddenPage";
-import ServerErrorPage from "@/pages/ServerErrorPage";
-
-import useTheme from "@/hooks/useTheme";
-
-// Protected Route component to guard routes
+// Auth & Guards
+import Login from "@/pages/auth/Login";
+import Register from "@/pages/auth/Register";
 import ProtectedRoute from "@/components/protected-route/ProtectedRoute";
 import NotStaffRoute from "@/components/protected-route/NotStaffRoute";
 
-// Home and Profile pages
+// Hooks
+import useTheme from "@/hooks/useTheme";
+
+// Pages: General
 import HomePage from "@/pages/homepage/HomePage";
 import ProfilePage from "@/pages/profile/ProfilePage";
 
-// Document-related pages
+// Pages: Documents
 import DocumentsPage from "@/pages/documents/DocumentsPage";
 import DocumentDetailsPage from "@/pages/documents/DocumentDetailsPage";
 import CreateDocumentPage from "@/pages/documents/CreateDocumentPage";
 import CreateVersionPage from "@/pages/documents/CreateVersionPage";
 import VersionDetailsPage from "@/pages/documents/VersionDetailsPage";
 
-// Review and Version pages
+// Pages: Reviews
 import VersionReviewPage from "@/pages/reviews/VersionReviewPage";
 import ReviewPage from "@/pages/reviews/ReviewPage";
 
-// Admin and Audit Log
+// Pages: Admin
 import AdminPage from "@/pages/admin/AdminPage";
 import AuditLogPage from "@/pages/admin/AuditLogPage";
 
-// Error Pages
+// Pages: Error Handling
 import NotFoundPage from "@/pages/error-pages/NotFoundPage";
 import ServerErrorPage from "@/pages/error-pages/ServerErrorPage";
 import ForbiddenPage from "@/pages/error-pages/ForbiddenPage";
