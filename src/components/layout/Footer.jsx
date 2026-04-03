@@ -21,12 +21,6 @@ const Footer = () => {
   return (
     <footer className="relative w-full border-t border-base-300 bg-base-200/40 pt-12 pb-10 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
-        
-        {/* Main Grid: 
-            - Single column and centered on smallest screens (< 640px)
-            - 2 columns on 'sm' screens (>= 640px)
-            - 4 columns on 'lg' screens (>= 1024px)
-        */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10 lg:gap-12 mb-12 text-center lg:text-left">
           
           {/* 1. Branding */}
