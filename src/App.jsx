@@ -5,9 +5,25 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollUp from "@/components/widgets/ScrollUp";
 
-// Login, Register and Authentication Provider
-import Login from "@/pages/auth/Login";
-import Register from "@/pages/auth/Register";
+// Login and Register
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+
+// Pages
+import HomePage from "@/pages/homepage/HomePage";
+import ReposPage from "@/pages/ReposPage";
+import TeamsPage from "@/pages/TeamsPage";
+import AnalyticsPage from "@/pages/AnalyticsPage";
+import ProfilePage from "@/pages/ProfilePage";
+import NotFoundPage from "@/pages/NotFoundPage";
+import GettingStarted from "@/pages/GettingStarted";
+import DocumentsPage from "@/pages/DocumentsPage";
+import Demo from "@/pages/homepage/demo.jsx";
+import VersionReviewPage from "@/pages/VersionReviewPage.jsx";
+import ReviewPage from "@/pages/ReviewPage.jsx";
+import ForbiddenPage from "@/pages/ForbiddenPage";
+import ServerErrorPage from "@/pages/ServerErrorPage";
+
 import useTheme from "@/hooks/useTheme";
 
 // Protected Route component to guard routes
