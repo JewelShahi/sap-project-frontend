@@ -19,7 +19,7 @@ const SOCIALS = [
 
 const Footer = () => {
   return (
-    <footer className="relative w-full border-t border-base-300 bg-base-100 pt-12 pb-10 overflow-hidden">
+    <footer className="relative w-full border-t border-base-300 bg-base-200/40 pt-12 pb-10 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         
         {/* Main Grid: 
@@ -32,7 +32,7 @@ const Footer = () => {
           {/* 1. Branding */}
           <div className="flex flex-col items-center lg:items-start space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
                 <Zap size={20} className="text-primary-content fill-current" />
               </div>
               <span className="text-xl font-black tracking-tight text-base-content">

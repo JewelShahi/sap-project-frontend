@@ -95,10 +95,10 @@ const CreateDocumentPage = () => {
           {/* HEADER CONTENT */}
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-primary mb-2">
-              <FilePlus size={18} /> {/* UPDATED ICON */}
+              <FilePlus size={18} />
               <span className="text-[10px] font-black uppercase tracking-[0.3em]">Protocol Initiation</span>
             </div>
-            <h1 className="text-5xl font-black tracking-tighter text-base-content">
+            <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-base-content leading-[0.9]">
               Create <span className="text-primary">Document</span>
             </h1>
           </div>

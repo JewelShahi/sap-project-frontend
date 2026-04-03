@@ -168,7 +168,7 @@ const HomePage = () => {
               Deploy in minutes, scale forever.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link to="/login" className="btn btn-primary btn-lg px-12 rounded-2xl shadow-xl shadow-primary/20 border-base-content/50 hover:border-primary hover:bg-primary/50">
+              <Link to="/login" className="btn btn-primary btn-lg px-12 rounded-2xl border-base-content/50 hover:border-primary hover:bg-primary/50">
                 Create Free Account
               </Link>
             </div>

@@ -4,6 +4,10 @@ const ToastProvider = () => (
   <Toaster
     position="top-center"
     gutter={12}
+    containerStyle={{
+      zIndex: 999999, // Higher than any modal (999) or header
+      pointerEvents: "none", // Ensures you can still click things behind the container
+    }}
     toastOptions={{
       duration: 3000,
 

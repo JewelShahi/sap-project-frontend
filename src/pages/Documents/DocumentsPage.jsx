@@ -82,10 +82,10 @@ const DocumentsPage = () => {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="space-y-1">
             <div className="flex items-center gap-3 text-primary mb-3 group">
-              <FileStack size={16} strokeWidth={2.5} />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Central Archive</span>
+              <FileStack size={18} />
+              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Documents</span>
             </div>
-            <h1 className="text-5xl font-black tracking-tighter text-base-content">
+            <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-base-content leading-[0.9]">
               Hello, <span className="text-primary">{user?.first_name || "Agent"}</span> <span className="text-primary">{user?.last_name || "Agent"}</span>
             </h1>
             <p className="text-secondary font-medium max-w-md opacity-60">
@@ -96,7 +96,7 @@ const DocumentsPage = () => {
           {notStaff && (
             <Link
               to="/documents/create"
-              className="btn btn-primary rounded-2xl shadow-xl shadow-primary/20 border-none px-8 hover:scale-105 transition-all"
+              className="btn btn-primary rounded-2xl border-none px-8 hover:scale-105 transition-all"
             >
               <Plus size={20} /> New Document
             </Link>
@@ -150,7 +150,7 @@ const DocumentsPage = () => {
                   key={f}
                   onClick={() => setFilter(f)}
                   className={`btn btn-xs sm:btn-sm rounded-xl px-2 lg:px-5 border-none transition-all uppercase text-[9px] lg:text-[10px] font-black tracking-tighter lg:tracking-widest ${filter === f
-                    ? "btn-primary shadow-lg shadow-primary/30"
+                    ? "btn-primary"
                     : "btn-ghost text-secondary hover:bg-base-300"
                     }`}
                 >

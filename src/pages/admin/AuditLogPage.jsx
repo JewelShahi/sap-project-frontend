@@ -135,33 +135,35 @@ const AuditLogPage = () => {
                                   className="w-10 h-10 rounded-full object-cover ring-2 ring-base-content/5 bg-base-300"
                                 />
                               </div>
-                              <span className="font-bold text-sm uppercase tracking-tight truncate text-slate-800 dark:text-slate-100">
+                              <span className="font-bold text-sm tracking-tight truncate text-slate-800 dark:text-slate-100">
                                 {log.user}
                               </span>
                             </div>
                           </Link>
                           {/* BOTTOM ROW: Stacked IDs */}
-                          <div className="flex flex-col gap-1.5"> {/* 52px = Avatar width (40px) + Gap (12px) */}
+                          <div className="flex flex-col gap-1.5 w-full">
                             {/* User ID Stack */}
-                            <div className="flex items-center w-fit overflow-hidden border border-blue-500/20 bg-blue-500/5 rounded-[0.6rem] p-1 py-2">
-                              <div className="bg-blue-500 px-1.5 py-0.5 rounded-[0.5rem] ml-1">
+                            <div className="flex items-center w-full overflow-hidden border border-blue-500/20 bg-blue-500/5 rounded-[0.6rem] p-1 py-1.5">
+                              {/* Label with fixed width for alignment */}
+                              <div className="bg-blue-500 w-12 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0">
                                 <span className="text-[9px] font-black uppercase tracking-tight text-white">
                                   User
                                 </span>
                               </div>
-                              <span className="px-2 text-[10px] font-mono font-medium text-blue-600 dark:text-blue-400 ">
+                              <span className="px-3 text-[10px] font-mono font-medium text-blue-600 dark:text-blue-400 truncate">
                                 {log.user_id}
                               </span>
                             </div>
 
                             {/* Log ID Stack */}
-                            <div className="flex items-center w-fit overflow-hidden border border-slate-500/20 bg-slate-500/5 rounded-[0.6rem] p-1 py-2">
-                              <div className="bg-slate-500 px-1.5 rounded-[0.5rem] ml-1 py-0.5">
+                            <div className="flex items-center w-full overflow-hidden border border-slate-500/20 bg-slate-500/5 rounded-[0.6rem] p-1 py-1.5">
+                              {/* Label with same fixed width as above */}
+                              <div className="bg-slate-500 w-12 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0">
                                 <span className="text-[9px] font-black uppercase tracking-tight text-white">
                                   Log
                                 </span>
                               </div>
-                              <span className="px-2 text-[10px] font-mono font-medium text-slate-600 dark:text-slate-400">
+                              <span className="px-3 text-[10px] font-mono font-medium text-slate-600 dark:text-slate-400 truncate">
                                 {log.id}
                               </span>
                             </div>

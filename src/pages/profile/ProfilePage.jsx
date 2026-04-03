@@ -228,7 +228,7 @@ const ProfilePage = () => {
                     )}
                   </div>
 
-                  <h2 className="mt-4 text-2xl font-bold tracking-tight">
+                  <h2 className="mt-4 text-2xl md:text-3xl font-bold tracking-tight">
                     {profile?.first_name} {profile?.last_name}
                   </h2>
                   <p className="text-secondary text-sm">@{profile?.username}</p>
@@ -277,7 +277,7 @@ const ProfilePage = () => {
                     <div className="grid grid-cols-2 gap-3 mt-8">
                       <button
                         onClick={() => document.getElementById("edit_profile_modal").showModal()}
-                        className="btn btn-primary btn-sm rounded-xl gap-2 shadow-lg shadow-primary/20"
+                        className="btn btn-primary btn-sm rounded-xl gap-2"
                       >
                         <Edit3 size={14} /> Edit
                       </button>
@@ -421,11 +421,11 @@ const ProfilePage = () => {
                       placeholder="https://images.unsplash.com/..."
                       value={formData.avatar}
                       onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
-                      className="input input-bordered w-full bg-white/5 border-white/10 backdrop-blur-md focus:border-primary focus:bg-white/10 transition-all duration-300 placeholder:text-base-content/20 text-sm"
+                      className="input input-bordered w-full bg-base-300/5 border-base-300/10 backdrop-blur-md focus:border-primary focus:bg-base-300/10 transition-all duration-300 placeholder:text-base-content/20 text-sm"
                     />
                     <label className="label">
                       <span className="label-text-alt text-base-content/40 italic break-words max-w-full">
-                        Supports JPG, PNG, and WebP.
+                        Supports JPG, PNG, GIF, and WebP.
                       </span>
                     </label>
                   </div>
@@ -436,7 +436,7 @@ const ProfilePage = () => {
                     <button className="btn btn-ghost btn-sm rounded-xl hover:bg-white/5 w-full transition-all">Cancel</button>
                   </form>
                   <button
-                    className="btn btn-primary btn-sm px-8 rounded-xl shadow-lg shadow-primary/30 border-none bg-gradient-to-tr from-primary to-blue-600 hover:scale-105 active:scale-95 transition-all flex-1 sm:flex-none"
+                    className="btn btn-primary btn-sm px-8 rounded-xl border-none bg-gradient-to-tr from-primary to-blue-600 hover:scale-105 active:scale-95 transition-all flex-1 sm:flex-none"
                     onClick={handleAvatarUpdate}
                   >
                     Update Avatar
@@ -464,7 +464,7 @@ const ProfilePage = () => {
                         type="text"
                         value={formData.first_name}
                         onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                        className="input input-bordered bg-white/5 border-white/10 backdrop-blur-md focus:border-primary focus:bg-white/10 transition-all text-sm"
+                        className="input input-bordered bg-base-300/5 border-white/10 backdrop-blur-md focus:border-primary focus:bg-white/10 transition-all text-sm"
                       />
                     </div>
                     <div className="form-control">
@@ -533,7 +533,7 @@ const ProfilePage = () => {
                     <button className="btn btn-ghost btn-sm rounded-xl w-full px-6 transition-all">Cancel</button>
                   </form>
                   <button
-                    className="btn btn-primary btn-sm px-10 rounded-xl shadow-lg shadow-primary/20 border-none bg-gradient-to-tr from-primary to-blue-600 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto order-1 sm:order-2"
+                    className="btn btn-primary btn-sm px-10 rounded-xl border-none bg-gradient-to-tr from-primary to-blue-600 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto order-1 sm:order-2"
                     onClick={handleUpdateProfile}
                   >
                     Save Changes
@@ -596,7 +596,7 @@ const ProfilePage = () => {
                         <button className="btn btn-ghost btn-sm rounded-xl w-full px-6 hover:bg-white/5 transition-all">Cancel</button>
                       </form>
                       <button
-                        className="btn btn-error btn-sm px-8 rounded-xl shadow-lg shadow-error/20 border-none hover:scale-105 active:scale-95 transition-all w-full sm:w-auto order-1 sm:order-2 disabled:opacity-50"
+                        className="btn btn-error btn-sm px-8 rounded-xl border-none hover:scale-105 active:scale-95 transition-all w-full sm:w-auto order-1 sm:order-2 disabled:opacity-50"
                         onClick={handleDeleteAccount}
                         disabled={!deletePassword}
                       >

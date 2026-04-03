@@ -196,7 +196,7 @@ const DocumentDetailsPage = () => {
               {(isOwner || isSuperUser || isCoAuthor) && (
                 <Link
                   to={`/documents/${id}/create-version`}
-                  className="btn btn-primary btn-sm rounded-xl border-none shadow-lg shadow-primary/20 hover:scale-105 transition-all h-10 px-6 flex items-center gap-2"
+                  className="btn btn-primary btn-sm rounded-xl border-none hover:scale-105 transition-all h-10 px-6 flex items-center gap-2"
                 >
                   <GitBranchPlus size={16} />
                   <span className="font-bold text-[10px] uppercase tracking-widest">New Version</span>
@@ -212,8 +212,8 @@ const DocumentDetailsPage = () => {
           {/* Main Content */}
           <Animate className="lg:col-span-2 space-y-10 flex">
             <div className="space-y-4 mb-5">
-              <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.4em] opacity-60">
-                <FileCog size={12} /> Document Detail
+              <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.4em]">
+                <FileCog size={18} /> Document Details
               </div>
               <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-base-content leading-[0.9]">
                 {document.title}
@@ -285,7 +285,7 @@ const DocumentDetailsPage = () => {
                     <span className="text-[8px] uppercase font-black text-primary tracking-[0.2em]">Active Release</span>
                     <span className="text-2xl font-black">v{activeVersion?.version_number || "1.0"}</span>
                   </div>
-                  <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/30">
+                  <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center">
                     <ShieldCheck size={24} />
                   </div>
                 </div>
@@ -309,8 +309,8 @@ const DocumentDetailsPage = () => {
                   <div className="space-y-1">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Co-Author Registry</h3>
                   </div>
-                  <div className="text-[10px] font-mono opacity-60 bg-primary/10 px-2 py-1 rounded border border-primary/20">
-                    {coAuthors?.length || 0} UNITS
+                  <div className="text-[10px] font-mono opacity-60 bg-primary/10 px-2 py-1 rounded border uppercase border-primary/20">
+                    {coAuthors?.length || 0} Users
                   </div>
                 </div>
 
@@ -371,8 +371,8 @@ const DocumentDetailsPage = () => {
                   <div className="space-y-1">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary">Readers — Authorized View Only</h3>
                   </div>
-                  <div className="text-[10px] font-mono opacity-60 bg-secondary/10 px-2 py-1 rounded border border-secondary/20">
-                    {readers?.length || 0} UNITS
+                  <div className="text-[10px] font-mono opacity-60 bg-secondary/10 px-2 py-1 rounded border uppercase border-secondary/20">
+                    {readers?.length || 0} Users
                   </div>
                 </div>
 
@@ -390,7 +390,7 @@ const DocumentDetailsPage = () => {
                         {readers?.length > 0 ? (
                           readers.map((m) => (
                             <div key={m.id} className="grid grid-cols-12 gap-2 px-4 py-2 border-b border-base-content/5 items-center hover:bg-secondary/5 transition-colors">
-                              <div className="col-span-7 flex items-center gap-3 py-3">
+                              <div className="col-span-7 flex items-center gap-3 py-1">
                                 <Link to={`/profile/${m.user}`} className="flex items-center gap-3 group/link">
                                   <div className="h-8 w-8 rounded-full ring-1 ring-secondary/30 bg-base-300/20 overflow-hidden shrink-0 transition-transform duration-200 group-hover/link:scale-110 group-hover/link:ring-primary/60">
                                     <img src={m.user_avatar || `https://ui-avatars.com/api/?name=${m.username}`} className="h-full w-full object-cover" alt="" />
@@ -579,10 +579,10 @@ const DocumentDetailsPage = () => {
           ref={(el) => {
             if (el && !el.open) el.showModal();
           }}
-          className="modal backdrop-blur-sm"
+          className="modal backdrop-blur-lg"
           onClose={() => setShowModal(false)}
         >
-          <div className="modal-box bg-base-100 p-8 rounded-[2rem] max-w-md space-y-6 shadow-2xl border border-white/5 relative overflow-hidden">
+          <div className="modal-box bg-base-100 p-8 rounded-[2rem] max-w-md space-y-6 shadow-2xl border border-base-300/5 relative overflow-hidden">
 
             {/* Header Section */}
             <div>
@@ -662,7 +662,7 @@ const DocumentDetailsPage = () => {
 
               <button
                 disabled={!selectedUser}
-                className="btn btn-primary flex-[2] rounded-xl shadow-lg shadow-primary/20 text-[10px] font-black uppercase tracking-widest disabled:opacity-30"
+                className="btn btn-primary flex-[2] rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30"
                 onClick={async () => {
                   // 1. Run your grant logic
                   await handleGrant();

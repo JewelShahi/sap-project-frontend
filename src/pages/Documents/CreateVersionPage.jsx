@@ -187,11 +187,11 @@ const CreateVersionPage = () => {
               <div className="flex items-center gap-2 text-primary mb-2">
                 <GitBranchPlus size={18} />
                 <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-                  Version Management Protocol
+                  Version Management
                 </span>
               </div>
 
-              <h1 className="text-5xl font-black tracking-tighter text-base-content leading-none">
+              <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-base-content leading-[0.9]">
                 Create <span className="text-primary">Iteration</span>
               </h1>
 
