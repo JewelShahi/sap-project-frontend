@@ -110,7 +110,7 @@ const Login = () => {
         password: form.password,
       });
 
-      const { access, refresh, user: apiUser } = res.data;
+      const { user: apiUser, access, refresh } = res.data;
 
       const userData = {
         name:
@@ -119,6 +119,11 @@ const Login = () => {
         username: apiUser?.username,
         email: apiUser?.email,
         avatar: apiUser?.avatar ?? null,
+        is_superuser: apiUser?.is_superuser ?? false,
+        is_staff: apiUser?.is_staff ?? false,
+        is_active: apiUser?.is_active ?? false,
+        first_name: apiUser?.first_name ?? "",
+        last_name: apiUser?.last_name ?? "",
       };
 
       login({ access, refresh }, userData);

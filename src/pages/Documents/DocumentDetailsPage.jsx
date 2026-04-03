@@ -61,7 +61,8 @@ const DocumentDetailsPage = () => {
     [document, versions]);
 
   const statusInfo = getStatusDetails(activeVersion?.status);
-  const isOwner = document?.created_by_username === user?.username || user?.is_superuser;
+  const isSuperUser = user?.is_superuser;
+  const isOwner = (user && document?.created_by_username === user?.username) || isSuperUser;
 
   if (loading) {
     return (
