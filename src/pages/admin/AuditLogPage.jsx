@@ -3,7 +3,7 @@ import { Search, Globe, Activity, FileText, AlertCircle, Info, ChevronLeft, Chev
 import Animate from "@/components/animation/Animate.jsx";
 import api from "@/components/api/api";
 import notify from "@/components/toaster/notify";
-import Loader from "@/components/widgets/Loader.jsx"
+import Loader from "@/components/widgets/Loader.jsx";
 import { Link } from "react-router-dom";
 
 const AuditLogPage = () => {
@@ -80,7 +80,7 @@ const AuditLogPage = () => {
   if (loading && logs.length === 0) return <Loader message="Accessing secure logs..." />;
 
   return (
-    <div className="min-h-screen bg-base-100 px-6 pb-12 pt-20 overflow-hidden font-sans">
+    <div className="relative min-h-screen px-6 pb-12 pt-20 overflow-hidden font-sans">
       <Animate variant="fade-down">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="space-y-1">
@@ -143,20 +143,20 @@ const AuditLogPage = () => {
                           {/* BOTTOM ROW: Stacked IDs */}
                           <div className="flex flex-col gap-1.5"> {/* 52px = Avatar width (40px) + Gap (12px) */}
                             {/* User ID Stack */}
-                            <div className="flex items-center w-fit overflow-hidden rounded border border-blue-500/20 bg-blue-500/5">
-                              <div className="bg-blue-500 px-1.5 py-0.5">
+                            <div className="flex items-center w-fit overflow-hidden border border-blue-500/20 bg-blue-500/5 rounded-[0.6rem] p-1 py-2">
+                              <div className="bg-blue-500 px-1.5 py-0.5 rounded-[0.5rem] ml-1">
                                 <span className="text-[9px] font-black uppercase tracking-tight text-white">
                                   User
                                 </span>
                               </div>
-                              <span className="px-2 text-[10px] font-mono font-medium text-blue-600 dark:text-blue-400">
+                              <span className="px-2 text-[10px] font-mono font-medium text-blue-600 dark:text-blue-400 ">
                                 {log.user_id}
                               </span>
                             </div>
 
                             {/* Log ID Stack */}
-                            <div className="flex items-center w-fit overflow-hidden rounded border border-slate-500/20 bg-slate-500/5">
-                              <div className="bg-slate-500 px-1.5 py-0.5">
+                            <div className="flex items-center w-fit overflow-hidden border border-slate-500/20 bg-slate-500/5 rounded-[0.6rem] p-1 py-2">
+                              <div className="bg-slate-500 px-1.5 rounded-[0.5rem] ml-1 py-0.5">
                                 <span className="text-[9px] font-black uppercase tracking-tight text-white">
                                   Log
                                 </span>
@@ -174,7 +174,7 @@ const AuditLogPage = () => {
                             <span className={`badge badge-sm font-black py-3 px-3 uppercase text-[9px] ${getActionColor(log.action)} text-white border-none`}>
                               {log.action}
                             </span>
-                            <span className="text-[10px] opacity-40 font-bold uppercase"><FileText size={10} className="inline mr-1" /> {log.target}</span>
+                            <span className="text-[10px] opacity-40 font-bold uppercase flex flex-row items-center"><FileText size={10} className="inline mr-1" /> {log.target}</span>
                           </div>
                           <div className="bg-base-300/10 p-3 rounded-xl border border-base-300/20 text-[11px] font-medium opacity-80">
                             {log.description}
@@ -194,7 +194,7 @@ const AuditLogPage = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="text-[11px] opacity-60 text-right px-10 font-mono">
+                      <td className="text-[11px] opacity-60 px-10 font-mono text-center">
                         {new Date(log.time).toLocaleString()}
                       </td>
                     </tr>

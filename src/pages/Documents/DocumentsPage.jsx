@@ -86,7 +86,7 @@ const DocumentsPage = () => {
               <span className="text-[10px] font-black uppercase tracking-[0.4em]">Central Archive</span>
             </div>
             <h1 className="text-5xl font-black tracking-tighter text-base-content">
-              Hello, <span className="text-primary">{user?.first_name || "Agent"}</span>
+              Hello, <span className="text-primary">{user?.first_name || "Agent"}</span> <span className="text-primary">{user?.last_name || "Agent"}</span>
             </h1>
             <p className="text-secondary font-medium max-w-md opacity-60">
               Interface for managing high-integrity assets and documentation.
