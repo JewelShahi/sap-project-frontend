@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { Sun, Moon, Zap, Files, ClipboardCheck, House, UserRound, Menu, X, MonitorCog, LogOut, Bell } from "lucide-react";
+import { 
+  Sun, Moon, Zap, Files, ClipboardCheck, House, 
+  UserRound, Menu, X, MonitorCog, LogOut 
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import notify from "@/components/toaster/notify";
+import Notifications from "./Notifications";
 
 const NAV_LINKS = [
   { icon: House, label: "Home", to: "/" },
@@ -15,16 +19,13 @@ const NAV_LINKS = [
 const BREAKPOINT = 1000;
 
 const Navbar = ({ theme, toggleTheme }) => {
-  // 1. Destructure isLoading from your AuthContext
   const { user, logout, isAuthenticated, isLoading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // 2. Initialize avatar from Cache immediately to prevent the "Default Flash"
   const [stickyAvatar, setStickyAvatar] = useState(
     localStorage.getItem("cached_avatar") || "/avatar.png"
   );
 
-  // 3. Update the cache whenever the user object successfully loads
   useEffect(() => {
     if (user?.avatar) {
       setStickyAvatar(user.avatar);
@@ -32,24 +33,24 @@ const Navbar = ({ theme, toggleTheme }) => {
     }
   }, [user]);
 
-  // 4. Logic to keep the UI "Logged In" during fast redirects
   const showLoggedInUI = isAuthenticated || (isLoading && localStorage.getItem("cached_avatar"));
 
   const handleLogout = async () => {
     setMenuOpen(false);
-    localStorage.removeItem("cached_avatar"); // Clear cache so next user doesn't see it
+    localStorage.removeItem("cached_avatar");
     await logout();
     notify.success("Logged out successfully");
   };
 
+  // Lock scroll on mobile when menu is open
   useEffect(() => {
-    const mq = window.matchMedia(`(min-width: ${BREAKPOINT}px)`);
-    const handler = (e) => {
-      if (e.matches) setMenuOpen(false);
-    };
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
 
   const toggleMenu = () => {
     if (window.innerWidth < BREAKPOINT) {
@@ -59,15 +60,10 @@ const Navbar = ({ theme, toggleTheme }) => {
 
   const closeMenu = () => setMenuOpen(false);
 
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [menuOpen]);
-
   return (
-    <nav className="sticky top-0 z-[100] w-full overflow-x-hidden">
+    <nav className="sticky top-0 z-[100] w-full">
       <div className="relative w-full h-20 border-b border-white/10 bg-base-300/50 backdrop-blur-2xl flex items-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
-        <div className="w-full max-w-[1440px] mx-auto px-8 flex items-center justify-between">
+        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-8 flex items-center justify-between">
 
           {/* ── Brand ── */}
           <Link to="/" className="flex items-center gap-3 shrink-0 hover:opacity-80 transition-opacity focus:outline-none">
@@ -87,7 +83,8 @@ const Navbar = ({ theme, toggleTheme }) => {
                 to={to}
                 end={to === "/"}
                 className={({ isActive }) =>
-                  `group relative flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-500 hover:bg-primary/20 ${isActive ? "text-primary bg-primary/5" : "text-base-content/40 hover:text-base-content hover:bg-white/[0.05]"
+                  `group relative flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-500 hover:bg-primary/20 ${
+                    isActive ? "text-primary bg-primary/5" : "text-base-content/40 hover:text-base-content hover:bg-white/[0.05]"
                   }`
                 }
               >
@@ -98,100 +95,81 @@ const Navbar = ({ theme, toggleTheme }) => {
           </div>
 
           {/* ── Right Side ── */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
-              className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/[0.02] border border-white/5 text-base-content/40 hover:text-primary hover:bg-primary/10 transition-all shrink-0"
+              className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-2xl bg-white/[0.02] border border-white/5 text-base-content/40 hover:text-primary hover:bg-primary/10 transition-all shrink-0"
               onClick={toggleTheme}
             >
               {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
-            {/* ── Notification Bell ── */}
-            {showLoggedInUI && (
-              <button className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/[0.02] border border-white/5 text-base-content/40 hover:text-primary transition-all shrink-0 hover:bg-primary/10"
-              >
-                <Bell size={20} />
-              </button>
-            )}
+            {/* ── Notification Component ── */}
+            {showLoggedInUI && <Notifications />}
 
-            {/* ── Desktop Right UI ── */}
+            {/* ── Desktop Profile/Logout ── */}
             <div className="hidden nav:flex items-center gap-3">
               <div className="w-[1px] h-8 bg-white/5" />
-
               {showLoggedInUI ? (
                 <div className="flex items-center gap-4">
                   <NavLink to="/profile" className="group relative">
                     <div className="relative w-11 h-11 rounded-full p-[2px] bg-gradient-to-b from-white/20 to-transparent">
                       <div className="w-full h-full rounded-full overflow-hidden border border-black/20">
-                        <img
-                          src={stickyAvatar}
-                          alt="Profile"
-                          className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                          onError={(e) => { e.target.src = "/avatar.png"; }}
+                        <img 
+                          src={stickyAvatar} 
+                          alt="Profile" 
+                          className="w-full h-full object-cover" 
+                          onError={(e) => { e.target.src = "/avatar.png"; }} 
                         />
                       </div>
                     </div>
                   </NavLink>
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-error/20 text-base-content hover:text-base-content transition-all duration-200 ease-in-out hover:scale-105 hover:bg-error active:scale-95 "
+                  <button 
+                    onClick={handleLogout} 
+                    className="flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-error/20 text-base-content hover:scale-105 hover:bg-error transition-all"
                   >
-                    <LogOut size={16} className="text-base-content" />
+                    <LogOut size={16} />
                   </button>
                 </div>
               ) : (
                 <>
-                  <NavLink
-                    to="/login"
-                    className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap hover:scale-105 hover:text-base-content ${theme === "light"
-                      ? "bg-accent text-accent-content"
-                      : "bg-base-100 text-base-content/60"
-                      }`}
-                  >
-                    Login
-                  </NavLink>
-                  <NavLink to="/register" className="px-4 py-2 rounded-xl text-sm font-bold bg-primary text-primary-content shadow-lg shadow-primary/20 transition-all whitespace-nowrap hover:scale-105">
-                    Register
-                  </NavLink>
+                  <NavLink to="/login" className="px-4 py-2 rounded-xl text-sm font-bold bg-base-100 text-base-content/60">Login</NavLink>
+                  <NavLink to="/register" className="px-4 py-2 rounded-xl text-sm font-bold bg-primary text-primary-content">Register</NavLink>
                 </>
               )}
             </div>
 
-            <button
-              className="nav:hidden w-11 h-11 flex items-center justify-center rounded-2xl shrink-0"
-              onClick={toggleMenu}
-            >
+            {/* ── Mobile Menu Trigger ── */}
+            <button className="nav:hidden w-10 h-10 flex items-center justify-center rounded-2xl shrink-0" onClick={toggleMenu}>
               <Menu size={20} />
             </button>
           </div>
         </div>
       </div>
 
-      {/* ── Mobile Overlay ── */}
-      <div
-        className={`fixed inset-0 z-[99] nav:hidden transition-all duration-500 ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
-        style={{
-          background: theme === "dark" ? "rgba(0, 0, 0, 0.50)" : "rgba(255, 255, 255, 0.1)",
-          backdropFilter: "blur(20px)"
+      {/* ── MOBILE MENU OVERLAY ── */}
+      <div 
+        className={`fixed inset-0 z-[99] nav:hidden transition-all duration-500 ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`} 
+        style={{ 
+          background: theme === "dark" ? "rgba(0, 0, 0, 0.50)" : "rgba(255, 255, 255, 0.1)", 
+          backdropFilter: "blur(20px)" 
         }}
       >
         <div className="flex flex-col h-full pt-20 px-8 relative overflow-y-auto">
-          <button
-            onClick={closeMenu}
-            className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition z-10"
-          >
+          <button onClick={closeMenu} className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-xl bg-white/10">
             <X size={22} />
           </button>
-
+          
           <div className="flex-1 flex flex-col justify-center gap-2">
             {NAV_LINKS.map(({ icon: Icon, label, to }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={to === "/"}
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  `flex items-center gap-4 text-xl font-bold px-4 py-3 rounded-xl transition-all duration-200 hover:bg-primary/20 ${isActive ? "text-primary bg-primary/10" : "text-base-content/50 hover:text-base-content hover:bg-white/5"}`
+              <NavLink 
+                key={to} 
+                to={to} 
+                end={to === "/"} 
+                onClick={closeMenu} 
+                className={({ isActive }) => 
+                  `flex items-center gap-4 text-xl font-bold px-4 py-3 rounded-xl transition-all ${
+                    isActive ? "text-primary bg-primary/10" : "text-base-content/50"
+                  }`
                 }
               >
                 <Icon size={22} /> <span>{label}</span>
@@ -202,28 +180,25 @@ const Navbar = ({ theme, toggleTheme }) => {
           <div className="pb-10 pt-4 border-t border-white/[0.06]">
             {showLoggedInUI ? (
               <div className="flex items-center justify-between">
-                <NavLink
-                  to="/profile"
-                  onClick={closeMenu}
-                  className="flex items-center gap-3 text-base-content/70 hover:text-base-content transition"
-                >
-                  <img src={stickyAvatar} className="w-11 h-11 rounded-full object-cover" alt="Profile" />
+                <NavLink to="/profile" onClick={closeMenu} className="flex items-center gap-3">
+                  <img src={stickyAvatar} className="w-11 h-11 rounded-full object-cover" />
                   <span className="font-bold">{user?.username || "Profile"}</span>
                 </NavLink>
-                <button onClick={handleLogout} className="p-3 text-error hover:bg-error/10 rounded-xl transition">
+                <button onClick={handleLogout} className="p-3 text-error">
                   <LogOut />
                 </button>
               </div>
             ) : (
-              <div className="flex gap-4 text-base-content/60">
-                <NavLink to="/login" onClick={closeMenu} className="flex-1 text-center py-3 rounded-xl font-bold bg-base-100 hover:bg-white/20">Login</NavLink>
+              <div className="flex gap-4">
+                <NavLink to="/login" onClick={closeMenu} className="flex-1 text-center py-3 rounded-xl font-bold bg-base-100">Login</NavLink>
                 <NavLink to="/register" onClick={closeMenu} className="flex-1 text-center py-3 bg-primary text-primary-content rounded-xl font-bold">Register</NavLink>
               </div>
             )}
           </div>
         </div>
       </div>
-    </nav >
+    </nav>
   );
 }
+
 export default Navbar;

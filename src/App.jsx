@@ -38,6 +38,9 @@ import NotFoundPage from "@/pages/error-pages/NotFoundPage";
 import ServerErrorPage from "@/pages/error-pages/ServerErrorPage";
 import ForbiddenPage from "@/pages/error-pages/ForbiddenPage";
 
+// Notifications
+import ViewAllNotifications from "@/pages/notifications/ViewAllNotifications";
+
 export default function App() {
   const { theme, toggleTheme } = useTheme();
 
@@ -99,6 +102,7 @@ export default function App() {
             <Route path="/server-error" element={<ServerErrorPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/audit-log" element={<AuditLogPage />} />
+            <Route path="/notifications" element={<ViewAllNotifications />} />
 
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

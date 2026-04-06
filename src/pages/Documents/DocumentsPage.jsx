@@ -237,9 +237,14 @@ const DocumentsPage = () => {
                         </td>
                         <td>
                           <Link to={`/profile/${doc.created_by}`} className="flex items-center gap-3 hover:text-primary transition-colors">
-                            <div className="avatar">
-                              <div className="w-7 h-7 rounded-full ring ring-primary/10 ring-offset-base-100 ring-offset-1">
-                                <img src={doc.created_by_avatar_url} alt={doc.created_by_username} />
+                            <div className="avatar group">
+                              <div className="w-7 h-7 rounded-full ring ring-primary/10 ring-offset-base-100 ring-offset-1 
+    group-hover:ring-primary/40 group-hover:scale-110 transition-all duration-300 overflow-hidden bg-base-300">
+                                <img
+                                  src={doc.created_by_avatar_url}
+                                  alt={doc.created_by_username}
+                                  className="w-full h-full object-cover"
+                                />
                               </div>
                             </div>
                             <span className="text-[11px] font-bold opacity-70">{doc.active_version?.creator_name || doc.created_by_username}</span>

@@ -128,12 +128,16 @@ const AuditLogPage = () => {
 
                           <Link to={`/profile/${log.user_id}`}>
                             <div className="flex items-center gap-3 justify-center">
-                              <div className="flex-shrink-0">
-                                <img
-                                  src={log.created_by_avatar_url}
-                                  alt="avatar"
-                                  className="w-10 h-10 rounded-full object-cover ring-2 ring-base-content/5 bg-base-300"
-                                />
+                              <div className="flex-shrink-0 group">
+                                <div className="avatar">
+                                  <div className="w-10 h-10 rounded-full ring-2 ring-primary/10 group-hover:ring-primary/40 group-hover:scale-110 transition-all duration-300 overflow-hidden bg-base-300">
+                                    <img
+                                      src={log.created_by_avatar_url}
+                                      alt="avatar"
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                </div>
                               </div>
                               <span className="font-bold text-sm tracking-tight truncate text-slate-800 dark:text-slate-100">
                                 {log.user}

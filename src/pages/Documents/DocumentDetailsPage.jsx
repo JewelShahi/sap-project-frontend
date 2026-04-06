@@ -271,7 +271,8 @@ const DocumentDetailsPage = () => {
 
                   {/* Originator Section */}
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="h-11 w-11 rounded-full bg-base-300/20 flex items-center justify-center text-primary shadow-inner shrink-0 overflow-hidden border border-base-300/10">
+                    <div className="group h-11 w-11 rounded-full bg-base-300/20 flex items-center justify-center text-primary shadow-inner shrink-0 overflow-hidden border border-base-300/10 
+  ring-2 ring-primary/10 group-hover:ring-primary/40 group-hover:scale-110 transition-all duration-300">
                       <img
                         src={document.created_by_avatar_url}
                         alt={document.created_by_username}
