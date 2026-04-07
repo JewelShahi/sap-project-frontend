@@ -29,9 +29,10 @@ const Notifications = () => {
     }
   };
 
+  // Load notification every 30sec
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 60000);
+    const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -58,14 +59,25 @@ const Notifications = () => {
   };
 
   const markAsRead = async (id) => {
-    try {
-      await api.patch(`/notifications/${id}/read/`);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
-      );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (err) {
-      notify.error("Update failed");
+    // Find the specific notification in your current state
+    const targetNotif = notifications.find(n => n.id === id);
+
+    // Only proceed if the notification exists and is currently UNREAD
+    if (targetNotif && !targetNotif.is_read) {
+      try {
+        await api.patch(`/notifications/${id}/read/`);
+
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+
+        // Show a toast when user clicks on single notification
+        notify.success("Marked as read");
+
+      } catch (err) {
+        notify.error("Update failed");
+      }
     }
   };
 
@@ -108,9 +120,12 @@ const Notifications = () => {
       {notifOpen && (
         <>
           <div className="fixed inset-0 z-[100] sm:hidden" onClick={() => setNotifOpen(false)} />
-          <div className="fixed right-0 left-4 top-24 sm:absolute sm:left-auto sm:right-0 sm:top-[calc(100%+22px)] z-[101] 
-            w-auto sm:w-[420px] bg-base-100 border border-primary/20
-            shadow-[0_20px_50px_rgba(0,0,0,0.3)] rounded-[1.5rem] overflow-hidden 
+          <div
+            className="fixed top-24 right-4 
+            sm:top-[calc(70px+1rem)] sm:right-4 z-[101] 
+            w-auto sm:w-[420px] max-w-[calc(100vw-2rem)] 
+            bg-base-100 border border-primary/20
+            shadow-[0_20px_50px_rgba(0,0,0,0.3)] rounded-[1.25rem] overflow-hidden 
             animate-in fade-in zoom-in-95 slide-in-from-top-4 duration-200 sm:origin-top-right"
           >
             {/* Header */}
@@ -128,22 +143,22 @@ const Notifications = () => {
                 <button
                   onClick={markAllAsRead}
                   disabled={unreadCount === 0}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all duration-300 font-black text-[10px] uppercase
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-[10px] uppercase
                     ${unreadCount > 0
-                      ? "bg-primary text-primary-content shadow-lg shadow-primary/30 hover:scale-105 active:scale-95"
+                      ? "bg-primary text-primary-content hover:scale-105 active:scale-95"
                       : "bg-base-300 text-base-content/30 cursor-not-allowed opacity-50"}`}
                 >
                   <CheckCheck size={14} />
                   Mark All
                 </button>
-                <button onClick={() => setNotifOpen(false)} className="p-2 rounded-xl bg-base-300 hover:text-error transition-colors">
+                <button onClick={() => setNotifOpen(false)} className="p-2 rounded-xl bg-error/20 hover:bg-error transition-all duration-200 hover:scale-105 active:scale-95">
                   <X size={18} />
                 </button>
               </div>
             </div>
 
             {/* Scrollable Feed */}
-            <div className="max-h-[480px] overflow-y-auto custom-scrollbar bg-primary/5">
+            <div className="max-h-[400px] overflow-y-auto custom-scrollbar bg-primary/5">
               {notifications.length > 0 ? (
                 notifications.map((n) => (
                   <div
@@ -216,7 +231,7 @@ const Notifications = () => {
                     </div>
 
                     {!n.is_read && (
-                      <div className="absolute left-0 top-4 bottom-4 w-1 rounded-r-full bg-primary shadow-[2px_0_10px_rgba(var(--p),0.4)]" />
+                      <div className="absolute left-0 top-1 bottom-1 w-[0.3rem] rounded-r-full bg-primary shadow-[2px_0_10px_rgba(var(--p),0.4)]" />
                     )}
                   </div>
                 ))
