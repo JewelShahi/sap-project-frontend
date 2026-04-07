@@ -340,6 +340,7 @@ const ProfilePage = () => {
                         <button
                           onClick={() => document.getElementById("delete_account_modal").showModal()}
                           className="btn btn-error btn-sm rounded-xl px-4 w-full sm:w-auto"
+                          disabled={profile?.is_superuser}
                         >
                           <Trash2 size={16} />
                           <span>Delete Account</span>
