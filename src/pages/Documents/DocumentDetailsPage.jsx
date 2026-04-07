@@ -3,7 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft, Clock3, FileText, CheckCircle2, XCircle,
   PencilLine, GitBranchPlus, User, CalendarDays,
-  History, Eye, ShieldCheck, Info, FileCog
+  History, Eye, ShieldCheck, Info, FileCog,
+  CloudCog
 } from "lucide-react";
 
 import Animate from "@/components/animation/Animate.jsx";

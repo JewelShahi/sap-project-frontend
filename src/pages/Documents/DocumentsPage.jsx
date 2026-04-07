@@ -70,7 +70,7 @@ const DocumentsPage = () => {
     );
   }
 
-  let notStaff = !user?.is_staff
+  let notStaff = !user?.is_staff;
 
   return (
     <div className="min-h-[230vh] md:min-h-[200vh] bg-base-100 px-6 pb-12 pt-20 overflow-hidden">
