@@ -32,7 +32,7 @@ const Notifications = () => {
   // Load notification every 30sec
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
+    const interval = setInterval(fetchNotifications, 1000);
     return () => clearInterval(interval);
   }, []);
 
