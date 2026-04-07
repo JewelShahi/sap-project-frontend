@@ -87,7 +87,7 @@ const ViewAllNotifications = () => {
     // Set up polling (Live Update every 5 seconds)
     const interval = setInterval(() => {
       fetchNotifications(true); 
-    }, 5000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [fetchNotifications]);
@@ -140,13 +140,13 @@ const ViewAllNotifications = () => {
               <span className="text-[10px] font-black uppercase tracking-[0.4em]">Notification Registry</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-base-content leading-[0.9]">
-              Hello, <span className="text-primary">{user?.first_name || "Agent"}</span>
+              Hello, <span className="text-primary">{user?.first_name || "Agent"}</span> <span className="text-primary">{user?.last_name || "Agent"}</span>
             </h1>
           </div>
           <button
             onClick={markAllRead}
             disabled={unreadCount === 0}
-            className={`btn rounded-2xl border-none px-8 transition-all shadow-lg ${unreadCount === 0 ? 'btn-disabled opacity-30' : 'btn-primary hover:scale-105 shadow-primary/20'}`}
+            className={`btn rounded-2xl border-none px-8 transition-all ${unreadCount === 0 ? 'btn-disabled opacity-30' : 'btn-primary hover:scale-105'}`}
           >
             <MailOpen size={20} /> Mark All Read ({unreadCount})
           </button>
@@ -162,7 +162,7 @@ const ViewAllNotifications = () => {
                 <button 
                   key={f} 
                   onClick={() => { setFilter(f); setCurrentPage(1); }} 
-                  className={`btn btn-xs sm:btn-sm rounded-xl px-5 border-none uppercase text-[9px] lg:text-[10px] font-black tracking-widest ${filter === f ? "btn-primary shadow-lg shadow-primary/20" : "btn-ghost text-secondary hover:bg-base-300"}`}
+                  className={`btn btn-xs sm:btn-sm rounded-xl px-5 border-none uppercase text-[9px] lg:text-[10px] font-black tracking-widest ${filter === f ? "btn-primary " : "btn-ghost text-secondary hover:bg-base-300"}`}
                 >
                   {f}
                 </button>
