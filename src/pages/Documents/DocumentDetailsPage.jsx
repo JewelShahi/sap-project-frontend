@@ -75,6 +75,8 @@ const DocumentDetailsPage = () => {
       setShowModal(false);
       setSelectedUser(null);
       setSearch("");
+      // Optional: You might want to refetch members here instead of a full reload
+      // window.location.reload(); 
     } catch (err) {
       console.error(err);
     }
@@ -139,6 +141,14 @@ const DocumentDetailsPage = () => {
     );
   }, [members]);
 
+  const reviewers = useMemo(() => {
+    return members.filter(m => m.permission_type?.toUpperCase() === "APPROVE");
+  }, [members]);
+
+  const userInfoForReviewers = permissionType === "APPROVE"
+    ? users.filter(u => reviewers.some(r => r.user === u.id))
+    : users;
+
   const displayContent = versions[0]?.content || "System Remark: No description data provided for this entry.";
 
   if (loading) {
@@ -189,6 +199,14 @@ const DocumentDetailsPage = () => {
                     className="btn btn-outline btn-sm rounded-xl btn-accent"
                   >
                     Add Reader
+                  </button>
+
+                  {/* NEW BUTTON: Add Reviewer */}
+                  <button
+                    onClick={() => openModal("APPROVE")}
+                    className="btn btn-warning btn-sm rounded-xl"
+                  >
+                    Add Reviewer
                   </button>
                 </>
               )}
@@ -324,7 +342,7 @@ const DocumentDetailsPage = () => {
 
         {/* --- Permission Grid Snippet --- */}
         <Animate delay={0.15}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             {/* 1. CO-AUTHORS TABLE */}
             <div className="relative group">
@@ -439,6 +457,64 @@ const DocumentDetailsPage = () => {
                           ))
                         ) : (
                           <div className="h-32 flex items-center justify-center opacity-20 text-[10px] font-bold uppercase tracking-widest">No Logs Found</div>
+                        )}
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. REVIEWERS TABLE */}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-warning/5 blur-2xl rounded-[2rem] opacity-0 group-hover:scale-[1.02] transition-opacity duration-500" />
+              <div className="relative p-6 border border-base-content/10 backdrop-blur-2xl bg-base-100/5 shadow-2xl rounded-[1.5rem] flex flex-col h-[350px]">
+
+                <div className="flex items-center justify-between mb-4 px-2 shrink-0">
+                  <div className="space-y-1">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-warning">Reviewer Registry</h3>
+                  </div>
+                  <div className="text-[10px] font-mono opacity-60 bg-warning/10 px-2 py-1 rounded border uppercase border-warning/20">
+                    {reviewers?.length || 0} Users
+                  </div>
+                </div>
+
+                <div className="flex-1 flex flex-col min-h-0 border border-base-content/5 rounded-xl bg-base-100/10 overflow-hidden">
+                  <div className="overflow-x-auto custom-scrollbar">
+                    <div className="min-w-[500px] flex flex-col">
+
+                      <div className="grid grid-cols-12 gap-2 px-4 py-2 border-b border-base-content/10 bg-base-content/5 text-[9px] font-black uppercase tracking-widest opacity-60 shrink-0">
+                        <div className="col-span-8">User Details</div>
+                        <div className="col-span-4 text-right">User ID</div>
+                      </div>
+
+                      <div className="max-h-[240px] overflow-y-auto custom-scrollbar">
+                        {reviewers?.length > 0 ? (
+                          reviewers.map((m) => (
+                            <div key={m.id} className="grid grid-cols-12 gap-2 px-4 py-3 border-b border-base-content/5 items-center hover:bg-warning/5 transition-colors group/row">
+                              <div className="col-span-7">
+                                <Link to={`/profile/${m.user}`} className="flex items-center gap-3 group/link min-w-0 w-fit">
+                                  <div className="h-8 w-8 rounded-full ring-1 ring-warning/30 bg-base-300/20 overflow-hidden shrink-0 group-hover/link:ring-warning/60 transition-all">
+                                    <img src={m.user_avatar || `https://ui-avatars.com/api/?name=${m.username}`} className="h-full w-full object-cover" alt="" />
+                                  </div>
+                                  <div className="flex flex-col min-w-0 leading-tight gap-1">
+                                    <span className="text-xs font-bold truncate opacity-90 group-hover/link:text-warning transition-colors">
+                                      {m.full_name || (m.first_name || m.last_name ? `${m.first_name || ''} ${m.last_name || ''}`.trim() : "Unidentified Subject")}
+                                    </span>
+                                    <span className="text-[10px] font-mono opacity-50 tracking-tighter truncate">
+                                      Username: {m.username || "No ID"}
+                                    </span>
+                                  </div>
+                                </Link>
+                              </div>
+                              <div className="col-span-5 text-right">
+                                <span className="text-[9px] tracking-tighter text-warning font-black px-2 py-0.5">{m.user}</span>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="h-32 flex items-center justify-center opacity-20 text-[10px] font-bold uppercase tracking-widest">Registry Empty</div>
                         )}
                       </div>
 
@@ -599,8 +675,7 @@ const DocumentDetailsPage = () => {
         )}
       </div>
 
-      {/* Add this ref at the top of your component: const dialogRef = useRef(null); */}
-
+      {/* MODAL */}
       {showModal && (
         <dialog
           ref={(el) => {
@@ -615,7 +690,8 @@ const DocumentDetailsPage = () => {
             <div>
               <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-1">Permission Registry</h3>
               <h2 className="font-bold text-xl">
-                Add {permissionType === "WRITE" ? "Co-author" : "Reader"}
+                {/* Updated logic to handle "APPROVE" */}
+                Add {permissionType === "WRITE" ? "Co-author" : permissionType === "READ" ? "Reader" : "Reviewer"}
               </h2>
             </div>
 

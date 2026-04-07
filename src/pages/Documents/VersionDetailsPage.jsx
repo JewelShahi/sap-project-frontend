@@ -39,6 +39,8 @@ const VersionDetailsPage = () => {
   const [selectedReviewer, setSelectedReviewer] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [members, setMembers] = useState([]);
+  // We keep allUsers in case you need it for other features, 
+  // but we will prioritize 'members' for the dropdown.
   const [allUsers, setAllUsers] = useState([]);
 
   useEffect(() => {
@@ -54,6 +56,7 @@ const VersionDetailsPage = () => {
         const membersRes = await api.get(`/permissions/${versionData.document}/members/`);
         setMembers(membersRes.data);
 
+        // Optional: Fetch all users if needed elsewhere, otherwise this can be removed to optimize
         const allUsersRes = await api.get("/users/search/");
         setAllUsers(allUsersRes.data);
       } catch (err) {
@@ -101,6 +104,12 @@ const VersionDetailsPage = () => {
         .catch(() => setPreviewContent("Preview unavailable."));
     }
   }, [version]);
+
+  // Filter members to get only users with APPROVE permission
+  const documentReviewers = useMemo(() => {
+    if (!members.length) return [];
+    return members.filter(m => m.permission_type?.toUpperCase() === "APPROVE");
+  }, [members]);
 
   const statusInfo = getStatusDetails(version?.status);
   const isOwner = document?.created_by_username === user?.username || user?.is_superuser;
@@ -303,10 +312,16 @@ const VersionDetailsPage = () => {
                         className="select select-bordered w-full h-16 bg-base-300/20 border-base-300/40 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-warning/20 transition-all appearance-none pl-14 group-hover:bg-base-300/30"
                         value={selectedReviewer}
                         onChange={(e) => setSelectedReviewer(e.target.value)}
+                        disabled={documentReviewers.length === 0}
                       >
-                        <option value="" disabled>Select Reviewing Authority...</option>
-                        {allUsers.map((m) => (
-                          <option key={m.id} value={m.id}>{m.username}</option>
+                        <option value="" disabled>
+                          {documentReviewers.length === 0 
+                            ? "No Reviewers Assigned to Document" 
+                            : "Select Reviewing Authority..."}
+                        </option>
+                        {/* Iterate over filtered document reviewers */}
+                        {documentReviewers.map((m) => (
+                          <option key={m.user} value={m.user}>{m.username}</option>
                         ))}
                       </select>
                       <User className="absolute left-5 top-1/2 -translate-y-1/2 opacity-30 group-hover:opacity-60 transition-opacity" size={20} />
@@ -314,12 +329,12 @@ const VersionDetailsPage = () => {
 
                     <button
                       className={`btn h-16 px-10 rounded-2xl border-none transition-all duration-500 w-full lg:w-auto whitespace-nowrap
-                ${!selectedReviewer || submitting
+                ${!selectedReviewer || submitting || documentReviewers.length === 0
                           ? 'bg-base-300/50 text-base-content/30'
                           : 'bg-warning text-warning-content hover:shadow-[0_0_40px_-10px_rgba(251,191,36,0.5)] shadow-xl shadow-warning/20 hover:scale-[1.02] active:scale-[0.98]'
                         }`}
                       onClick={handleRequestReview}
-                      disabled={submitting || !selectedReviewer || isDeleted}
+                      disabled={submitting || !selectedReviewer || isDeleted || documentReviewers.length === 0}
                     >
                       {submitting ? (
                         <span className="loading loading-spinner loading-md"></span>
