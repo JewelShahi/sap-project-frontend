@@ -34,7 +34,7 @@ const SubmitButton = ({ submitting }) => {
         </span>
       ) : (
         <span className="flex items-center gap-2">
-          Sign In <ArrowRight size={20} />
+          Log In <ArrowRight size={20} />
         </span>
       )}
     </button>

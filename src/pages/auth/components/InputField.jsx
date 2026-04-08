@@ -1,5 +1,6 @@
 import React from 'react'
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
+import Animate from "@/components/animation/Animate";
 
 const InputField = ({ label, icon, error, isPassword, showPass, togglePass, hasForgot, ...props }) => {
   return (

@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { icon: House, label: "Home", to: "/" },
   { icon: Files, label: "Documents", to: "/documents" },
   { icon: ClipboardCheck, label: "Reviews", to: "/reviews" },
-  { icon: UserRound, label: "Users", to: "/admin" },
+  { icon: UserRound, label: "Users", to: "/manage-users" },
   { icon: MonitorCog, label: "Audit", to: "/audit-log" },
 ];
 

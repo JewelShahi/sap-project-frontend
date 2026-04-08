@@ -30,7 +30,7 @@ import VersionReviewPage from "@/pages/reviews/VersionReviewPage";
 import ReviewPage from "@/pages/reviews/ReviewPage";
 
 // Pages: Admin
-import AdminPage from "@/pages/admin/AdminPage";
+import ManageUsers from "@/pages/admin/ManageUsers";
 import AuditLogPage from "@/pages/admin/AuditLogPage";
 
 // Pages: Error Handling
@@ -100,7 +100,7 @@ export default function App() {
             <Route path="/reviews" element={<ReviewPage />} />
             <Route path="/forbidden" element={<ForbiddenPage />} />
             <Route path="/server-error" element={<ServerErrorPage />} />
-            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/manage-users" element={<ManageUsers />} />
             <Route path="/audit-log" element={<AuditLogPage />} />
             <Route path="/notifications" element={<ViewAllNotifications />} />
 
