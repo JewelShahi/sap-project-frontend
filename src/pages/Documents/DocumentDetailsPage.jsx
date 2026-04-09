@@ -1,10 +1,21 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
-  ArrowLeft, Clock3, FileText, CheckCircle2, XCircle,
-  PencilLine, GitBranchPlus, User, CalendarDays,
-  History, Eye, ShieldCheck, Info, FileCog,
-  CloudCog
+  ArrowLeft,
+  Clock3,
+  FileText,
+  CheckCircle2,
+  XCircle,
+  PencilLine,
+  GitBranchPlus,
+  User,
+  CalendarDays,
+  History,
+  Eye,
+  ShieldCheck,
+  Info,
+  FileCog,
+  CloudCog,
 } from "lucide-react";
 
 import Animate from "@/components/animation/Animate.jsx";
@@ -16,15 +27,52 @@ import Loader from "@/components/widgets/Loader.jsx";
 import MissingArtifact from "@/components/widgets/MissingArtifact.jsx";
 
 const STATUS_CONFIG = {
-  approved: { icon: CheckCircle2, color: "text-success", bg: "bg-success/10", border: "border-success/20", label: "Approved" },
-  pending_approval: { icon: Clock3, color: "text-warning", bg: "bg-warning/10", border: "border-warning/20", label: "Pending" },
-  pending: { icon: Clock3, color: "text-warning", bg: "bg-warning/10", border: "border-warning/20", label: "Pending" },
-  draft: { icon: PencilLine, color: "text-info", bg: "bg-info/10", border: "border-info/20", label: "Draft" },
-  rejected: { icon: XCircle, color: "text-error", bg: "bg-error/10", border: "border-error/20", label: "Rejected" },
-  default: { icon: FileText, color: "text-secondary", bg: "bg-base-300/10", border: "border-base-300/20", label: "Unknown" }
+  approved: {
+    icon: CheckCircle2,
+    color: "text-success",
+    bg: "bg-success/10",
+    border: "border-success/20",
+    label: "Approved",
+  },
+  pending_approval: {
+    icon: Clock3,
+    color: "text-warning",
+    bg: "bg-warning/10",
+    border: "border-warning/20",
+    label: "Pending",
+  },
+  pending: {
+    icon: Clock3,
+    color: "text-warning",
+    bg: "bg-warning/10",
+    border: "border-warning/20",
+    label: "Pending",
+  },
+  draft: {
+    icon: PencilLine,
+    color: "text-info",
+    bg: "bg-info/10",
+    border: "border-info/20",
+    label: "Draft",
+  },
+  rejected: {
+    icon: XCircle,
+    color: "text-error",
+    bg: "bg-error/10",
+    border: "border-error/20",
+    label: "Rejected",
+  },
+  default: {
+    icon: FileText,
+    color: "text-secondary",
+    bg: "bg-base-300/10",
+    border: "border-base-300/20",
+    label: "Unknown",
+  },
 };
 
-const getStatusDetails = (status) => STATUS_CONFIG[status?.toLowerCase()] || STATUS_CONFIG.default;
+const getStatusDetails = (status) =>
+  STATUS_CONFIG[status?.toLowerCase()] || STATUS_CONFIG.default;
 
 const DocumentDetailsPage = () => {
   const { id } = useParams();
@@ -40,6 +88,8 @@ const DocumentDetailsPage = () => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [members, setMembers] = useState([]);
+
+  const [versionPermissions, setVersionPermissions] = useState({});
 
   useEffect(() => {
     const delay = setTimeout(async () => {
@@ -77,7 +127,7 @@ const DocumentDetailsPage = () => {
       setSelectedUser(null);
       setSearch("");
       // Optional: You might want to refetch members here instead of a full reload
-      // window.location.reload(); 
+      // window.location.reload();
     } catch (err) {
       console.error(err);
     }
@@ -89,12 +139,29 @@ const DocumentDetailsPage = () => {
         const [docRes, versionsRes, membersRes] = await Promise.all([
           api.get(`/documents/${id}/`),
           api.get(`/versions/document/${id}/`),
-          api.get(`/permissions/${id}/members/`)
+          api.get(`/permissions/${id}/members/`),
         ]);
 
         setDocument(docRes.data);
         setVersions(versionsRes.data);
         setMembers(membersRes.data);
+
+        const fetchedVersions = versionsRes.data;
+        if (fetchedVersions.length > 0) {
+          const permissionResults = await Promise.all(
+            fetchedVersions.map((v) =>
+              api
+                .get(`/permissions/${v.id}/members/`)
+                .then((r) => ({ id: v.id, members: r.data }))
+                .catch(() => ({ id: v.id, members: [] })),
+            ),
+          );
+          const permMap = {};
+          permissionResults.forEach(({ id: vId, members: vMembers }) => {
+            permMap[vId] = vMembers;
+          });
+          setVersionPermissions(permMap);
+        }
       } catch (err) {
         setError("Database Linkage Failure.");
       } finally {
@@ -105,9 +172,17 @@ const DocumentDetailsPage = () => {
     fetchData();
   }, [id]);
 
-  const activeVersion = useMemo(() =>
-    document?.active_version || (versions.length ? versions[0] : null),
-    [document, versions]);
+  const isReader = useMemo(() => {
+    if (!user || !members.length) return false;
+    return members.some(
+      (m) => m.user === user.id && m.permission_type?.toUpperCase() === "READ",
+    );
+  }, [members, user]);
+
+  const activeVersion = useMemo(
+    () => document?.active_version || (versions.length ? versions[0] : null),
+    [document, versions],
+  );
 
   const statusInfo = getStatusDetails(activeVersion?.status);
   const isSuperUser = user?.is_superuser;
@@ -116,72 +191,80 @@ const DocumentDetailsPage = () => {
     if (!user || !members.length) return false;
 
     return members.some(
-      (m) =>
-        m.user === user.id && m.permission_type === "WRITE"
-    );
-  }, [members, user]);
-
-  const isReader = useMemo(() => {
-    if (!user || !members.length) return false;
-
-    return members.some(
-      (m) =>
-        m.user === user.id && m.permission_type?.toUpperCase() === "READ"
+      (m) => m.user === user.id && m.permission_type === "WRITE",
     );
   }, [members, user]);
 
   const coAuthors = useMemo(() => {
-    return members.filter(
-      (m) => m.permission_type?.toUpperCase() === "WRITE"
-    );
-  }, [members]);
-
-  const readers = useMemo(() => {
-    return members.filter(
-      (m) => m.permission_type?.toUpperCase() === "READ"
-    );
+    return members.filter((m) => m.permission_type?.toUpperCase() === "WRITE");
   }, [members]);
 
   const reviewers = useMemo(() => {
-    return members.filter(m => m.permission_type?.toUpperCase() === "APPROVE");
+    return members.filter(
+      (m) => m.permission_type?.toUpperCase() === "APPROVE",
+    );
   }, [members]);
 
-  const userInfoForReviewers = permissionType === "APPROVE"
-    ? users.filter(u => reviewers.some(r => r.user === u.id))
-    : users;
+  const visibleVersions = useMemo(() => {
+    if (!isReader || isOwner || isSuperUser || isCoAuthor) return versions;
+    return versions.filter((v) => {
+      const vMembers = versionPermissions[v.id] || [];
+      return vMembers.some(
+        (m) =>
+          m.user === user?.id && m.permission_type?.toUpperCase() === "READ",
+      );
+    });
+  }, [
+    versions,
+    versionPermissions,
+    isReader,
+    isOwner,
+    isSuperUser,
+    isCoAuthor,
+    user,
+  ]);
 
-  const displayContent = versions[0]?.content || "System Remark: No description data provided for this entry.";
+  const userInfoForReviewers =
+    permissionType === "APPROVE"
+      ? users.filter((u) => reviewers.some((r) => r.user === u.id))
+      : users;
+
+  const displayContent =
+    versions[0]?.content ||
+    "System Remark: No description data provided for this entry.";
 
   if (loading) {
-    return (
-      <Loader message="Loading document details..." />
-    );
+    return <Loader message="Loading document details..." />;
   }
 
-  if (error || !document) return (
-    <MissingArtifact
-      title="Document Not Found"
-      message="The requested document is missing from the system registry. It may have been redacted, purged, or moved to a restricted sector."
-      linkText="Return to Documents"
-      linkTo="/documents"
-    />
-  );
+  if (error || !document)
+    return (
+      <MissingArtifact
+        title="Document Not Found"
+        message="The requested document is missing from the system registry. It may have been redacted, purged, or moved to a restricted sector."
+        linkText="Return to Documents"
+        linkTo="/documents"
+      />
+    );
 
   return (
     <section className="px-6 py-20 min-h-screen bg-base-100 overflow-x-hidden">
       <div className="max-w-7xl mx-auto space-y-16">
-
         {/* TOP LEVEL NAVIGATION */}
         <Animate variant="fade-down">
           <div className="flex flex-col sm:flex-row items-center justify-between w-full border-b border-base-300/10 pb-8 gap-4">
-
             {/* LEFT: Back Button (Default size) */}
             <Link
               to="/documents"
               className="group btn btn-ghost btn-sm gap-2 rounded-xl border border-base-300/50 hover:bg-base-300/50 transition-all"
             >
-              <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-              <span className="text-[10px] uppercase tracking-[0.2em]">Back to Documents</span>
+              <ArrowLeft
+                size={14}
+                className="group-hover:-translate-x-1 transition-transform"
+              />
+              <span className="text-[10px] uppercase tracking-[0.2em]">
+                Back to Documents
+              </span>
             </Link>
 
             {/* RIGHT: Actions (Default sizes, just wraps if no space) */}
@@ -193,13 +276,6 @@ const DocumentDetailsPage = () => {
                     className="btn bg-secondary/40 hover:bg-secondary hover:scale-105 transition-all btn-sm rounded-xl"
                   >
                     Add Co-Author
-                  </button>
-
-                  <button
-                    onClick={() => openModal("READ")}
-                    className="btn btn-outline btn-sm rounded-xl hover:scale-105 transition-all btn-accent"
-                  >
-                    Add Reader
                   </button>
 
                   {/* NEW BUTTON: Add Reviewer */}
@@ -215,7 +291,12 @@ const DocumentDetailsPage = () => {
               {(isOwner || isSuperUser) && (
                 <button
                   onClick={async () => {
-                    if (!window.confirm("Are you sure you want to delete this document?")) return;
+                    if (
+                      !window.confirm(
+                        "Are you sure you want to delete this document?",
+                      )
+                    )
+                      return;
 
                     try {
                       await api.delete(`/documents/${id}/`);
@@ -237,7 +318,9 @@ const DocumentDetailsPage = () => {
                   className="btn btn-primary btn-sm rounded-xl border-none hover:scale-105 transition-all h-10 px-6 flex items-center gap-2"
                 >
                   <GitBranchPlus size={16} />
-                  <span className="font-bold text-[10px] uppercase tracking-widest">New Version</span>
+                  <span className="font-bold text-[10px] uppercase tracking-widest">
+                    New Version
+                  </span>
                 </Link>
               )}
             </div>
@@ -246,7 +329,6 @@ const DocumentDetailsPage = () => {
 
         {/* CONTENT LEVEL */}
         <div className="grid lg:grid-cols-2 gap-12 pt-4">
-
           {/* Main Content */}
           <Animate className="lg:col-span-2 space-y-10 flex">
             <div className="space-y-4 mb-5">
@@ -276,22 +358,27 @@ const DocumentDetailsPage = () => {
           </Animate>
 
           {/* Metadata Sidebar */}
-          <Animate >
+          <Animate>
             <GlassCard className="p-8 space-y-8 border-primary/5 shadow-2xl sticky top-24 ">
               <div className="space-y-6 rounded-[1.5rem]">
                 <div>
-                  <span className="text-[9px] font-black uppercase opacity-30 tracking-[0.2em] block mb-3">Global Status</span>
-                  <div className={`w-fit px-4 py-2 rounded-xl border ${statusInfo.border} ${statusInfo.bg} ${statusInfo.color} text-[10px] font-black uppercase flex items-center gap-2`}>
+                  <span className="text-[9px] font-black uppercase opacity-30 tracking-[0.2em] block mb-3">
+                    Global Status
+                  </span>
+                  <div
+                    className={`w-fit px-4 py-2 rounded-xl border ${statusInfo.border} ${statusInfo.bg} ${statusInfo.color} text-[10px] font-black uppercase flex items-center gap-2`}
+                  >
                     <statusInfo.icon size={12} /> {statusInfo.label}
                   </div>
                 </div>
 
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-4 border-y border-base-300/10 py-8">
-
                   {/* Originator Section */}
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="group h-11 w-11 rounded-full bg-base-300/20 flex items-center justify-center text-primary shadow-inner shrink-0 overflow-hidden border border-base-300/10 
-  ring-2 ring-primary/10 group-hover:ring-primary/40 group-hover:scale-110 transition-all duration-300">
+                    <div
+                      className="group h-11 w-11 rounded-full bg-base-300/20 flex items-center justify-center text-primary shadow-inner shrink-0 overflow-hidden border border-base-300/10 
+  ring-2 ring-primary/10 group-hover:ring-primary/40 group-hover:scale-110 transition-all duration-300"
+                    >
                       <img
                         src={document.created_by_avatar_url}
                         alt={document.created_by_username}
@@ -299,7 +386,9 @@ const DocumentDetailsPage = () => {
                       />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[9px] uppercase font-black opacity-40 tracking-[0.2em] mb-0.5">Originator</span>
+                      <span className="text-[9px] uppercase font-black opacity-40 tracking-[0.2em] mb-0.5">
+                        Originator
+                      </span>
                       <span className="text-sm font-bold text-base-content/90 tracking-tight">
                         {document.created_by_username}
                       </span>
@@ -312,24 +401,34 @@ const DocumentDetailsPage = () => {
                   {/* Modified Date Section */}
                   <div className="flex items-center gap-4 flex-1 md:justify-end">
                     <div className="flex flex-col md:items-end order-2 md:order-1">
-                      <span className="text-[9px] uppercase font-black opacity-40 tracking-[0.2em] mb-0.5">Last Modified</span>
+                      <span className="text-[9px] uppercase font-black opacity-40 tracking-[0.2em] mb-0.5">
+                        Last Modified
+                      </span>
                       <div className="flex flex-col items-center justify-center gap-0.5">
                         {/* Date Div */}
                         <div className="text-[13px] font-bold text-base-content/90 tracking-tight text-center">
-                          {new Date(document.updated_at).toLocaleDateString('en-GB', {
-                            day: 'numeric',
-                            month: 'short'
-                          }) + ', ' + new Date(document.updated_at).getFullYear()}
+                          {new Date(document.updated_at).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "numeric",
+                              month: "short",
+                            },
+                          ) +
+                            ", " +
+                            new Date(document.updated_at).getFullYear()}
                         </div>
 
                         {/* Time Div */}
                         <div className="text-[11px] font-medium opacity-40 uppercase tracking-wide text-center">
-                          {new Date(document.updated_at).toLocaleTimeString(undefined, {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit',
-                            hour12: true
-                          })}
+                          {new Date(document.updated_at).toLocaleTimeString(
+                            undefined,
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                              hour12: true,
+                            },
+                          )}
                         </div>
                       </div>
                     </div>
@@ -337,13 +436,16 @@ const DocumentDetailsPage = () => {
                       <CalendarDays size={18} />
                     </div>
                   </div>
-
                 </div>
 
                 <div className="p-6 rounded-[1.5rem] bg-primary/10 border border-primary/20 flex items-center justify-between">
                   <div className="flex flex-col">
-                    <span className="text-[8px] uppercase font-black text-primary tracking-[0.2em]">Active Release</span>
-                    <span className="text-2xl font-black">v{activeVersion?.version_number || "1.0"}</span>
+                    <span className="text-[8px] uppercase font-black text-primary tracking-[0.2em]">
+                      Active Release
+                    </span>
+                    <span className="text-2xl font-black">
+                      v{activeVersion?.version_number || "1.0"}
+                    </span>
                   </div>
                   <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center">
                     <ShieldCheck size={24} />
@@ -352,22 +454,21 @@ const DocumentDetailsPage = () => {
               </div>
             </GlassCard>
           </Animate>
-
         </div>
 
         {/* --- Permission Grid Snippet --- */}
         <Animate delay={0.15}>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* 1. CO-AUTHORS TABLE */}
             <div className="relative group">
               <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-[2rem] opacity-0 group-hover:scale-[1.02] transition-opacity duration-500" />
               <div className="relative p-6 border border-base-content/10 backdrop-blur-2xl bg-base-100/5 shadow-2xl rounded-[1.5rem] flex flex-col h-[350px]">
-
                 {/* Header Section */}
                 <div className="flex items-center justify-between mb-4 px-2 shrink-0">
                   <div className="space-y-1">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Co-Author Registry</h3>
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">
+                      Co-Author Registry
+                    </h3>
                   </div>
                   <div className="text-[10px] font-mono opacity-60 bg-primary/10 px-2 py-1 rounded border uppercase border-primary/20">
                     {coAuthors?.length || 0} Users
@@ -379,7 +480,6 @@ const DocumentDetailsPage = () => {
                   <div className="overflow-x-auto custom-scrollbar">
                     {/* Set a min-width here so columns don't collapse on small screens */}
                     <div className="min-w-[500px] flex flex-col">
-
                       {/* Table Header Row */}
                       <div className="grid grid-cols-12 gap-2 px-4 py-2 border-b border-base-content/10 bg-base-content/5 text-[9px] font-black uppercase tracking-widest opacity-60 shrink-0">
                         <div className="col-span-8">User Details</div>
@@ -390,15 +490,31 @@ const DocumentDetailsPage = () => {
                       <div className="max-h-[240px] overflow-y-auto custom-scrollbar">
                         {coAuthors?.length > 0 ? (
                           coAuthors.map((m) => (
-                            <div key={m.id} className="grid grid-cols-12 gap-2 px-4 py-3 border-b border-base-content/5 items-center hover:bg-primary/5 transition-colors group/row">
+                            <div
+                              key={m.id}
+                              className="grid grid-cols-12 gap-2 px-4 py-3 border-b border-base-content/5 items-center hover:bg-primary/5 transition-colors group/row"
+                            >
                               <div className="col-span-7">
-                                <Link to={`/profile/${m.user}`} className="flex items-center gap-3 group/link min-w-0 w-fit">
+                                <Link
+                                  to={`/profile/${m.user}`}
+                                  className="flex items-center gap-3 group/link min-w-0 w-fit"
+                                >
                                   <div className="h-8 w-8 rounded-full ring-1 ring-primary/30 bg-base-300/20 overflow-hidden shrink-0 group-hover/link:ring-primary/60 transition-all">
-                                    <img src={m.user_avatar || `https://ui-avatars.com/api/?name=${m.username}`} className="h-full w-full object-cover" alt="" />
+                                    <img
+                                      src={
+                                        m.user_avatar ||
+                                        `https://ui-avatars.com/api/?name=${m.username}`
+                                      }
+                                      className="h-full w-full object-cover"
+                                      alt=""
+                                    />
                                   </div>
                                   <div className="flex flex-col min-w-0 leading-tight gap-1">
                                     <span className="text-xs font-bold truncate opacity-90 group-hover/link:text-primary transition-colors">
-                                      {m.full_name || (m.first_name || m.last_name ? `${m.first_name || ''} ${m.last_name || ''}`.trim() : "Unidentified Subject")}
+                                      {m.full_name ||
+                                        (m.first_name || m.last_name
+                                          ? `${m.first_name || ""} ${m.last_name || ""}`.trim()
+                                          : "Unidentified Subject")}
                                     </span>
                                     <span className="text-[10px] font-mono opacity-50 tracking-tighter truncate">
                                       Username: {m.username || "No ID"}
@@ -407,88 +523,33 @@ const DocumentDetailsPage = () => {
                                 </Link>
                               </div>
                               <div className="col-span-5 text-right">
-                                <span className="text-[9px] tracking-tighter text-primary font-black px-2 py-0.5">{m.user}</span>
+                                <span className="text-[9px] tracking-tighter text-primary font-black px-2 py-0.5">
+                                  {m.user}
+                                </span>
                               </div>
                             </div>
                           ))
                         ) : (
-                          <div className="h-32 flex items-center justify-center opacity-20 text-[10px] font-bold uppercase tracking-widest">Registry Empty</div>
+                          <div className="h-32 flex items-center justify-center opacity-20 text-[10px] font-bold uppercase tracking-widest">
+                            Registry Empty
+                          </div>
                         )}
                       </div>
-
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* 2. READERS TABLE */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-secondary/5 blur-2xl rounded-[2rem] opacity-0 group-hover:scale-[1.02] transition-opacity duration-500" />
-              <div className="relative p-6 border border-base-content/10 backdrop-blur-2xl bg-base-100/5 shadow-2xl rounded-[1.5rem] flex flex-col h-[350px]">
-
-                <div className="flex items-center justify-between mb-4 px-2 shrink-0">
-                  <div className="space-y-1">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary">Readers — Authorized View Only</h3>
-                  </div>
-                  <div className="text-[10px] font-mono opacity-60 bg-secondary/10 px-2 py-1 rounded border uppercase border-secondary/20">
-                    {readers?.length || 0} Users
-                  </div>
-                </div>
-
-                {/* TABLE WRAPPER FOR X-AXIS SCROLL */}
-                <div className="flex-1 flex flex-col min-h-0 border border-base-content/5 rounded-xl bg-base-100/10 overflow-hidden">
-                  <div className="overflow-x-auto custom-scrollbar">
-                    <div className="min-w-[500px] flex flex-col">
-
-                      <div className="grid grid-cols-12 gap-2 px-4 py-2 border-b border-base-content/10 bg-base-content/5 text-[9px] font-black uppercase tracking-widest opacity-60 shrink-0">
-                        <div className="col-span-7">User Details</div>
-                        <div className="col-span-5 text-right">User ID</div>
-                      </div>
-
-                      <div className="max-h-[240px] overflow-y-auto custom-scrollbar">
-                        {readers?.length > 0 ? (
-                          readers.map((m) => (
-                            <div key={m.id} className="grid grid-cols-12 gap-2 px-4 py-2 border-b border-base-content/5 items-center hover:bg-secondary/5 transition-colors">
-                              <div className="col-span-7 flex items-center gap-3 py-1">
-                                <Link to={`/profile/${m.user}`} className="flex items-center gap-3 group/link">
-                                  <div className="h-8 w-8 rounded-full ring-1 ring-secondary/30 bg-base-300/20 overflow-hidden shrink-0 transition-transform duration-200 group-hover/link:scale-110 group-hover/link:ring-primary/60">
-                                    <img src={m.user_avatar || `https://ui-avatars.com/api/?name=${m.username}`} className="h-full w-full object-cover" alt="" />
-                                  </div>
-                                  <div className="flex flex-col min-w-0 gap-1">
-                                    <span className="text-xs font-bold truncate transition-colors group-hover/link:text-primary">
-                                      {m.full_name || (m.first_name ? `${m.first_name} ${m.last_name || ''}` : "No Name")}
-                                    </span>
-                                    <span className="text-[10px] font-mono opacity-50 tracking-tighter truncate">
-                                      Username: {m.username || "No ID"}
-                                    </span>
-                                  </div>
-                                </Link>
-                              </div>
-                              <div className="col-span-5 text-right text-[9px] tracking-tighter text-primary font-black px-2 py-0.5 ">
-                                {m.user || "No ID"}
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="h-32 flex items-center justify-center opacity-20 text-[10px] font-bold uppercase tracking-widest">No Logs Found</div>
-                        )}
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. REVIEWERS TABLE */}
+            {/* 2. REVIEWERS TABLE */}
             <div className="relative group">
               <div className="absolute inset-0 bg-warning/5 blur-2xl rounded-[2rem] opacity-0 group-hover:scale-[1.02] transition-opacity duration-500" />
               <div className="relative p-6 border border-base-content/10 backdrop-blur-2xl bg-base-100/5 shadow-2xl rounded-[1.5rem] flex flex-col h-[350px]">
-
                 <div className="flex items-center justify-between mb-4 px-2 shrink-0">
                   <div className="space-y-1">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-warning">Reviewer Registry</h3>
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-warning">
+                      Reviewer Registry
+                    </h3>
                   </div>
                   <div className="text-[10px] font-mono opacity-60 bg-warning/10 px-2 py-1 rounded border uppercase border-warning/20">
                     {reviewers?.length || 0} Users
@@ -498,7 +559,6 @@ const DocumentDetailsPage = () => {
                 <div className="flex-1 flex flex-col min-h-0 border border-base-content/5 rounded-xl bg-base-100/10 overflow-hidden">
                   <div className="overflow-x-auto custom-scrollbar">
                     <div className="min-w-[500px] flex flex-col">
-
                       <div className="grid grid-cols-12 gap-2 px-4 py-2 border-b border-base-content/10 bg-base-content/5 text-[9px] font-black uppercase tracking-widest opacity-60 shrink-0">
                         <div className="col-span-8">User Details</div>
                         <div className="col-span-4 text-right">User ID</div>
@@ -507,15 +567,31 @@ const DocumentDetailsPage = () => {
                       <div className="max-h-[240px] overflow-y-auto custom-scrollbar">
                         {reviewers?.length > 0 ? (
                           reviewers.map((m) => (
-                            <div key={m.id} className="grid grid-cols-12 gap-2 px-4 py-3 border-b border-base-content/5 items-center hover:bg-warning/5 transition-colors group/row">
+                            <div
+                              key={m.id}
+                              className="grid grid-cols-12 gap-2 px-4 py-3 border-b border-base-content/5 items-center hover:bg-warning/5 transition-colors group/row "
+                            >
                               <div className="col-span-7">
-                                <Link to={`/profile/${m.user}`} className="flex items-center gap-3 group/link min-w-0 w-fit">
+                                <Link
+                                  to={`/profile/${m.user}`}
+                                  className="flex items-center gap-3 group/link min-w-0 w-fit"
+                                >
                                   <div className="h-8 w-8 rounded-full ring-1 ring-warning/30 bg-base-300/20 overflow-hidden shrink-0 group-hover/link:ring-warning/60 transition-all">
-                                    <img src={m.user_avatar || `https://ui-avatars.com/api/?name=${m.username}`} className="h-full w-full object-cover" alt="" />
+                                    <img
+                                      src={
+                                        m.user_avatar ||
+                                        `https://ui-avatars.com/api/?name=${m.username}`
+                                      }
+                                      className="h-full w-full object-cover"
+                                      alt=""
+                                    />
                                   </div>
                                   <div className="flex flex-col min-w-0 leading-tight gap-1">
                                     <span className="text-xs font-bold truncate opacity-90 group-hover/link:text-warning transition-colors">
-                                      {m.full_name || (m.first_name || m.last_name ? `${m.first_name || ''} ${m.last_name || ''}`.trim() : "Unidentified Subject")}
+                                      {m.full_name ||
+                                        (m.first_name || m.last_name
+                                          ? `${m.first_name || ""} ${m.last_name || ""}`.trim()
+                                          : "Unidentified Subject")}
                                     </span>
                                     <span className="text-[10px] font-mono opacity-50 tracking-tighter truncate">
                                       Username: {m.username || "No ID"}
@@ -524,21 +600,23 @@ const DocumentDetailsPage = () => {
                                 </Link>
                               </div>
                               <div className="col-span-5 text-right">
-                                <span className="text-[9px] tracking-tighter text-warning font-black px-2 py-0.5">{m.user}</span>
+                                <span className="text-[9px] tracking-tighter text-warning font-black px-2 py-0.5">
+                                  {m.user}
+                                </span>
                               </div>
                             </div>
                           ))
                         ) : (
-                          <div className="h-32 flex items-center justify-center opacity-20 text-[10px] font-bold uppercase tracking-widest">Registry Empty</div>
+                          <div className="h-32 flex items-center justify-center opacity-20 text-[10px] font-bold uppercase tracking-widest">
+                            Registry Empty
+                          </div>
                         )}
                       </div>
-
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
           </div>
         </Animate>
 
@@ -551,7 +629,9 @@ const DocumentDetailsPage = () => {
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-base-300/50 to-transparent"></div>
               <div className="flex items-center gap-3 mb-5">
                 <History className="text-primary" size={20} />
-                <h2 className="text-xl font-black tracking-widest uppercase">Version History</h2>
+                <h2 className="text-xl font-black tracking-widest uppercase">
+                  Version History
+                </h2>
               </div>
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-base-300/50 to-transparent"></div>
             </div>
@@ -570,14 +650,25 @@ const DocumentDetailsPage = () => {
                     { label: "Approved", status: "approved", desc: "Verified" },
                     { label: "Pending", status: "pending", desc: "Awaiting" },
                     { label: "Rejected", status: "rejected", desc: "Declined" },
+<<<<<<< HEAD
                     { label: "Draft", status: "draft", desc: "Draft" },
                     { label: "Default", status: "default", desc: "No Status" }
+=======
+                    { label: "Default", status: "default", desc: "No Status" },
+>>>>>>> ae01cdbbd78d98b6b9f05fb44146767e461a7f45
                   ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 transition-opacity hover:opacity-80">
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 transition-opacity hover:opacity-80"
+                    >
                       <FileStatus status={item.status} />
                       <div className="flex flex-col leading-none">
-                        <span className="text-[11px] font-black text-base-content/80 tracking-tight">{item.label}</span>
-                        <span className="text-[7px] font-bold text-base-content/20 uppercase tracking-widest mt-1">{item.desc}</span>
+                        <span className="text-[11px] font-black text-base-content/80 tracking-tight">
+                          {item.label}
+                        </span>
+                        <span className="text-[7px] font-bold text-base-content/20 uppercase tracking-widest mt-1">
+                          {item.desc}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -598,9 +689,12 @@ const DocumentDetailsPage = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-base-300/5">
-                    {versions.length > 0 ? (
-                      versions.map((v) => (
-                        <tr key={v.id} className="group hover:bg-base-200/50 transition-all">
+                    {visibleVersions.length > 0 ? (
+                      visibleVersions.map((v) => (
+                        <tr
+                          key={v.id}
+                          className="group hover:bg-base-200/50 transition-all"
+                        >
                           {/* Version */}
                           <td className="py-6 px-10 relative">
                             <div
@@ -637,7 +731,10 @@ const DocumentDetailsPage = () => {
                               {/* LEFT: The Image Div */}
                               <div className="h-8 w-8 rounded-full ring-1 ring-primary/30 bg-base-300/20 overflow-hidden shrink-0 transition-transform duration-200 group-hover/link:scale-110 group-hover/link:ring-primary">
                                 <img
-                                  src={v.avatar_url || `https://ui-avatars.com/api/?name=${v.username}`}
+                                  src={
+                                    v.avatar_url ||
+                                    `https://ui-avatars.com/api/?name=${v.username}`
+                                  }
                                   className="h-full w-full object-cover"
                                   alt=""
                                 />
@@ -660,25 +757,33 @@ const DocumentDetailsPage = () => {
                                   <div className="flex flex-col items-center justify-center gap-0.5 w-full">
                                     {/* Date Line - 13px */}
                                     <div className="text-[13px] font-bold text-base-content whitespace-nowrap text-center">
-                                      {new Date(v.created_at).toLocaleDateString('en-GB', {
-                                        day: 'numeric',
-                                        month: 'short'
-                                      }) + ', ' + new Date(v.created_at).getFullYear()}
+                                      {new Date(
+                                        v.created_at,
+                                      ).toLocaleDateString("en-GB", {
+                                        day: "numeric",
+                                        month: "short",
+                                      }) +
+                                        ", " +
+                                        new Date(v.created_at).getFullYear()}
                                     </div>
 
                                     {/* Time Line - 11px */}
                                     <div className="text-[11px] font-medium opacity-40 uppercase tracking-wide text-center">
-                                      {new Date(v.created_at).toLocaleTimeString(undefined, {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        second: '2-digit',
-                                        hour12: true
+                                      {new Date(
+                                        v.created_at,
+                                      ).toLocaleTimeString(undefined, {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        second: "2-digit",
+                                        hour12: true,
                                       })}
                                     </div>
                                   </div>
                                 ) : (
                                   <div className="flex justify-center w-full">
-                                    <div className="text-[11px] italic opacity-30 text-center">Pending Date</div>
+                                    <div className="text-[11px] italic opacity-30 text-center">
+                                      Pending Date
+                                    </div>
                                   </div>
                                 )}
                               </span>
@@ -694,7 +799,10 @@ const DocumentDetailsPage = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="5" className="py-20 text-center opacity-30 italic text-sm tracking-widest uppercase">
+                        <td
+                          colSpan="5"
+                          className="py-20 text-center opacity-30 italic text-sm tracking-widest uppercase"
+                        >
                           No historical versions found
                         </td>
                       </tr>
@@ -717,13 +825,19 @@ const DocumentDetailsPage = () => {
           onClose={() => setShowModal(false)}
         >
           <div className="modal-box bg-base-100 p-8 rounded-[2rem] max-w-md space-y-6 shadow-2xl border border-base-300/5 relative overflow-hidden">
-
             {/* Header Section */}
             <div>
-              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-1">Permission Registry</h3>
+              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-1">
+                Permission Registry
+              </h3>
               <h2 className="font-bold text-xl">
                 {/* Updated logic to handle "APPROVE" */}
-                Add {permissionType === "WRITE" ? "Co-author" : permissionType === "READ" ? "Reader" : "Reviewer"}
+                Add{" "}
+                {permissionType === "WRITE"
+                  ? "Co-author"
+                  : permissionType === "READ"
+                    ? "Reader"
+                    : "Reviewer"}
               </h2>
             </div>
 
@@ -747,17 +861,26 @@ const DocumentDetailsPage = () => {
                     className={`flex items-center gap-3 p-3 cursor-pointer transition-all border-b border-base-content/5 last:border-0
                 ${selectedUser?.id === u.id ? "bg-primary text-primary-content" : "hover:bg-primary/10"}`}
                   >
-                    <div className={`h-9 w-9 rounded-full overflow-hidden shrink-0 ring-2 ${selectedUser?.id === u.id ? "ring-white/50" : "ring-primary/20"}`}>
+                    <div
+                      className={`h-9 w-9 rounded-full overflow-hidden shrink-0 ring-2 ${selectedUser?.id === u.id ? "ring-white/50" : "ring-primary/20"}`}
+                    >
                       <img
-                        src={u.avatar || `https://ui-avatars.com/api/?name=${u.username}&background=random`}
+                        src={
+                          u.avatar ||
+                          `https://ui-avatars.com/api/?name=${u.username}&background=random`
+                        }
                         className="h-full w-full object-cover"
                         alt=""
                       />
                     </div>
 
                     <div className="flex flex-col min-w-0">
-                      <span className="text-xs font-bold truncate">{u.username}</span>
-                      <span className={`text-[9px] font-mono tracking-tighter opacity-50 ${selectedUser?.id === u.id ? "text-white" : ""}`}>
+                      <span className="text-xs font-bold truncate">
+                        {u.username}
+                      </span>
+                      <span
+                        className={`text-[9px] font-mono tracking-tighter opacity-50 ${selectedUser?.id === u.id ? "text-white" : ""}`}
+                      >
                         ID: {u.id}
                       </span>
                     </div>
@@ -779,7 +902,10 @@ const DocumentDetailsPage = () => {
               {selectedUser && (
                 <div className="text-[10px] font-bold uppercase tracking-wider text-primary flex items-center gap-2">
                   <div className="w-1 h-1 rounded-full bg-primary" />
-                  Active Selection: <span className="opacity-60 normal-case">{selectedUser.username}</span>
+                  Active Selection:{" "}
+                  <span className="opacity-60 normal-case">
+                    {selectedUser.username}
+                  </span>
                 </div>
               )}
             </div>
@@ -807,7 +933,6 @@ const DocumentDetailsPage = () => {
                 Confirm Authorization
               </button>
             </div>
-
           </div>
           {/* Background Close Logic */}
           <form method="dialog" className="modal-backdrop">
@@ -817,6 +942,6 @@ const DocumentDetailsPage = () => {
       )}
     </section>
   );
-}
+};
 
 export default DocumentDetailsPage;
