@@ -35,7 +35,7 @@ const STATUS_CONFIG = {
     border: "border-success/20",
     label: "Approved",
   },
-  pending_approval: {
+  pending: {
     icon: Clock3,
     color: "text-warning",
     bg: "bg-warning/10",
@@ -160,6 +160,7 @@ const VersionDetailsPage = () => {
         .catch(() => setPreviewContent("Preview unavailable."));
     }
   }, [version]);
+
 
   const documentReviewers = useMemo(() => {
     if (!members.length) return [];
@@ -435,7 +436,7 @@ const VersionDetailsPage = () => {
         <Animate delay={0.1}>
           <div className="w-full mt-8">
             {(isOwner || isCoAuthor) &&
-            version.status !== "pending_approval" ? (
+              version.status !== "pending_approval" ? (
               <GlassCard className="w-full p-10 border-primary/5 shadow-2xl overflow-visible relative">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-warning/5 rounded-full blur-[120px] -mr-32 -mt-32 pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -ml-24 -mb-24 pointer-events-none" />
@@ -491,11 +492,10 @@ const VersionDetailsPage = () => {
                                 onClick={() =>
                                   handleToggleReviewer(selectedReviewer.id)
                                 }
-                                className={`transition-colors ${
-                                  isLocked
-                                    ? "opacity-30 cursor-not-allowed"
-                                    : "hover:text-white/80"
-                                }`}
+                                className={`transition-colors ${isLocked
+                                  ? "opacity-30 cursor-not-allowed"
+                                  : "hover:text-white/80"
+                                  }`}
                                 disabled={isLocked}
                               >
                                 <X size={14} />
@@ -562,13 +562,12 @@ const VersionDetailsPage = () => {
 
                     <button
                       className={`btn h-14 px-8 rounded-2xl border-none transition-all duration-300 w-full font-black uppercase text-[12px] tracking-widest relative z-10
-                ${
-                  selectedReviewers.length === 0 ||
-                  submitting ||
-                  documentReviewers.length === 0
-                    ? "bg-base-300/50 text-base-content/30 cursor-not-allowed"
-                    : "bg-warning text-warning-content hover:shadow-[0_0_40px_-10px_rgba(251,191,36,0.5)] shadow-xl shadow-warning/20 hover:scale-[1.01]"
-                }`}
+                ${selectedReviewers.length === 0 ||
+                          submitting ||
+                          documentReviewers.length === 0
+                          ? "bg-base-300/50 text-base-content/30 cursor-not-allowed"
+                          : "bg-warning text-warning-content hover:shadow-[0_0_40px_-10px_rgba(251,191,36,0.5)] shadow-xl shadow-warning/20 hover:scale-[1.01]"
+                        }`}
                       onClick={async () => {
                         await handleRequestReview();
                         window.location.reload();
@@ -619,61 +618,59 @@ const VersionDetailsPage = () => {
                 </h2>
               </div>
 
-              <GlassCard className="p-8 border-warning/5 shadow-2xl">
-                <div className="overflow-x-auto">
-                  <table className="table w-full">
-                    <thead>
-                      <tr className="text-secondary uppercase text-[10px] tracking-[0.2em] font-black border-b border-base-300/10">
-                        <th className="pb-4 pl-4">Reviewer</th>
-                        <th className="pb-4 text-center">Status</th>
+              <div className="relative rounded-[2rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-2xl overflow-hidden">
+                <div className="overflow-x-auto overflow-y-auto max-h-[70vh] scrollbar-custom">
+                  <table className="table w-full border-separate border-spacing-0">
+                    <thead className="sticky top-0 z-20">
+                      <tr className="bg-base-300/95 backdrop-blur-md text-secondary uppercase text-[11px] font-black tracking-[0.2em]">
+                        <th className="py-6 px-10">Reviewer Identity</th>
+                        <th className="text-center">Status</th>
+                        <th className="text-right px-10">Comments</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-base-300/5">
                       {reviews.map((review) => {
-                        const statusDetails = getStatusDetails(review.status);
+                        const statusDetails = getStatusDetails(review.review_status);
                         const StatusIcon = statusDetails.icon;
 
                         return (
-                          <tr
-                            key={review.id}
-                            className="hover:bg-base-200/30 transition-colors"
-                          >
-                            <td className="py-4 pl-4">
-                              <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-base-300/20 overflow-hidden ring-1 ring-primary/20">
-                                  <img
-                                    src={
-                                      review.reviewer_avatar ||
-                                      `https://ui-avatars.com/api/?name=${review.reviewer_name || review.reviewer_username}`
-                                    }
-                                    alt={review.reviewer_name || "Reviewer"}
-                                    className="h-full w-full object-cover"
-                                  />
-                                </div>
-                                <div className="flex flex-col">
-                                  <span className="text-sm font-bold text-base-content">
-                                    {review.reviewer_name ||
-                                      review.reviewer_username ||
-                                      `User ID: ${review.reviewer}`}
-                                  </span>
-                                  {review.reviewer_comment && (
-                                    <span className="text-xs text-base-content/50 italic truncate max-w-[200px]">
-                                      "{review.reviewer_comment}"
-                                    </span>
-                                  )}
+                          <tr key={review.id} className="hover:bg-primary/5 transition-colors group">
+                            <td className="py-6 px-10">
+                              <div className="flex flex-col gap-3 min-w-0">
+                                <Link to={`/profile/${review.reviewer}`}>
+                                  <div className="flex items-center gap-3">
+                                    <div className="avatar">
+                                      <div className="w-10 h-10 rounded-full ring-2 ring-primary/10 group-hover:ring-primary/40 group-hover:scale-110 transition-all duration-300 overflow-hidden bg-base-300">
+                                      {/* FIX: Add correct image */}
+                                        <img src={review.new_version.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                                      </div>
+                                    </div>
+                                    <span className="font-bold text-sm tracking-tight">{review.reviewer_name}</span>
+                                  </div>
+                                </Link>
+                              </div>
+                            </td>
+
+                            <td className="py-6 text-center">
+                              <div className="flex justify-center">
+                                <div
+                                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[10px] font-black uppercase border shadow-sm
+                                  ${statusDetails.bg} 
+                                  ${statusDetails.color} 
+                                  ${statusDetails.border}
+                                `}
+                                >
+                                  <StatusIcon size={12} />
+                                  {statusDetails.label}
                                 </div>
                               </div>
                             </td>
-                            <td className="py-4 text-center">
-                              <div
-                                className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[10px] font-black uppercase border
-                                ${statusDetails.bg} 
-                                ${statusDetails.color} 
-                                ${statusDetails.border}
-                              `}
-                              >
-                                <StatusIcon size={12} />
-                                {statusDetails.label}
+
+                            <td className="py-6 px-10">
+                              <div className="flex flex-col items-end gap-1">
+                                <span className="text-[11px] italic text-base-content opacity-40">
+                                  {review.comments || "No comments provided"}
+                                </span>
                               </div>
                             </td>
                           </tr>
@@ -682,7 +679,7 @@ const VersionDetailsPage = () => {
                     </tbody>
                   </table>
                 </div>
-              </GlassCard>
+              </div>
             </div>
           </Animate>
         )}

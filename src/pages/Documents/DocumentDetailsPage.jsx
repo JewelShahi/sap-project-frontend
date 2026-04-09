@@ -570,6 +570,7 @@ const DocumentDetailsPage = () => {
                     { label: "Approved", status: "approved", desc: "Verified" },
                     { label: "Pending", status: "pending", desc: "Awaiting" },
                     { label: "Rejected", status: "rejected", desc: "Declined" },
+                    { label: "Draft", status: "draft", desc: "Draft" },
                     { label: "Default", status: "default", desc: "No Status" }
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-3 transition-opacity hover:opacity-80">

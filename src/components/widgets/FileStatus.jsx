@@ -5,6 +5,7 @@ const FileStatus = ({ status }) => {
     approved: "#22C55E",
     pending: "#FBBF24",
     rejected: "#EF4444",
+    draft: "#277bf2",
     default: "#888",
   };
 
