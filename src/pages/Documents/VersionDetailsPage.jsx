@@ -18,6 +18,9 @@ import {
   Download,
   X,
   Search,
+  Users,
+  UserPlus,
+  Trash2,
 } from "lucide-react";
 
 import Animate from "@/components/animation/Animate.jsx";
@@ -89,6 +92,9 @@ const VersionDetailsPage = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [reviews, setReviews] = useState([]);
 
+  const [readerSearch, setReaderSearch] = useState("");
+  const [showReaderDropdown, setShowReaderDropdown] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -100,7 +106,7 @@ const VersionDetailsPage = () => {
         setDocument(docRes.data);
 
         const membersRes = await api.get(
-          `/permissions/${versionData.document}/members/`,
+          `/permissions/${versionData.id}/members/`,
         );
         setMembers(membersRes.data);
 
@@ -187,10 +193,7 @@ const VersionDetailsPage = () => {
       } else {
         const userToAdd = documentReviewers.find((m) => m.user === userId);
         if (!userToAdd) return prev;
-        return [
-          ...prev,
-          { id: userToAdd.user, username: userToAdd.username },
-        ];
+        return [...prev, { id: userToAdd.user, username: userToAdd.username }];
       }
     });
   };
@@ -238,6 +241,48 @@ const VersionDetailsPage = () => {
 
   const isDeleted = document?.is_deleted;
   const isSuperUser = user?.is_superuser;
+
+  const readers = useMemo(() => {
+    return members.filter((m) => m.permission_type?.toUpperCase() === "READ");
+  }, [members]);
+
+  const availablePotentialReaders = useMemo(() => {
+    return allUsers.filter((u) => {
+      const isAlreadyMember = members.some((m) => m.user === u.id);
+      const matchesSearch = u.username
+        .toLowerCase()
+        .includes(readerSearch.toLowerCase());
+      return !isAlreadyMember && matchesSearch;
+    });
+  }, [allUsers, members, readerSearch]);
+
+  const handleAddReader = async (userId) => {
+    try {
+      await api.post("/permissions/grant/", {
+        user: userId,
+        version: id,
+        document: version.document,
+        permission_type: "READ",
+      });
+      // Refresh members list
+      const membersRes = await api.get(`/permissions/${id}/members/`);
+      setMembers(membersRes.data);
+      setReaderSearch("");
+    } catch (err) {
+      console.error("Failed to add reader", err);
+    }
+  };
+
+  const handleRevokePermission = async (permissionId) => {
+    if (!window.confirm("Are you sure you want to revoke this user's access?"))
+      return;
+    try {
+      await api.delete(`/permissions/${permissionId}/revoke/`);
+      setMembers(members.filter((m) => m.id !== permissionId));
+    } catch (err) {
+      console.error("Failed to revoke permission", err);
+    }
+  };
 
   if (loading) return <Loader message="Loading version details..." />;
   if (error || !version)
@@ -430,6 +475,113 @@ const VersionDetailsPage = () => {
             </GlassCard>
           </Animate>
         </div>
+
+        {/* READER MANAGEMENT SECTION */}
+        {(isOwner || isCoAuthor) && (
+          <Animate delay={0.12}>
+            <div className="space-y-8">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <Users className="text-info" size={20} />
+                  <h2 className="text-xl font-black uppercase tracking-[0.2em]">
+                    Version Access Control (Readers)
+                  </h2>
+                </div>
+
+                {/* Add Reader Search */}
+                <div className="relative w-full md:w-80">
+                  <div className="relative">
+                    <UserPlus
+                      className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40"
+                      size={16}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Add specific reader..."
+                      className="input input-bordered w-full h-11 pl-12 bg-base-200/50 border-base-300/40 rounded-xl text-xs font-bold"
+                      value={readerSearch}
+                      onChange={(e) => setReaderSearch(e.target.value)}
+                      onFocus={() => setShowReaderDropdown(true)}
+                      onBlur={() =>
+                        setTimeout(() => setShowReaderDropdown(false), 200)
+                      }
+                    />
+                  </div>
+
+                  {showReaderDropdown && readerSearch && (
+                    <div className="absolute top-full left-0 w-full mt-2 bg-base-100 border border-base-300/20 rounded-xl shadow-2xl z-[50] max-h-48 overflow-y-auto">
+                      {availablePotentialReaders.map((u) => (
+                        <button
+                          key={u.id}
+                          className="w-full px-4 py-3 hover:bg-info/10 text-left text-xs font-bold flex justify-between items-center"
+                          onMouseDown={() => handleAddReader(u.id)}
+                        >
+                          {u.username}
+                          <span className="text-[8px] uppercase opacity-40">
+                            Invite
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <GlassCard className="border-info/5 overflow-hidden">
+                <table className="table w-full">
+                  <thead>
+                    <tr className="text-secondary uppercase text-[10px] tracking-widest font-black border-b border-base-300/10">
+                      <th className="bg-transparent">Identity</th>
+                      <th className="bg-transparent">Access Type</th>
+                      <th className="bg-transparent text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {readers.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan="3"
+                          className="text-center py-10 opacity-30 text-[10px] font-black uppercase tracking-widest"
+                        >
+                          No version-specific readers assigned
+                        </td>
+                      </tr>
+                    ) : (
+                      readers.map((reader) => (
+                        <tr
+                          key={reader.id}
+                          className="hover:bg-base-200/30 transition-colors"
+                        >
+                          <td>
+                            <div className="flex items-center gap-3">
+                              <User size={14} className="opacity-40" />
+                              <span className="font-bold text-sm">
+                                {reader.username}
+                              </span>
+                            </div>
+                          </td>
+                          <td>
+                            <span className="badge badge-outline border-info/30 text-info text-[9px] font-black uppercase px-2">
+                              Read Only
+                            </span>
+                          </td>
+                          <td className="text-right">
+                            <button
+                              onClick={() => handleRevokePermission(reader.id)}
+                              className="btn btn-ghost btn-xs text-error hover:bg-error/10 rounded-lg"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </GlassCard>
+            </div>
+          </Animate>
+        )}
 
         {/* ACTION SECTION */}
         <Animate delay={0.1}>
