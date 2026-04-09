@@ -1,10 +1,23 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
-  ArrowLeft, Clock3, FileText, CheckCircle2, XCircle,
-  PencilLine, User, CalendarDays, ShieldCheck,
-  Info, HardDrive, Hash, Eye, FileStack, Download,
-  X, Search
+  ArrowLeft,
+  Clock3,
+  FileText,
+  CheckCircle2,
+  XCircle,
+  PencilLine,
+  User,
+  CalendarDays,
+  ShieldCheck,
+  Info,
+  HardDrive,
+  Hash,
+  Eye,
+  FileStack,
+  Download,
+  X,
+  Search,
 } from "lucide-react";
 
 import Animate from "@/components/animation/Animate.jsx";
@@ -15,11 +28,41 @@ import api from "@/components/api/api.js";
 import { useAuth } from "@/context/AuthContext.jsx";
 
 const STATUS_CONFIG = {
-  approved: { icon: CheckCircle2, color: "text-success", bg: "bg-success/10", border: "border-success/20", label: "Approved" },
-  pending_approval: { icon: Clock3, color: "text-warning", bg: "bg-warning/10", border: "border-warning/20", label: "Pending" },
-  draft: { icon: PencilLine, color: "text-info", bg: "bg-info/10", border: "border-info/20", label: "Draft" },
-  rejected: { icon: XCircle, color: "text-error", bg: "bg-error/10", border: "border-error/20", label: "Rejected" },
-  default: { icon: FileText, color: "text-secondary", bg: "bg-base-300/10", border: "border-base-300/20", label: "Unknown" }
+  approved: {
+    icon: CheckCircle2,
+    color: "text-success",
+    bg: "bg-success/10",
+    border: "border-success/20",
+    label: "Approved",
+  },
+  pending_approval: {
+    icon: Clock3,
+    color: "text-warning",
+    bg: "bg-warning/10",
+    border: "border-warning/20",
+    label: "Pending",
+  },
+  draft: {
+    icon: PencilLine,
+    color: "text-info",
+    bg: "bg-info/10",
+    border: "border-info/20",
+    label: "Draft",
+  },
+  rejected: {
+    icon: XCircle,
+    color: "text-error",
+    bg: "bg-error/10",
+    border: "border-error/20",
+    label: "Rejected",
+  },
+  default: {
+    icon: FileText,
+    color: "text-secondary",
+    bg: "bg-base-300/10",
+    border: "border-base-300/20",
+    label: "Unknown",
+  },
 };
 
 const getStatusDetails = (status) =>
@@ -38,8 +81,9 @@ const VersionDetailsPage = () => {
   const [fileType, setFileType] = useState(null);
 
   const [selectedReviewers, setSelectedReviewers] = useState([]);
+  const [lockedReviewers, setLockedReviewers] = useState([]);
   const [reviewerSearch, setReviewerSearch] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false); // New state for visibility
+  const [showDropdown, setShowDropdown] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [members, setMembers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
@@ -55,7 +99,9 @@ const VersionDetailsPage = () => {
         const docRes = await api.get(`/documents/${versionData.document}/`);
         setDocument(docRes.data);
 
-        const membersRes = await api.get(`/permissions/${versionData.document}/members/`);
+        const membersRes = await api.get(
+          `/permissions/${versionData.document}/members/`,
+        );
         setMembers(membersRes.data);
 
         const allUsersRes = await api.get("/users/search/");
@@ -63,7 +109,7 @@ const VersionDetailsPage = () => {
 
         const reviewsRes = await api.get("/reviews/inbox/?all=true");
         const versionReviews = (reviewsRes.data || []).filter(
-          (r) => String(r.version) === String(id)
+          (r) => String(r.version) === String(id),
         );
         setReviews(versionReviews);
       } catch (err) {
@@ -75,6 +121,25 @@ const VersionDetailsPage = () => {
     };
     fetchData();
   }, [id]);
+
+  useEffect(() => {
+    if (!version?.id) return;
+
+    const fetchInherited = async () => {
+      try {
+        const res = await api.get(
+          `/versions/${version?.id}/inherited-reviewers/`,
+        );
+
+        setSelectedReviewers(res.data);
+        setLockedReviewers(res.data.map((r) => r.id));
+      } catch (err) {
+        console.error("Failed to fetch reviewers", err);
+      }
+    };
+
+    fetchInherited();
+  }, [version?.id]);
 
   const getFileType = (url) => {
     if (!url) return "unknown";
@@ -98,23 +163,34 @@ const VersionDetailsPage = () => {
 
   const documentReviewers = useMemo(() => {
     if (!members.length) return [];
-    return members.filter(m => m.permission_type?.toUpperCase() === "APPROVE");
+    return members.filter(
+      (m) => m.permission_type?.toUpperCase() === "APPROVE",
+    );
   }, [members]);
 
   const availableReviewers = useMemo(() => {
     return documentReviewers.filter((r) => {
-      const isAlreadySelected = selectedReviewers.includes(r.user);
-      const matchesSearch = r.username.toLowerCase().includes(reviewerSearch.toLowerCase());
+      const isAlreadySelected = selectedReviewers.some(
+        (sel) => sel.id === r.user,
+      );
+      const matchesSearch = r.username
+        .toLowerCase()
+        .includes(reviewerSearch.toLowerCase());
       return !isAlreadySelected && matchesSearch;
-    })
+    });
   }, [documentReviewers, selectedReviewers, reviewerSearch]);
 
   const handleToggleReviewer = (userId) => {
-    setSelectedReviewers(prev => {
-      if (prev.includes(userId)) {
-        return prev.filter(id => id !== userId);
+    setSelectedReviewers((prev) => {
+      if (prev.some((r) => r.id === userId)) {
+        return prev.filter((r) => r.id !== userId);
       } else {
-        return [...prev, userId];
+        const userToAdd = documentReviewers.find((m) => m.user === userId);
+        if (!userToAdd) return prev;
+        return [
+          ...prev,
+          { id: userToAdd.user, username: userToAdd.username },
+        ];
       }
     });
   };
@@ -124,18 +200,22 @@ const VersionDetailsPage = () => {
     try {
       setSubmitting(true);
 
-      await Promise.all(selectedReviewers.map(reviewerId =>
-        api.post("/reviews/create/", {
-          version: version.id,
-          reviewer: reviewerId,
-        })
-      ));
+      await Promise.all(
+        selectedReviewers.map((rev) =>
+          api.post("/reviews/create/", {
+            version: version.id,
+            reviewer: rev.id,
+          }),
+        ),
+      );
 
       const updated = await api.get(`/versions/${version.id}/`);
       setVersion(updated.data);
-
-      const reviewsRes = await api.get(`/reviews/?version=${id}`);
-      setReviews(reviewsRes.data);
+      const reviewsRes = await api.get(`/reviews/inbox/?all=true`);
+      const versionReviews = (reviewsRes.data || []).filter(
+        (r) => String(r.version) === String(id),
+      );
+      setReviews(versionReviews);
 
       setSelectedReviewers([]);
       setReviewerSearch("");
@@ -147,29 +227,32 @@ const VersionDetailsPage = () => {
   };
 
   const statusInfo = getStatusDetails(version?.status);
-  const isOwner = document?.created_by_username === user?.username || user?.is_superuser;
+  const isOwner =
+    document?.created_by_username === user?.username || user?.is_superuser;
   const isCoAuthor = useMemo(() => {
     if (!user || !members.length) return false;
-    return members.some((m) => m.user === user.id && m.permission_type === "WRITE");
+    return members.some(
+      (m) => m.user === user.id && m.permission_type === "WRITE",
+    );
   }, [members, user]);
 
   const isDeleted = document?.is_deleted;
   const isSuperUser = user?.is_superuser;
 
   if (loading) return <Loader message="Loading version details..." />;
-  if (error || !version) return (
-    <MissingArtifact
-      title="Version Not Found"
-      message="The requested version for this document is missing from the system registry. It may have been redacted or purged."
-      linkText="Return to Documents"
-      linkTo={`/documents`}
-    />
-  );
+  if (error || !version)
+    return (
+      <MissingArtifact
+        title="Version Not Found"
+        message="The requested version for this document is missing from the system registry. It may have been redacted or purged."
+        linkText="Return to Documents"
+        linkTo={`/documents`}
+      />
+    );
 
   return (
     <section className="px-6 py-20 min-h-screen bg-base-100 overflow-x-hidden">
       <div className="max-w-7xl mx-auto space-y-16">
-
         {/* TOP LEVEL NAVIGATION */}
         <Animate variant="fade-down">
           <div className="flex flex-col sm:flex-row items-center justify-between w-full border-b border-base-300/10 pb-8 gap-4">
@@ -177,8 +260,13 @@ const VersionDetailsPage = () => {
               to={`/documents/${document?.id}`}
               className="group btn btn-ghost btn-sm gap-2 rounded-xl border border-base-300/50 hover:bg-base-300/50 transition-all"
             >
-              <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-              <span className="text-[10px] uppercase tracking-[0.2em]">Back to Document</span>
+              <ArrowLeft
+                size={14}
+                className="group-hover:-translate-x-1 transition-transform"
+              />
+              <span className="text-[10px] uppercase tracking-[0.2em]">
+                Back to Document
+              </span>
             </Link>
 
             {isOwner && (
@@ -189,7 +277,9 @@ const VersionDetailsPage = () => {
                 className="btn btn-primary btn-sm rounded-xl border-none hover:scale-105 transition-all h-10 px-6 flex items-center gap-2"
               >
                 <Download size={16} />
-                <span className="font-bold text-[10px] uppercase tracking-widest">Download v.{version.version_number} File</span>
+                <span className="font-bold text-[10px] uppercase tracking-widest">
+                  Download v.{version.version_number} File
+                </span>
               </a>
             )}
           </div>
@@ -203,7 +293,8 @@ const VersionDetailsPage = () => {
                 <FileText size={18} /> Version Details
               </div>
               <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-base-content leading-[0.9]">
-                Version  <span className="text-primary">№ {version.version_number}</span>
+                Version{" "}
+                <span className="text-primary">№ {version.version_number}</span>
               </h1>
               <p className="text-base-content/50 font-bold uppercase tracking-widest text-xs">
                 {document?.title}
@@ -222,7 +313,8 @@ const VersionDetailsPage = () => {
                 <Info size={14} /> Version Remarks
               </h3>
               <p className="text-base-content/70 text-md leading-relaxed font-medium">
-                {version.content || "System Remark: No specific version notes provided."}
+                {version.content ||
+                  "System Remark: No specific version notes provided."}
               </p>
             </div>
           </Animate>
@@ -235,7 +327,9 @@ const VersionDetailsPage = () => {
                   <span className="text-[9px] font-black uppercase opacity-30 tracking-[0.2em] block mb-3">
                     Lifecycle Status
                   </span>
-                  <div className={`w-fit px-4 py-2 rounded-xl border ${statusInfo.border} ${statusInfo.bg} ${statusInfo.color} text-[10px] font-black uppercase flex items-center gap-2`}>
+                  <div
+                    className={`w-fit px-4 py-2 rounded-xl border ${statusInfo.border} ${statusInfo.bg} ${statusInfo.color} text-[10px] font-black uppercase flex items-center gap-2`}
+                  >
                     <statusInfo.icon size={12} /> {statusInfo.label}
                   </div>
                 </div>
@@ -244,13 +338,18 @@ const VersionDetailsPage = () => {
                   <div className="flex items-center gap-4 flex-1">
                     <div className="h-11 w-11 rounded-full bg-base-300/20 flex items-center justify-center text-primary shadow-inner shrink-0 overflow-hidden border border-base-300/10">
                       <img
-                        src={version.avatar_url || `https://ui-avatars.com/api/?name=${version.creator_name}`}
+                        src={
+                          version.avatar_url ||
+                          `https://ui-avatars.com/api/?name=${version.creator_name}`
+                        }
                         alt={version.creator_name}
                         className="h-full w-full object-cover"
                       />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[9px] uppercase font-black opacity-40 tracking-[0.2em] mb-0.5">Contributor</span>
+                      <span className="text-[9px] uppercase font-black opacity-40 tracking-[0.2em] mb-0.5">
+                        Contributor
+                      </span>
                       <span className="text-sm font-bold text-base-content/90 tracking-tight">
                         {version.creator_name}
                       </span>
@@ -261,24 +360,32 @@ const VersionDetailsPage = () => {
 
                   <div className="flex items-center gap-4 flex-1 md:justify-end">
                     <div className="flex flex-col md:items-end order-2 md:order-1">
-                      <span className="text-[9px] uppercase font-black opacity-40 tracking-[0.2em] mb-0.5">Created at</span>
+                      <span className="text-[9px] uppercase font-black opacity-40 tracking-[0.2em] mb-0.5">
+                        Created at
+                      </span>
                       <div className="flex flex-col items-center justify-center gap-0.5">
-                        {/* Date Div */}
                         <div className="text-[13px] font-bold text-base-content/90 tracking-tight text-center">
-                          {new Date(version.created_at).toLocaleDateString('en-GB', {
-                            day: 'numeric',
-                            month: 'short'
-                          }) + ', ' + new Date(version.created_at).getFullYear()}
+                          {new Date(version.created_at).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "numeric",
+                              month: "short",
+                            },
+                          ) +
+                            ", " +
+                            new Date(version.created_at).getFullYear()}
                         </div>
 
-                        {/* Time Div */}
                         <div className="text-[11px] font-medium opacity-40 uppercase tracking-wide text-center">
-                          {new Date(version.created_at).toLocaleTimeString(undefined, {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit',
-                            hour12: true
-                          })}
+                          {new Date(version.created_at).toLocaleTimeString(
+                            undefined,
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                              hour12: true,
+                            },
+                          )}
                         </div>
                       </div>
                     </div>
@@ -292,15 +399,21 @@ const VersionDetailsPage = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <HardDrive size={14} className="opacity-40" />
-                      <span className="text-[10px] font-black uppercase tracking-widest opacity-60">File Size</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-60">
+                        File Size
+                      </span>
                     </div>
-                    <span className="text-xs font-mono font-bold">{(version.file_size / 1024).toFixed(2)} KB</span>
+                    <span className="text-xs font-mono font-bold">
+                      {(version.file_size / 1024).toFixed(2)} KB
+                    </span>
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-3">
                       <Hash size={14} className="opacity-40" />
-                      <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Integrity Checksum</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-60">
+                        Integrity Checksum
+                      </span>
                     </div>
                     <span className="text-[10px] font-mono break-all opacity-40 bg-base-300/30 p-2 rounded-lg leading-tight">
                       {version.checksum}
@@ -321,7 +434,8 @@ const VersionDetailsPage = () => {
         {/* ACTION SECTION */}
         <Animate delay={0.1}>
           <div className="w-full mt-8">
-            {((isOwner || isCoAuthor) && version.status !== "pending_approval") ? (
+            {(isOwner || isCoAuthor) &&
+            version.status !== "pending_approval" ? (
               <GlassCard className="w-full p-10 border-primary/5 shadow-2xl overflow-visible relative">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-warning/5 rounded-full blur-[120px] -mr-32 -mt-32 pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -ml-24 -mb-24 pointer-events-none" />
@@ -336,18 +450,21 @@ const VersionDetailsPage = () => {
                         <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-warning">
                           Approval Protocol
                         </h3>
-                        <span className="text-[9px] uppercase font-bold opacity-30 tracking-widest">Security Level: High</span>
+                        <span className="text-[9px] uppercase font-bold opacity-30 tracking-widest">
+                          Security Level: High
+                        </span>
                       </div>
                     </div>
                     <p className="text-base font-medium text-base-content/70 leading-relaxed max-w-2xl">
-                      Initialize the audit sequence. Assign a qualified authority to verify the integrity and compliance of this version.
-                      Submitting will lock the version for manual editing until the review is concluded.
+                      Initialize the audit sequence. Assign a qualified
+                      authority to verify the integrity and compliance of this
+                      version. Submitting will lock the version for manual
+                      editing until the review is concluded.
                     </p>
                   </div>
 
                   {/* Right: Multi-Select Interface */}
                   <div className="flex flex-col gap-4 w-full xl:w-auto xl:min-w-[550px] relative">
-
                     {/* Selected Reviewers Tags */}
                     <div className="min-h-[50px] p-4 rounded-2xl border border-dashed border-base-content/20 bg-base-100/50 flex flex-wrap gap-2 content-start">
                       {selectedReviewers.length === 0 ? (
@@ -355,14 +472,31 @@ const VersionDetailsPage = () => {
                           No Reviewers Selected
                         </span>
                       ) : (
-                        selectedReviewers.map(userId => {
-                          const reviewer = documentReviewers.find(r => r.user === userId);
+                        selectedReviewers.map((selectedReviewer) => {
+                          const memberInfo = documentReviewers.find(
+                            (m) => m.user === selectedReviewer.id,
+                          );
+                          const isLocked = lockedReviewers.includes(
+                            selectedReviewer.id,
+                          );
                           return (
-                            <div key={userId} className="badge badge-primary gap-2 px-4 py-3 font-bold text-xs tracking-wider">
-                              {reviewer?.username || userId}
+                            <div
+                              key={selectedReviewer.id}
+                              className="badge badge-primary gap-2 px-4 py-3 font-bold text-xs tracking-wider"
+                            >
+                              {memberInfo?.username ||
+                                selectedReviewer.username ||
+                                selectedReviewer.id}
                               <button
-                                onClick={() => handleToggleReviewer(userId)}
-                                className="hover:text-white/80 transition-colors"
+                                onClick={() =>
+                                  handleToggleReviewer(selectedReviewer.id)
+                                }
+                                className={`transition-colors ${
+                                  isLocked
+                                    ? "opacity-30 cursor-not-allowed"
+                                    : "hover:text-white/80"
+                                }`}
+                                disabled={isLocked}
                               >
                                 <X size={14} />
                               </button>
@@ -375,7 +509,10 @@ const VersionDetailsPage = () => {
                     {/* Search / Dropdown Area */}
                     <div className="relative group">
                       <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40" size={18} />
+                        <Search
+                          className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40"
+                          size={18}
+                        />
                         <input
                           type="text"
                           className="input input-bordered w-full h-14 bg-base-300/20 border-base-300/40 rounded-2xl pl-12 pr-4 text-sm font-bold focus:ring-2 focus:ring-warning/20 transition-all group-hover:bg-base-300/30"
@@ -385,34 +522,38 @@ const VersionDetailsPage = () => {
                           onFocus={() => setShowDropdown(true)}
                           onClick={() => setShowDropdown(true)}
                           onBlur={() => {
-                            // Delay allows the click event on the dropdown buttons to fire before closing
                             setTimeout(() => setShowDropdown(false), 200);
                           }}
                         />
                       </div>
 
-                      {/* Dropdown List - Contextual Positioning + State Controlled */}
+                      {/* Dropdown List */}
                       {showDropdown && (
                         <div className="absolute bottom-full left-0 w-full mb-2 bg-base-100 border border-base-300/20 rounded-2xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar z-[100] animate-in fade-in slide-in-from-bottom-2 duration-200">
                           {availableReviewers.length > 0 ? (
-                            availableReviewers.map(r => (
+                            availableReviewers.map((r) => (
                               <button
                                 key={r.user}
                                 onMouseDown={(e) => {
-                                  // Use onMouseDown to prevent blur from closing menu before click is registered
                                   e.preventDefault();
                                   handleToggleReviewer(r.user);
                                   setReviewerSearch("");
                                 }}
                                 className="w-full flex items-center justify-between px-4 py-3 hover:bg-primary/10 transition-colors border-b border-base-300/5 last:border-0 text-left"
                               >
-                                <span className="font-bold text-sm">{r.username}</span>
-                                <div className="text-[10px] font-black uppercase opacity-40 bg-base-300/30 px-2 py-1 rounded">Click to Add</div>
+                                <span className="font-bold text-sm">
+                                  {r.username}
+                                </span>
+                                <div className="text-[10px] font-black uppercase opacity-40 bg-base-300/30 px-2 py-1 rounded">
+                                  Click to Add
+                                </div>
                               </button>
                             ))
                           ) : (
                             <div className="p-4 text-center text-xs font-bold opacity-40 uppercase tracking-widest">
-                              {reviewerSearch ? "No matching reviewers" : "No available reviewers"}
+                              {reviewerSearch
+                                ? "No matching reviewers"
+                                : "No available reviewers"}
                             </div>
                           )}
                         </div>
@@ -421,12 +562,22 @@ const VersionDetailsPage = () => {
 
                     <button
                       className={`btn h-14 px-8 rounded-2xl border-none transition-all duration-300 w-full font-black uppercase text-[12px] tracking-widest relative z-10
-                ${selectedReviewers.length === 0 || submitting || documentReviewers.length === 0
-                          ? 'bg-base-300/50 text-base-content/30 cursor-not-allowed'
-                          : 'bg-warning text-warning-content hover:shadow-[0_0_40px_-10px_rgba(251,191,36,0.5)] shadow-xl shadow-warning/20 hover:scale-[1.01]'
-                        }`}
-                      onClick={async () => { await handleRequestReview(); window.location.reload(); }}
-                      disabled={selectedReviewers.length === 0 || submitting || isDeleted}
+                ${
+                  selectedReviewers.length === 0 ||
+                  submitting ||
+                  documentReviewers.length === 0
+                    ? "bg-base-300/50 text-base-content/30 cursor-not-allowed"
+                    : "bg-warning text-warning-content hover:shadow-[0_0_40px_-10px_rgba(251,191,36,0.5)] shadow-xl shadow-warning/20 hover:scale-[1.01]"
+                }`}
+                      onClick={async () => {
+                        await handleRequestReview();
+                        window.location.reload();
+                      }}
+                      disabled={
+                        selectedReviewers.length === 0 ||
+                        submitting ||
+                        isDeleted
+                      }
                     >
                       {submitting ? (
                         <span className="loading loading-spinner loading-sm"></span>
@@ -483,19 +634,27 @@ const VersionDetailsPage = () => {
                         const StatusIcon = statusDetails.icon;
 
                         return (
-                          <tr key={review.id} className="hover:bg-base-200/30 transition-colors">
+                          <tr
+                            key={review.id}
+                            className="hover:bg-base-200/30 transition-colors"
+                          >
                             <td className="py-4 pl-4">
                               <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-base-300/20 overflow-hidden ring-1 ring-primary/20">
                                   <img
-                                    src={review.reviewer_avatar || `https://ui-avatars.com/api/?name=${review.reviewer_name || review.reviewer_username}`}
+                                    src={
+                                      review.reviewer_avatar ||
+                                      `https://ui-avatars.com/api/?name=${review.reviewer_name || review.reviewer_username}`
+                                    }
                                     alt={review.reviewer_name || "Reviewer"}
                                     className="h-full w-full object-cover"
                                   />
                                 </div>
                                 <div className="flex flex-col">
                                   <span className="text-sm font-bold text-base-content">
-                                    {review.reviewer_name || review.reviewer_username || `User ID: ${review.reviewer}`}
+                                    {review.reviewer_name ||
+                                      review.reviewer_username ||
+                                      `User ID: ${review.reviewer}`}
                                   </span>
                                   {review.reviewer_comment && (
                                     <span className="text-xs text-base-content/50 italic truncate max-w-[200px]">
@@ -506,11 +665,13 @@ const VersionDetailsPage = () => {
                               </div>
                             </td>
                             <td className="py-4 text-center">
-                              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[10px] font-black uppercase border
+                              <div
+                                className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[10px] font-black uppercase border
                                 ${statusDetails.bg} 
                                 ${statusDetails.color} 
                                 ${statusDetails.border}
-                              `}>
+                              `}
+                              >
                                 <StatusIcon size={12} />
                                 {statusDetails.label}
                               </div>
@@ -567,6 +728,6 @@ const VersionDetailsPage = () => {
       </div>
     </section>
   );
-}
+};
 
 export default VersionDetailsPage;
