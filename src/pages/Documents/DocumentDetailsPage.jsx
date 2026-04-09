@@ -569,7 +569,7 @@ const DocumentDetailsPage = () => {
                           reviewers.map((m) => (
                             <div
                               key={m.id}
-                              className="grid grid-cols-12 gap-2 px-4 py-3 border-b border-base-content/5 items-center hover:bg-warning/5 transition-colors group/row "
+                              className="grid grid-cols-12 gap-2 px-4 py-3 border-b border-base-content/5 items-center hover:bg-warning/5 transition-colors group/row"
                             >
                               <div className="col-span-7">
                                 <Link
