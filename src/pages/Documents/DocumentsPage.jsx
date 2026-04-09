@@ -16,7 +16,7 @@ import GetGreeting from "@/components/greetings/GetGreeting";
 import api from "@/components/api/api";
 import { useAuth } from "@/context/AuthContext";
 
-const FILTERS = ["all", "approved", "pending_approval", "draft", "rejected"];
+const FILTERS = ["all", "approved", "pending", "draft", "rejected"];
 
 const ICON_MAP = {
   policy: <FileBadge size={20} />,
@@ -65,8 +65,6 @@ const DocumentsPage = () => {
     { label: "Pending", val: documents.filter(d => d.active_version?.status === "pending_approval").length, icon: Clock3, color: "warning", glass: "bg-warning/10" },
     { label: "Drafts", val: documents.filter(d => d.active_version?.status === "draft").length, icon: PencilLine, color: "purple", glass: "bg-purple/10" },
   ], [documents]);
-
-  console.log(documents)
 
   if (loading) {
     return (

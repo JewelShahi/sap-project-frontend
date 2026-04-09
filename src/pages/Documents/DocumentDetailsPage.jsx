@@ -34,13 +34,6 @@ const STATUS_CONFIG = {
     border: "border-success/20",
     label: "Approved",
   },
-  pending_approval: {
-    icon: Clock3,
-    color: "text-warning",
-    bg: "bg-warning/10",
-    border: "border-warning/20",
-    label: "Pending",
-  },
   pending: {
     icon: Clock3,
     color: "text-warning",
