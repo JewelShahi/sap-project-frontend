@@ -23,6 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
+.env
 
 # Dont forget
-src/components/api/api.js
+# src/components/api/api.js
