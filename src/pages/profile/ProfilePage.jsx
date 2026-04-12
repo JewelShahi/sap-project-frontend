@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 import {
-  User, Mail, Calendar, ShieldCheck,
+  User, Mail, Calendar, ShieldCheck, CircleCheck, ShieldBan,
   LogOut, Edit3, Trash2, Camera, BarChart3, EyeOff, Eye,
   Lock, ArrowLeft, Crown
 } from "lucide-react";
@@ -168,6 +168,7 @@ const ProfilePage = () => {
 
   // Render 
   const profile = profileData;
+  console.log(profile)
 
   return (
     <FluidBackground blobCount={6}>
@@ -231,34 +232,61 @@ const ProfilePage = () => {
                   <h2 className="mt-4 text-2xl md:text-3xl font-bold tracking-tight">
                     {profile?.first_name} {profile?.last_name}
                   </h2>
-                  <p className="text-secondary text-sm">@{profile?.username}</p>
+                  <p className="text-secondary text-sm mt-1 ">@{profile?.username}</p>
 
                   {/* Viewing someone else's profile badge */}
                   {!isOwnProfile && (
-                    <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-base-300/40 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-base-content/50">
+                    <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-base-300/40 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-base-content/50">
                       <User size={10} /> Public Profile
                     </div>
                   )}
 
-                  {/* Info rows */}
+                  {/* Email badge */}
                   <div className="mt-6 space-y-3">
-                    {/* Email — only show on own profile or if API exposes it */}
-                    {(isOwnProfile || profile?.email) && (
-                      <div className="flex items-center gap-3 px-4 py-2 bg-base-300/30 rounded-xl text-sm border border-white/5">
+                    {(profile?.email) && (
+                      <div className="flex items-center justify-center lg:justify-normal gap-3 px-4 py-2 bg-base-300/30 rounded-xl text-sm border border-white/5">
                         <Mail size={16} className="text-primary" />
                         <span className="truncate">{profile?.email}</span>
                       </div>
                     )}
 
-                    <div className="flex items-center gap-3 px-4 py-2 bg-base-300/30 rounded-xl text-sm border border-white/5">
-                      <Calendar size={16} className="text-teal" />
+                    {/* Date of creation badge */}
+                    <div className="flex items-center justify-center lg:justify-normal gap-3 px-4 py-2 bg-base-300/30 rounded-xl text-sm border border-white/5">
+                      <Calendar size={16} className="text-warning" />
                       <span>Joined on {
                         new Date(profile?.created_at).toLocaleDateString("en-GB")
                       }</span>
                     </div>
 
+                    {/* Account Status (Active/Banned) */}
+                    {(!isOwnProfile) && (
+                      <div className={`flex items-center justify-center lg:justify-normal gap-3 px-4 py-2 rounded-xl text-sm border backdrop-blur-md transition-all ${profile?.is_active
+                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
+                        : "bg-error/10 border-error/30 text-error shadow-[0_0_15px_rgba(255,0,0,0.1)]"
+                        }`}>
+                        {profile?.is_active ? (
+                          <>
+                            <CircleCheck size={16} className="opacity-80" />
+                            <span className="font-bold tracking-wide uppercase text-[10px]">
+                              Account Active
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <div className="relative flex items-center justify-center">
+                              <ShieldBan size={16} className="animate-pulse" />
+                            </div>
+                            <span className="font-black tracking-widest uppercase text-[11px]">
+                              User Banned
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Superuser badge */}
                     {((isOwnProfile || authUser?.is_superuser) && profile?.is_superuser) && (
-                      <div className="flex items-center gap-3 px-4 py-2 bg-amber-500/10 rounded-xl text-sm border border-amber-500/30 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.1)] backdrop-blur-md">
+                      <div className="flex items-center justify-center lg:justify-normal gap-3 px-4 py-2 bg-amber-500/10 rounded-xl text-sm border border-amber-500/30 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.1)] backdrop-blur-md">
                         <Crown size={16} className="text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.6)]" />
                         <span className="font-bold tracking-wide uppercase text-[11px]">
                           Superuser Access
@@ -266,12 +294,14 @@ const ProfilePage = () => {
                       </div>
                     )}
 
+                    {/* Admin (Staff) badge */}
                     {((isOwnProfile || authUser?.is_superuser) && profile?.is_staff) && (
-                      <div className="flex items-center gap-3 px-4 py-2 bg-glass-purple rounded-xl text-sm border border-purple/20 text-purple">
+                      <div className="flex items-center justify-center lg:justify-normal gap-3 px-4 py-2 bg-glass-purple rounded-xl text-sm border border-purple/20 text-purple">
                         <ShieldCheck size={16} />
                         <span className="font-medium">Administrator Access</span>
                       </div>
                     )}
+
                   </div>
 
                   {/* Action buttons — own profile only */}
