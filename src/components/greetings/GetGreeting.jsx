@@ -30,8 +30,8 @@ const GREETINGS = {
       range: [22, 24],
       text: "Wind down, ",
       colors: {
-        light: "text-slate-700",
-        dark: "text-slate-300",
+        light: "text-amber-700",
+        dark: "text-amber-300",
       },
     },
     {
