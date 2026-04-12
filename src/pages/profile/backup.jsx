@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import {
   User, Mail, Calendar, ShieldCheck, CircleCheck, ShieldBan,
   LogOut, Edit3, Trash2, Camera, BarChart3, EyeOff, Eye,
-  Lock, ArrowLeft, Crown, Fingerprint
+  Lock, ArrowLeft, Crown
 } from "lucide-react";
 
 import api from "@/components/api/api";
@@ -15,6 +15,7 @@ import notify from "@/components/toaster/notify";
 import Loader from "@/components/widgets/Loader.jsx";
 import pickGradient from "./components/gradients";
 import Modal from "./components/Modal.jsx";
+import StatCard from "./components/StatCard.jsx";
 
 // HELPERS - user data can be inconsistent so normilize it for easier use
 const mapUser = (data) => ({
@@ -37,9 +38,9 @@ const mapUser = (data) => ({
 const ProfilePage = () => {
   const { user: authUser, logout, setUser } = useAuth();
   const navigate = useNavigate();
-  const { id } = useParams(); 
+  const { id } = useParams(); // undefined on /profile, uuid on /profile/:id
 
-  const isOwnProfile = !id; 
+  const isOwnProfile = !id; // true → /profile | false → /profile/:id
 
   // States
   const [profileData, setProfileData] = useState(null);
@@ -59,6 +60,7 @@ const ProfilePage = () => {
     const fetchProfile = async () => {
       try {
         if (isOwnProfile) {
+          // Own profile: /users/me/
           const { data } = await api.get("/users/me/");
           const mapped = mapUser(data);
           setUser(mapped);
@@ -71,12 +73,15 @@ const ProfilePage = () => {
             avatar: mapped.avatar,
           }));
         } else {
+          // Other user: /users/<uuid>
+          // Guard: only allow if the caller is authenticated
           if (!authUser) {
             navigate("/forbidden");
             return;
           }
           try {
             const { data } = await api.get(`/users/${id}/`);
+            // If the server returns the own user's id, redirect to own profile
             if (data.id && authUser.id && data.id === authUser.id) {
               navigate("/profile", { replace: true });
               return;
@@ -102,7 +107,7 @@ const ProfilePage = () => {
     };
 
     fetchProfile();
-  }, [id]); 
+  }, [id]); // re-run if the :id param changes
 
   // Handlers (own profile only)
   const handleLogOut = async () => {
@@ -171,7 +176,7 @@ const ProfilePage = () => {
 
         {/* Back button when viewing someone else */}
         {!isOwnProfile && (
-          <div className="max-w-6xl mx-auto mb-6">
+          <div className="max-w-5xl mx-auto mb-6">
             <button
               onClick={() => navigate(-1)}
               className="btn btn-ghost btn-sm gap-2 rounded-xl border border-base-300/50 hover:bg-base-300/50 transition-all"
@@ -181,13 +186,12 @@ const ProfilePage = () => {
           </div>
         )}
 
-        {/* MAIN CONTAINER */}
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-          {/* LEFT: USER CARD (Identity + Badges) */}
+          {/* LEFT: PROFILE CARD */}
           <div className="lg:col-span-4 space-y-6">
             <Animate variant="fade-right">
-              <div className="card bg-base-200/40 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden h-full flex flex-col">
+              <div className="card bg-base-200/40 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden">
 
                 {/* Gradient banner */}
                 <div
@@ -195,7 +199,7 @@ const ProfilePage = () => {
                   style={gradientStyle}
                 />
 
-                <div className="px-6 pb-8 text-center -mt-14 flex-1 flex flex-col items-center justify-center">
+                <div className="px-6 pb-8 text-center -mt-14">
                   {/* Avatar */}
                   <div className="relative inline-block group">
                     <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-base-200 shadow-xl mx-auto transition-transform group-hover:scale-105 duration-300 relative z-0">
@@ -237,11 +241,52 @@ const ProfilePage = () => {
                     </div>
                   )}
 
-                  {/* BADGES (Admin/Superuser) - Kept as requested */}
-                  <div className="mt-6 space-y-3 w-full">
+                  {/* Email badge */}
+                  <div className="mt-6 space-y-3">
+                    {(profile?.email) && (
+                      <div className="flex items-center justify-center lg:justify-normal gap-3 px-4 py-2 bg-base-300/30 rounded-xl text-sm border border-white/5">
+                        <Mail size={16} className="text-primary" />
+                        <span className="truncate">{profile?.email}</span>
+                      </div>
+                    )}
+
+                    {/* Date of creation badge */}
+                    <div className="flex items-center justify-center lg:justify-normal gap-3 px-4 py-2 bg-base-300/30 rounded-xl text-sm border border-white/5">
+                      <Calendar size={16} className="text-warning" />
+                      <span>Joined on {
+                        new Date(profile?.created_at).toLocaleDateString("en-GB")
+                      }</span>
+                    </div>
+
+                    {/* Account Status (Active/Banned) */}
+                    {(!isOwnProfile) && (
+                      <div className={`flex items-center justify-center lg:justify-normal gap-3 px-4 py-2 rounded-xl text-sm border backdrop-blur-md transition-all ${profile?.is_active
+                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
+                        : "bg-error/10 border-error/30 text-error shadow-[0_0_15px_rgba(255,0,0,0.1)]"
+                        }`}>
+                        {profile?.is_active ? (
+                          <>
+                            <CircleCheck size={16} className="opacity-80" />
+                            <span className="font-bold tracking-wide uppercase text-[10px]">
+                              Account Active
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <div className="relative flex items-center justify-center">
+                              <ShieldBan size={16} className="animate-pulse" />
+                            </div>
+                            <span className="font-black tracking-widest uppercase text-[11px]">
+                              User Banned
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    )}
+
                     {/* Superuser badge */}
                     {((isOwnProfile || authUser?.is_superuser) && profile?.is_superuser) && (
-                      <div className="flex items-center justify-center gap-3 px-4 py-2 bg-amber-500/10 rounded-xl text-sm border border-amber-500/30 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.1)] backdrop-blur-md">
+                      <div className="flex items-center justify-center lg:justify-normal gap-3 px-4 py-2 bg-amber-500/10 rounded-xl text-sm border border-amber-500/30 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.1)] backdrop-blur-md">
                         <Crown size={16} className="text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.6)]" />
                         <span className="font-bold tracking-wide uppercase text-[11px]">
                           Superuser Access
@@ -251,16 +296,17 @@ const ProfilePage = () => {
 
                     {/* Admin (Staff) badge */}
                     {((isOwnProfile || authUser?.is_superuser) && profile?.is_staff) && (
-                      <div className="flex items-center justify-center gap-3 px-4 py-2 bg-glass-purple rounded-xl text-sm border border-purple/20 text-purple">
+                      <div className="flex items-center justify-center lg:justify-normal gap-3 px-4 py-2 bg-glass-purple rounded-xl text-sm border border-purple/20 text-purple">
                         <ShieldCheck size={16} />
                         <span className="font-medium">Administrator Access</span>
                       </div>
                     )}
+
                   </div>
 
                   {/* Action buttons — own profile only */}
                   {isOwnProfile && (
-                    <div className="grid grid-cols-2 gap-3 mt-8 w-full">
+                    <div className="grid grid-cols-2 gap-3 mt-8">
                       <button
                         onClick={() => document.getElementById("edit_profile_modal").showModal()}
                         className="btn btn-primary btn-sm rounded-xl gap-2"
@@ -280,79 +326,14 @@ const ProfilePage = () => {
             </Animate>
           </div>
 
-          {/* RIGHT: INFO GRID & DELETION */}
-          <div className="lg:col-span-8 space-y-6">
+          {/* RIGHT: STATS + MANAGEMENT */}
+          <div className="lg:col-span-8 space-y-8">
 
-            {/* INFO DIVS (Glassy /5) */}
-            <Animate variant="fade-up">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
-                {/* Email - Purple */}
-                {(profile?.email) && (
-                  <div className="card bg-glass-purple/20 backdrop-blur-md border-purple/20 p-4 rounded-2xl hover:bg-glass-purple/30 transition-all shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-full bg-purple/10">
-                        <Mail size={20} className="text-purple" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] uppercase font-bold text-base-content/50">Email Address</p>
-                        <p className="text-sm font-semibold text-base-content truncate max-w-[200px]">{profile?.email}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+            {/* Stats Grid */}
+            {/* Add here stats */}
 
-                {/* Joined - Teal */}
-                <div className="card bg-glass-teal/20 backdrop-blur-md border-teal/20 p-4 rounded-2xl hover:bg-glass-teal/30 transition-all shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-full bg-teal/10">
-                      <Calendar size={20} className="text-teal" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase font-bold text-base-content/50">Member Since</p>
-                      <p className="text-sm font-semibold text-base-content">
-                        {new Date(profile?.created_at).toLocaleDateString("en-GB")}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ID - Primary */}
-                <div className="card bg-primary/5 backdrop-blur-md border-primary/20 p-4 rounded-2xl hover:bg-primary/10 transition-all shadow-sm">
-                  <div className="flex items-center gap-3 justify-center">
-                    <div className="p-2 rounded-full bg-primary/10">
-                      <Fingerprint size={20} className="text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase font-bold text-base-content/50">Unique ID</p>
-                      <p className="text-sm font-mono text-base-content">{profile?.id}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Status - Dynamic */}
-                <div className={`card backdrop-blur-md border p-4 rounded-2xl hover:opacity-90 transition-all shadow-sm ${profile?.is_active
-                      ? "bg-success/5 border-success/20 hover:bg-success/20"
-                      : "bg-error/5 border-error/20 hover:bg-error/20"
-                    }`}>
-                  <div className="flex items-center gap-3 h-full">
-                    <div className={`p-2 rounded-full ${profile?.is_active ? 'bg-success/10' : 'bg-error/10'}`}>
-                      {profile?.is_active ? <CircleCheck size={20} className="text-success" /> : <ShieldBan size={20} className="text-error animate-pulse" />}
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase font-bold text-base-content/50">Account Status</p>
-                      <p className={`text-sm font-bold ${profile?.is_active ? 'text-success' : 'text-error'}`}>
-                        {profile?.is_active ? 'Active' : 'Banned'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </Animate>
-
-            {/* DELETION SECTION (Same right div) */}
-            {isOwnProfile ? (
+            {/* Account Management — own profile only */}
+            {isOwnProfile && (
               <Animate variant="fade-up" delay={200}>
                 <div className="card bg-base-200/40 backdrop-blur-xl border border-white/10">
                   <div className="card-body">
@@ -380,7 +361,10 @@ const ProfilePage = () => {
                   </div>
                 </div>
               </Animate>
-            ) : (
+            )}
+
+            {/* Read-only notice for other users */}
+            {!isOwnProfile && (
               <Animate variant="fade-up" delay={200}>
                 <div className="card bg-base-200/40 backdrop-blur-xl border border-white/10">
                   <div className="card-body flex flex-row items-center gap-4">
@@ -398,7 +382,6 @@ const ProfilePage = () => {
                 </div>
               </Animate>
             )}
-
           </div>
         </div>
 
@@ -413,7 +396,7 @@ const ProfilePage = () => {
                 </p>
 
                 <div className="space-y-6 relative">
-                  <div className="absolute -top-10 -right-10 w-32 h-32 blur-3xl rounded-full pointer-events-none" />
+                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 blur-3xl rounded-full pointer-events-none" />
 
                   <div className="flex flex-col items-center gap-3">
                     <label className="label self-start pb-0">

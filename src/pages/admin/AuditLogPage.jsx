@@ -7,7 +7,7 @@ import Loader from "@/components/widgets/Loader.jsx";
 import { Link } from "react-router-dom";
 
 const GLOBAL_GROUPS = [
-  { id: "CREATE", label: "Creation", icon: <UserPlus size={14} />, values: ["create document", "create user", "create version"], color: "bg-success" },
+  { id: "CREATE", label: "Creations", icon: <UserPlus size={14} />, values: ["create document", "create user", "create version"], color: "bg-success" },
   { id: "UPDATE", label: "Updates", icon: <Edit3 size={14} />, values: ["update document", "update user", "update permission", "update metadata"], color: "bg-warning" },
   { id: "DELETE", label: "Deletions", icon: <Trash2 size={14} />, values: ["delete document", "delete user", "delete version"], color: "bg-error" },
   { id: "AUTH", label: "Access", icon: <LogIn size={14} />, values: ["login", "logout"], color: "bg-info" },

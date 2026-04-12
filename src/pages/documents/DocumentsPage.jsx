@@ -36,7 +36,8 @@ const DocumentsPage = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [paginationInfo, setPaginationInfo] = useState({ count: 0, hasNext: false, hasPrev: false });
-  const PAGE_SIZE = 20;
+
+  const PAGE_SIZE = 30;
 
   useEffect(() => {
     const controller = new AbortController();
