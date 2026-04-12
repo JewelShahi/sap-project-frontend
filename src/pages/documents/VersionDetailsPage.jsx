@@ -283,7 +283,7 @@ const VersionDetailsPage = () => {
 
   const handleAddReader = async (userId) => {
     try {
-      await api.post("/permissions/grant/", {
+      await api.post("/permissions/request/", {
         user: userId,
         version: id,
         document: version.document,
@@ -326,8 +326,6 @@ const VersionDetailsPage = () => {
       setRemoveReaderLoading(false);
     }
   };
-
-  console.log(reviews)
 
   if (loading) return <Loader message="Loading version details..." />;
   if (error || !version)
