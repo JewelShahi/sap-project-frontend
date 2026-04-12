@@ -257,7 +257,7 @@ const ProfilePage = () => {
                       }</span>
                     </div>
 
-                    {profile?.is_superuser && (
+                    {((isOwnProfile || authUser?.is_superuser) && profile?.is_superuser) && (
                       <div className="flex items-center gap-3 px-4 py-2 bg-amber-500/10 rounded-xl text-sm border border-amber-500/30 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.1)] backdrop-blur-md">
                         <Crown size={16} className="text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.6)]" />
                         <span className="font-bold tracking-wide uppercase text-[11px]">
@@ -266,7 +266,7 @@ const ProfilePage = () => {
                       </div>
                     )}
 
-                    {profile?.is_staff && (
+                    {((isOwnProfile || authUser?.is_superuser) && profile?.is_staff) && (
                       <div className="flex items-center gap-3 px-4 py-2 bg-glass-purple rounded-xl text-sm border border-purple/20 text-purple">
                         <ShieldCheck size={16} />
                         <span className="font-medium">Administrator Access</span>

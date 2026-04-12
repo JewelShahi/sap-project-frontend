@@ -816,7 +816,7 @@ const DocumentDetailsPage = () => {
                                   v{v.version_number}
                                 </span>
                                 {v.is_active && (
-                                  <span className="bg-primary text-base-300 text-[9px] px-2 py-0.5 rounded-md font-black uppercase shadow-sm shadow-primary/20">
+                                  <span className="bg-primary text-[9px] px-2 py-0.5 rounded-md font-black uppercase shadow-sm shadow-primary/20">
                                     Live
                                   </span>
                                 )}
