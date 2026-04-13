@@ -1,7 +1,17 @@
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import {
-  FileText, Plus, Search, FileStack, Clock3, CheckCircle2,
-  PencilLine, FileBadge, FileLock2, AlertCircle, ChevronLeft, ChevronRight,
+  FileText,
+  Plus,
+  Search,
+  FileStack,
+  Clock3,
+  CheckCircle2,
+  PencilLine,
+  FileBadge,
+  FileLock2,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -10,7 +20,7 @@ import Animate from "@/components/animation/Animate.jsx";
 import GlassCard from "@/components/widgets/GlassCard.jsx";
 import FileStatus from "@/components/widgets/FileStatus.jsx";
 import notify from "@/components/toaster/notify";
-import Loader from "@/components/widgets/Loader.jsx"
+import Loader from "@/components/widgets/Loader.jsx";
 import GetGreeting from "@/components/greetings/GetGreeting";
 
 import api from "@/components/api/api";
@@ -33,11 +43,24 @@ const DocumentsPage = () => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [documents, setDocuments] = useState([]);
+  const [allDocuments, setAllDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [paginationInfo, setPaginationInfo] = useState({ count: 0, hasNext: false, hasPrev: false });
+  const [paginationInfo, setPaginationInfo] = useState({
+    count: 0,
+    hasNext: false,
+    hasPrev: false,
+  });
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   const PAGE_SIZE = 30;
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 400); // Wait 400ms after user stops typing
+    return () => clearTimeout(handler);
+  }, [search]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -48,15 +71,27 @@ const DocumentsPage = () => {
 
       try {
         const res = await api.get("/documents/", {
-          params: { page: currentPage },
+          params: {
+            page: currentPage,
+            status: filter === "all" ? null : filter,
+            search: debouncedSearch || null,
+          },
           signal: controller.signal,
         });
 
         const { results, count, next, previous } = res.data;
+        console.log(res.data);
+
+        const allDocumentsRes = await api.get("/documents/all/");
+        setAllDocuments(allDocumentsRes.data || []);
 
         // 2. Set the data FIRST
         setDocuments(results || []);
-        setPaginationInfo({ count: count || 0, hasNext: !!next, hasPrev: !!previous });
+        setPaginationInfo({
+          count: count || 0,
+          hasNext: !!next,
+          hasPrev: !!previous,
+        });
 
         // 3. Stop loading ONLY after data is set
         setLoading(false);
@@ -70,7 +105,7 @@ const DocumentsPage = () => {
 
     fetchDocuments();
     return () => controller.abort();
-  }, [currentPage]);
+  }, [currentPage, filter, search]);
 
   const handleFilterChange = (f) => {
     setFilter(f);
@@ -82,6 +117,7 @@ const DocumentsPage = () => {
     setCurrentPage(1);
   };
 
+  /*
   const filteredDocuments = useMemo(() => {
     return documents.filter((doc) => {
       const status = doc.active_version?.status;
@@ -90,35 +126,72 @@ const DocumentsPage = () => {
       return matchesFilter && matchesSearch;
     });
   }, [documents, filter, search]);
+  */
 
-  const statsData = useMemo(() => [
-    { label: "Total Assets", val: documents.length, icon: FileText, color: "primary", glass: "bg-primary/10" },
-    { label: "Approved", val: documents.filter(d => d.active_version?.status === "approved").length, icon: CheckCircle2, color: "success", glass: "bg-success/10" },
-    { label: "Pending", val: documents.filter(d => d.active_version?.status === "pending_approval").length, icon: Clock3, color: "warning", glass: "bg-warning/10" },
-    { label: "Drafts", val: documents.filter(d => d.active_version?.status === "draft").length, icon: PencilLine, color: "purple", glass: "bg-purple/10" },
-  ], [documents]);
+  const filteredDocuments = documents;
+
+  const statsData = useMemo(
+    () => [
+      {
+        label: "Total Assets",
+        val: allDocuments.length,
+        icon: FileText,
+        color: "primary",
+        glass: "bg-primary/10",
+      },
+      {
+        label: "Approved",
+        val: allDocuments.filter((d) => d.active_version?.status === "approved")
+          .length,
+        icon: CheckCircle2,
+        color: "success",
+        glass: "bg-success/10",
+      },
+      {
+        label: "Pending",
+        val: allDocuments.filter(
+          (d) => d.active_version?.status === "pending",
+        ).length,
+        icon: Clock3,
+        color: "warning",
+        glass: "bg-warning/10",
+      },
+      {
+        label: "Drafts",
+        val: allDocuments.filter((d) => d.active_version?.status === "draft")
+          .length,
+        icon: PencilLine,
+        color: "purple",
+        glass: "bg-purple/10",
+      },
+    ],
+    [allDocuments],
+  );
 
   if (loading) {
-    return (
-      <Loader message="Loading documents..." />
-    );
+    return <Loader message="Loading documents..." />;
   }
 
   let notStaff = !user?.is_staff;
 
   return (
     <div className="min-h-[230vh] md:min-h-[200vh] bg-base-100 px-6 pb-12 pt-20 overflow-hidden">
-
       {/* Header Section */}
       <Animate variant="fade-down" className="overflow-hidden">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="space-y-1">
             <div className="flex items-center gap-3 text-primary mb-3 group">
               <FileStack size={18} />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Documents</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em]">
+                Documents
+              </span>
             </div>
             <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-base-content leading-[0.9]">
-              <GetGreeting /> <span className="text-primary">{user?.first_name || "Agent"}</span> <span className="text-primary">{user?.last_name || "Agent"}</span>
+              <GetGreeting />{" "}
+              <span className="text-primary">
+                {user?.first_name || "Agent"}
+              </span>{" "}
+              <span className="text-primary">{user?.last_name || "Agent"}</span>
             </h1>
             <p className="text-secondary font-medium max-w-md opacity-60">
               Interface for managing high-integrity assets and documentation.
@@ -149,10 +222,15 @@ const DocumentsPage = () => {
             DESKTOP: lg:py-12 (tall & premium) 
         */}
               <div className="py-6 lg:py-12 px-4 flex flex-col items-center justify-center text-center relative overflow-hidden h-full">
-
                 {/* Smaller Icon for Mobile */}
-                <div className={`p-3 lg:p-5 rounded-2xl lg:rounded-[2rem] bg-base-100/50 text-${stat.color} mb-3 lg:mb-6 shadow-xl border border-base-300/50 group-hover:scale-110 transition-transform duration-500`}>
-                  <stat.icon size={22} className="lg:w-8 lg:h-8" strokeWidth={2} />
+                <div
+                  className={`p-3 lg:p-5 rounded-2xl lg:rounded-[2rem] bg-base-100/50 text-${stat.color} mb-3 lg:mb-6 shadow-xl border border-base-300/50 group-hover:scale-110 transition-transform duration-500`}
+                >
+                  <stat.icon
+                    size={22}
+                    className="lg:w-8 lg:h-8"
+                    strokeWidth={2}
+                  />
                 </div>
 
                 {/* Scale Text: 3xl on mobile, 5xl on desktop */}
@@ -164,7 +242,6 @@ const DocumentsPage = () => {
                 <span className="text-[9px] lg:text-[10px] font-black uppercase opacity-40 tracking-[0.2em] lg:tracking-[0.4em] mt-1 lg:mt-2">
                   {stat.label}
                 </span>
-
               </div>
             </GlassCard>
           </Animate>
@@ -175,16 +252,16 @@ const DocumentsPage = () => {
       <Animate>
         <div className="max-w-7xl mx-auto mb-8 rounded-2xl border border-base-300/30 bg-base-200/40 backdrop-blur-md overflow-hidden">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-3 p-2 lg:p-3">
-
             <div className="grid grid-cols-3 sm:grid-cols-5 lg:flex lg:flex-nowrap gap-1 w-full lg:w-auto">
               {FILTERS.map((f) => (
                 <button
                   key={f}
                   onClick={() => handleFilterChange(f)}
-                  className={`btn btn-xs sm:btn-sm rounded-xl px-2 lg:px-5 border-none transition-all uppercase text-[9px] lg:text-[10px] font-black tracking-tighter lg:tracking-widest ${filter === f
-                    ? "btn-primary"
-                    : "btn-ghost text-secondary hover:bg-base-300"
-                    }`}
+                  className={`btn btn-xs sm:btn-sm rounded-xl px-2 lg:px-5 border-none transition-all uppercase text-[9px] lg:text-[10px] font-black tracking-tighter lg:tracking-widest ${
+                    filter === f
+                      ? "btn-primary"
+                      : "btn-ghost text-secondary hover:bg-base-300"
+                  }`}
                 >
                   {f.replace("_", " ")}
                 </button>
@@ -203,7 +280,6 @@ const DocumentsPage = () => {
                 className="input w-full pl-12 bg-base-100/50 border-base-300/30 focus:border-primary rounded-2xl"
               />
             </div>
-
           </div>
         </div>
       </Animate>
@@ -225,13 +301,20 @@ const DocumentsPage = () => {
                 { label: "Pending", status: "pending", desc: "Awaiting" },
                 { label: "Rejected", status: "rejected", desc: "Declined" },
                 { label: "Draft", status: "draft", desc: "Draft" },
-                { label: "Default", status: "default", desc: "No Status" }
+                { label: "Default", status: "default", desc: "No Status" },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3 transition-opacity hover:opacity-80">
+                <div
+                  key={i}
+                  className="flex items-center gap-3 transition-opacity hover:opacity-80"
+                >
                   <FileStatus status={item.status} />
                   <div className="flex flex-col leading-none">
-                    <span className="text-[11px] font-black text-base-content/80 tracking-tight">{item.label}</span>
-                    <span className="text-[7px] font-bold text-base-content/20 uppercase tracking-widest mt-1">{item.desc}</span>
+                    <span className="text-[11px] font-black text-base-content/80 tracking-tight">
+                      {item.label}
+                    </span>
+                    <span className="text-[7px] font-bold text-base-content/20 uppercase tracking-widest mt-1">
+                      {item.desc}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -243,7 +326,6 @@ const DocumentsPage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="relative rounded-b-[1rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-2xl overflow-hidden">
             <div className="w-full overflow-x-auto overflow-y-auto max-h-[75vh] scrollbar-custom">
-
               {/* Only show table if documents exist */}
               {filteredDocuments.length > 0 ? (
                 <table className="table w-full border-separate border-spacing-0">
@@ -263,18 +345,29 @@ const DocumentsPage = () => {
                         className={`transition-colors group ${doc.is_deleted ? "bg-error/15 hover:bg-error/25" : "hover:bg-primary/5"}`}
                       >
                         <td className="py-6 px-10">
-                          <Link to={`/documents/${doc.id}`} className="flex items-center gap-4 outline-none">
+                          <Link
+                            to={`/documents/${doc.id}`}
+                            className="flex items-center gap-4 outline-none"
+                          >
                             <div className="p-3 bg-base-300/30 rounded-xl group-hover:text-primary group-hover:bg-primary/10 group-hover:scale-110 transition-all duration-300">
                               {getDocumentIcon(doc.type)}
                             </div>
                             <div className="flex flex-col">
-                              <span className="font-bold text-base-content leading-tight group-hover:text-primary transition-colors text-base">{doc.title}</span>
-                              <span className="text-[10px] opacity-40 font-mono italic truncate max-w-[300px]">{doc.active_version?.content || "No description provided"}</span>
+                              <span className="font-bold text-base-content leading-tight group-hover:text-primary transition-colors text-base">
+                                {doc.title}
+                              </span>
+                              <span className="text-[10px] opacity-40 font-mono italic truncate max-w-[300px]">
+                                {doc.active_version?.content ||
+                                  "No description provided"}
+                              </span>
                             </div>
                           </Link>
                         </td>
                         <td>
-                          <Link to={`/profile/${doc.created_by}`} className="flex items-center gap-3 hover:text-primary transition-colors">
+                          <Link
+                            to={`/profile/${doc.created_by}`}
+                            className="flex items-center gap-3 hover:text-primary transition-colors"
+                          >
                             <div className="avatar group">
                               <div className="w-7 h-7 rounded-full ring ring-primary/10 ring-offset-base-100 ring-offset-1 group-hover:ring-primary/40 group-hover:scale-110 transition-all duration-300 overflow-hidden bg-base-300">
                                 <img
@@ -284,32 +377,47 @@ const DocumentsPage = () => {
                                 />
                               </div>
                             </div>
-                            <span className="text-[11px] font-bold opacity-70">{doc.active_version?.creator_name || doc.created_by_username}</span>
+                            <span className="text-[11px] font-bold opacity-70">
+                              {doc.active_version?.creator_name ||
+                                doc.created_by_username}
+                            </span>
                           </Link>
                         </td>
                         <td className="text-center">
                           <div className="flex justify-center scale-90">
-                            <FileStatus status={doc.active_version?.status || "no_active"} />
+                            <FileStatus
+                              status={doc.active_version?.status || "no_active"}
+                            />
                           </div>
                         </td>
                         <td className="text-center">
-                          <span className="badge badge-sm border-none bg-primary/10 text-primary font-mono font-black px-3">v{doc.active_version?.version_number || "1"}</span>
+                          <span className="badge badge-sm border-none bg-primary/10 text-primary font-mono font-black px-3">
+                            v{doc.active_version?.version_number || "1"}
+                          </span>
                         </td>
                         <td className="text-right px-10 text-[11px] opacity-60">
                           <div className="flex flex-col items-end">
-                            <span className="font-bold text-base-content/80">{
-                              new Date(doc.updated_at).toLocaleDateString('en-GB', {
-                                day: 'numeric',
-                                month: 'short'
-                              }) + ', ' + new Date(doc.updated_at).getFullYear()
-                            }</span>
-                            <span className="text-[9px] opacity-50 font-mono uppercase">{
-                              new Date(doc.updated_at).toLocaleTimeString(undefined, {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                second: '2-digit',
-                                hour12: true
-                              })}
+                            <span className="font-bold text-base-content/80">
+                              {new Date(doc.updated_at).toLocaleDateString(
+                                "en-GB",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                },
+                              ) +
+                                ", " +
+                                new Date(doc.updated_at).getFullYear()}
+                            </span>
+                            <span className="text-[9px] opacity-50 font-mono uppercase">
+                              {new Date(doc.updated_at).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  second: "2-digit",
+                                  hour12: true,
+                                },
+                              )}
                             </span>
                           </div>
                         </td>
@@ -322,8 +430,12 @@ const DocumentsPage = () => {
                 <div className="flex flex-col items-center justify-center py-40 opacity-20 gap-4">
                   <AlertCircle size={80} strokeWidth={1} />
                   <div className="text-center">
-                    <p className="text-xl font-black uppercase tracking-[0.3em]">Accessing Empty Index</p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest mt-2">No documents match the current criteria</p>
+                    <p className="text-xl font-black uppercase tracking-[0.3em]">
+                      Accessing Empty Index
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mt-2">
+                      No documents match the current criteria
+                    </p>
                   </div>
                 </div>
               )}
@@ -339,30 +451,39 @@ const DocumentsPage = () => {
           <div className="join border border-base-300/30 bg-base-200/50 rounded-2xl p-1 shadow-lg">
             <button
               className="join-item btn btn-sm btn-ghost hover:bg-base-300/70"
-              onClick={() => { setCurrentPage(p => Math.max(p - 1, 1)); window.scrollTo(0, 0); }}
+              onClick={() => {
+                setCurrentPage((p) => Math.max(p - 1, 1));
+                window.scrollTo(0, 0);
+              }}
               disabled={!paginationInfo.hasPrev || loading}
             >
               <ChevronLeft size={16} />
             </button>
             <button className="join-item px-4 no-animation cursor-default">
-              <span className="opacity-40 mr-2 uppercase text-[10px] font-black">Page</span>
+              <span className="opacity-40 mr-2 uppercase text-[10px] font-black">
+                Page
+              </span>
               <span className="text-primary font-black">{currentPage}</span>
               <span className="mx-2 opacity-20">/</span>
-              <span className="opacity-40 font-bold">{Math.ceil(paginationInfo.count / PAGE_SIZE) || 1}</span>
+              <span className="opacity-40 font-bold">
+                {Math.ceil(paginationInfo.count / PAGE_SIZE) || 1}
+              </span>
             </button>
             <button
               className="join-item btn btn-sm btn-ghost hover:bg-base-300/70"
-              onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0, 0); }}
+              onClick={() => {
+                setCurrentPage((p) => p + 1);
+                window.scrollTo(0, 0);
+              }}
               disabled={!paginationInfo.hasNext || loading}
             >
               <ChevronRight size={16} />
             </button>
           </div>
         </div>
-
       </Animate>
     </div>
   );
-}
+};
 
 export default DocumentsPage;
