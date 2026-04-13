@@ -139,7 +139,7 @@ const Footer = () => {
           {/* 4. Support Info */}
           <div className="flex flex-col items-center sm:items-start space-y-6">
             <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary/80">Support</h4>
-            <div className="w-full space-y-4">
+            <div className="w-full space-y-4 flex flex-col items-center sm:items-start">
               <a href="mailto:support@saphub.com" className="group flex items-center gap-4 p-4 rounded-2xl bg-base-100 border border-base-300 transition-all duration-300 hover:border-primary/50 hover:shadow-xl">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-content">
                   <Mail size={18} />
