@@ -19,8 +19,19 @@ api.interceptors.response.use(
     const url = error.config?.url || "";
 
     if (status === 401) {
-      // Skip logout for admin-delete — 401 there means wrong password, not expired session
-      if (url.includes("/admin-delete/")) {
+      // SECURITY: Add here the routes where this needed
+      // These endpoints return 401 for wrong password — NOT expired session.
+      // Never log the current admin out because of them.
+      const passwordConfirmationEndpoints = [
+        "/admin-delete/",
+        "/toggle-admin/",
+      ];
+
+      const isPasswordConfirmation = passwordConfirmationEndpoints.some(
+        (endpoint) => url.includes(endpoint),
+      );
+
+      if (isPasswordConfirmation) {
         return Promise.reject(error);
       }
 
@@ -31,14 +42,12 @@ api.interceptors.response.use(
       if (window.location.pathname !== "/login") {
         window.location.href = "/login?reason=session_expired";
       }
-    }
-
-    else if (status === 403) {
+    } else if (status === 403) {
       console.error("Permission Denied: You don't have clearance for this.");
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

@@ -58,8 +58,16 @@ const ManageUsers = () => {
       };
       if (startDate) params.start_date = startDate;
       if (endDate) params.end_date = endDate;
+
       if (statusFilter !== "ALL") {
-        params.is_active = statusFilter === "ACTIVE" ? "true" : "false";
+        if (statusFilter === "ACTIVE") {
+          params.is_active = "true";
+        } else if (statusFilter === "INACTIVE") {
+          params.is_active = "false";
+        } else if (statusFilter === "ADMINS") {
+          params.is_staff = "true";
+          params.is_superuser = "true";
+        }
       }
 
       const res = await api.get(`/users/`, { params });
@@ -126,6 +134,8 @@ const ManageUsers = () => {
       setIsDeleting(false);
     }
   };
+
+  console.log(users)
 
   // Staff Toggle Modal Functions
   const openStaffToggleModal = (user) => {
@@ -351,6 +361,7 @@ const ManageUsers = () => {
               <div className="flex flex-wrap gap-3">
                 {[
                   { id: "ALL", label: "All Users", color: "bg-slate-500" },
+                  { id: "ADMINS", label: "Administrators", color: "bg-accent" },
                   { id: "ACTIVE", label: "Active Users", color: "bg-success" },
                   { id: "INACTIVE", label: "Suspended Users", color: "bg-error" },
                 ].map(opt => (
@@ -439,13 +450,33 @@ const ManageUsers = () => {
                                     <img src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=random`} alt="avatar" />
                                   </div>
                                 </div>
-                                <span className="font-bold text-sm tracking-tight text-base-content">
-                                  {user.username} {currentUser?.id === user.id && "(YOU)"}
-                                </span>
+                                <div className="flex flex-col justify-center items-center">
+                                  <p className="font-bold text-sm tracking-tight">
+                                    {user.first_name + " " + user.last_name}
+                                    {currentUser?.id === user.id && (
+                                      <span className="badge badge-soft bg-primary/60 text-[13px] ml-1">
+                                        You
+                                      </span>
+                                    )}
+                                  </p>
+                                </div>
+
                               </div>
                             </Link>
 
                             <div className="flex flex-col gap-1.5 w-full">
+                              <div className="flex items-center w-full border border-accent/20 bg-accent/5 rounded-[0.6rem] p-1 py-1.5 shadow-sm">
+                                <div className="bg-accent px-2 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0">
+                                  <span className="text-[9px] font-black uppercase tracking-tight text-white">
+                                    Username
+                                  </span>
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <span className="px-3 text-[10px] font-mono font-medium text-accent truncate block">
+                                    {user.username}
+                                  </span>
+                                </div>
+                              </div>
                               <div className="flex items-center w-full border border-blue-500/20 bg-blue-500/5 rounded-[0.6rem] p-1 py-1.5 shadow-sm">
                                 <div className="bg-blue-500 w-12 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0"><span className="text-[9px] font-black uppercase tracking-tight text-white">E-mail</span></div>
                                 <span className="px-3 text-[10px] font-mono font-medium text-blue-600 truncate">{user.email}</span>

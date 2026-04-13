@@ -42,13 +42,12 @@ const Testimonials = () => {
       <GlassCard
         bg="bg-base-200/30"
         border="border-white/10"
-        /* Reduced fixed height for a more compact look */
-        className="overflow-hidden p-0 relative h-[420px]"
+        className="overflow-hidden p-0 relative h-[420px] "
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 h-full">
 
           {/* LEFT SIDE: Fixed Scrollable List */}
-          <div className="lg:col-span-4 order-1 border-b lg:border-b-0 lg:border-r border-white/5 p-4 flex flex-col h-full bg-base-300/10">
+          <div className="lg:col-span-4 order-1 border-b lg:border-b-0 lg:border-r border-white/5 p-4 flex flex-col h-full bg-base-300/10 rounded-[0.75rem]">
             <h3 className="text-[10px] font-black uppercase tracking-widest text-base-content/40 mb-4 pl-1">
               Client Stories
             </h3>
@@ -62,12 +61,12 @@ const Testimonials = () => {
                   key={i}
                   onClick={() => setActiveIndex(i)}
                   className={`
-          group flex items-center gap-3 p-3 rounded-xl transition-all duration-300 text-left border
-          ${activeIndex === i
-                      ? "bg-primary text-primary-content border-primary shadow-lg shadow-primary/20"
-                      : "bg-transparent border-transparent hover:bg-base-100/30 hover:border-white/5"
-                    }
-        `}
+                      group flex items-center gap-3 p-3 rounded-xl transition-all duration-300 text-left border
+                      ${activeIndex === i
+                        ? "bg-primary text-primary-content border-primary shadow-lg shadow-primary/20"
+                        : "bg-transparent border-transparent hover:bg-base-100/30 hover:border-white/5"
+                      }
+                  `}
                 >
                   <div className="relative shrink-0">
                     <div className="w-8 h-8 rounded-full bg-base-200 border border-white/10 overflow-hidden">
