@@ -9,11 +9,11 @@ import notify from "@/components/toaster/notify";
 import Notifications from "./Notifications";
 
 const NAV_LINKS = [
-  { icon: House, label: "Home", to: "/" },
-  { icon: Files, label: "Documents", to: "/documents" },
-  { icon: ClipboardCheck, label: "Reviews", to: "/reviews" },
-  { icon: UserRound, label: "Users", to: "/manage-users" },
-  { icon: MonitorCog, label: "Audit", to: "/audit-log" },
+  { icon: House, label: "Home", to: "/", public: true },
+  { icon: Files, label: "Documents", to: "/documents", protected: true },
+  { icon: ClipboardCheck, label: "Reviews", to: "/reviews", protected: true, hideForStaff: true },
+  { icon: UserRound, label: "Users", to: "/manage-users", adminOnly: true },
+  { icon: MonitorCog, label: "Audit", to: "/audit-log", adminOnly: true },
 ];
 
 const BREAKPOINT = 1000;
@@ -33,6 +33,20 @@ const Navbar = ({ theme, toggleTheme }) => {
     }
   }, [user]);
 
+  // Logic to filter links based on Auth Status and Roles
+  const filteredLinks = NAV_LINKS.filter(link => {
+    // 1. If not logged in, only show public links
+    if (!isAuthenticated) return link.public;
+
+    // 2. "Users" and "Audit" (adminOnly) only for superusers
+    if (link.adminOnly && !user?.is_superuser) return false;
+
+    // 3. "Reviews" (hideForStaff) hidden if user is staff (and not superuser)
+    if (link.hideForStaff && user?.is_staff && !user?.is_superuser) return false;
+
+    return true;
+  });
+
   const showLoggedInUI = isAuthenticated || (isLoading && localStorage.getItem("cached_avatar"));
 
   const handleLogout = async () => {
@@ -42,7 +56,6 @@ const Navbar = ({ theme, toggleTheme }) => {
     notify.success("Logged out successfully");
   };
 
-  // Lock scroll on mobile when menu is open
   useEffect(() => {
     if (menuOpen) {
       document.body.style.overflow = "hidden";
@@ -75,9 +88,9 @@ const Navbar = ({ theme, toggleTheme }) => {
             </span>
           </Link>
 
-          {/* ── Desktop Nav Links ── */}
+          {/* ── Desktop Nav Links (Using filteredLinks) ── */}
           <div className="hidden nav:flex flex-1 items-center gap-2 ml-8 mr-1">
-            {NAV_LINKS.map(({ icon: Icon, label, to }) => (
+            {filteredLinks.map(({ icon: Icon, label, to }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -103,7 +116,6 @@ const Navbar = ({ theme, toggleTheme }) => {
               {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
-            {/* ── Notification Component ── */}
             {showLoggedInUI && <Notifications />}
 
             {/* ── Desktop Profile/Logout ── */}
@@ -160,7 +172,7 @@ const Navbar = ({ theme, toggleTheme }) => {
           </button>
           
           <div className="flex-1 flex flex-col justify-center gap-2">
-            {NAV_LINKS.map(({ icon: Icon, label, to }) => (
+            {filteredLinks.map(({ icon: Icon, label, to }) => (
               <NavLink 
                 key={to} 
                 to={to} 
