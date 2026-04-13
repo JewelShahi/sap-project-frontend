@@ -391,7 +391,7 @@ const VersionDetailsPage = () => {
 
             {isOwner && (
               <a
-                href={version.file_path}
+                href={version.signed_file_path}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary btn-sm rounded-xl border-none hover:scale-105 transition-all h-10 px-6 flex items-center gap-2"
