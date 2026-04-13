@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 import {
-  User, Mail, Calendar, ShieldCheck, CircleCheck, ShieldBan,
+  User, Mail, Calendar, ShieldCheck, CircleCheck, CircleX,
   LogOut, Edit3, Trash2, Camera, BarChart3, EyeOff, Eye,
   Lock, ArrowLeft, Crown, Fingerprint
 } from "lucide-react";
@@ -337,7 +337,7 @@ const ProfilePage = () => {
                     }`}>
                   <div className="flex items-center gap-3 h-full">
                     <div className={`p-2 rounded-full ${profile?.is_active ? 'bg-success/10' : 'bg-error/10'}`}>
-                      {profile?.is_active ? <CircleCheck size={20} className="text-success" /> : <ShieldBan size={20} className="text-error animate-pulse" />}
+                      {profile?.is_active ? <CircleCheck size={20} className="text-success" /> : <CircleX size={20} className="text-error animate-pulse" />}
                     </div>
                     <div>
                       <p className="text-[10px] uppercase font-bold text-base-content/50">Account Status</p>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import {
   Check,
-  MessageSquare
+  MessageSquareText
 } from "lucide-react";
 
 import {
@@ -101,7 +101,7 @@ const FAQSection = () => {
           >
             <div className="mb-6 flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                <MessageSquare size={20} />
+                <MessageSquareText size={20} />
               </div>
               <div className="h-px flex-grow bg-gradient-to-r from-primary/50 to-transparent" />
             </div>

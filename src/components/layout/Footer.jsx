@@ -15,6 +15,7 @@ const LEGAL = [
 ];
 
 // Custom X icon component for a perfect match
+
 const XIcon = ({ size = 18, className }) => (
   <svg
     width={size}
@@ -34,11 +35,11 @@ const SOCIALS = [
 ];
 
 const TEAM = [
-  { name: "Jewel Shahi", url: "https://github.com/search?q=Jewel+Shahi" },
-  { name: "Alexander Iliev", url: "https://github.com/search?q=Alexander+Iliev" },
-  { name: "Alexander Ivanov", url: "https://github.com/search?q=Alexander+Ivanov" },
-  { name: "Plamen Nikolov", url: "https://github.com/search?q=Plamen+Nikolov" },
-  { name: "Krasimir Milanov", url: "https://github.com/search?q=Krasimir+Milanov" },
+  { name: "Jewel Shahi", url: "https://github.com/JewelShahi" },
+  { name: "Plamen Nikolov", url: "https://github.com/plamennf" },
+  { name: "Alexander Iliev", url: "https://github.com/TheGitlex" },
+  { name: "Alexander Ivanov", url: "https://github.com/Aleksandar-coder" },
+  { name: "Krasimir Milanov", url: "https://github.com/milanov966" },
 ];
 
 const Footer = () => {
