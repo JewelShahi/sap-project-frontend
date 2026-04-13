@@ -88,7 +88,7 @@ export function MagReveal({
   as: Tag = "div",
   y = 60,
   strength = 40,
-  duration = 0.8,
+  duration = 0.3,
   start = "top 85%",
 }) {
   const ref = useRef(null);
@@ -96,10 +96,13 @@ export function MagReveal({
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || REDUCED_MOTION) return;
+    
+    // If it's a small screen (under 768px), we don't even run the GSAP logic.
+    const isMobile = window.innerWidth < 768;
+    if (!el || REDUCED_MOTION || isMobile) return;
 
     ctxRef.current = gsap.context(() => {
-      // Initial state: deeper and more blurred
+      // Initial state
       gsap.set(el, { 
         y, 
         opacity: 0, 
@@ -107,6 +110,7 @@ export function MagReveal({
         rotateX: 20,
         filter: "blur(4px)",
         transformPerspective: 1000,
+        ease: "expo.out",
         transformStyle: "preserve-3d"
       });
 
@@ -126,12 +130,14 @@ export function MagReveal({
         rotateX: 0,
         filter: "blur(0px)",
         duration,
-        ease: "expo.out", // Very smooth, premium ease
+        ease: "expo.out",
       });
 
-      // Parallax/Mouse effect (only on desktop)
+      // Parallax effect (Only for Desktop)
       const onMouseMove = (e) => {
-        if (window.innerWidth < 1024) return; // Tablet/Desktop only
+        // Double check width in case window was resized
+        if (window.innerWidth < 1024) return; 
+        
         const rect = el.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
@@ -139,20 +145,24 @@ export function MagReveal({
         const mouseX = e.clientX - centerX;
         const mouseY = e.clientY - centerY;
 
-        // Calculate rotation based on mouse position
         const rotateY = (mouseX / window.innerWidth) * strength;
         const rotateX = -(mouseY / window.innerHeight) * strength;
 
         gsap.to(el, {
           rotateY,
           rotateX,
-          duration: 1, // Slower, smoother follow
+          duration: 1,
           ease: "power2.out",
         });
       };
 
       const onMouseLeave = () => {
-        gsap.to(el, { rotateY: 0, rotateX: 0, duration: 0.8, ease: "elastic.out(1, 0.5)" });
+        gsap.to(el, { 
+          rotateY: 0, 
+          rotateX: 0, 
+          duration: 0.8, 
+          ease: "elastic.out(1, 0.5)" 
+        });
       };
 
       window.addEventListener("mousemove", onMouseMove);
@@ -168,7 +178,15 @@ export function MagReveal({
   }, []);
 
   return (
-    <Tag ref={ref} className={className} style={{ transformStyle: "preserve-3d", ...style }}>
+    <Tag 
+      ref={ref} 
+      className={className} 
+      // Ensure the 3D style only applies when needed
+      style={{ 
+        transformStyle: typeof window !== 'undefined' && window.innerWidth > 767 ? "preserve-3d" : "flat", 
+        ...style 
+      }}
+    >
       {children}
     </Tag>
   );

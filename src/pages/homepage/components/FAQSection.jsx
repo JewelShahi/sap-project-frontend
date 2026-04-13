@@ -47,7 +47,7 @@ const FAQSection = () => {
       <div className="relative z-10 flex flex-col h-full">
 
         {/* --- TOP: NAVIGATION GRID (Embedded in Card) --- */}
-        <div className="p-6 pb-2 border-b border-white/5 bg-base-100/20">
+        <div className="p-6 pb-4 border-b border-white/5 bg-base-100/20">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-base-content/40">
               Quick Select
@@ -57,14 +57,19 @@ const FAQSection = () => {
             </div>
           </div>
 
-          {/* Grid: 5 cols on mobile, 10 on desktop */}
-          <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
+          {/* FIX: Using auto-fit with a min-max range. 
+              This ensures 10 per row on big screens (max-w-4xl), 
+              but prevents them from getting "really big" by capping their expansion.
+          */}
+          <div className="grid grid-cols-5 sm:grid-cols-[repeat(auto-fit,minmax(45px,1fr))] lg:grid-cols-10 gap-2">
             {faqs.map((faq, i) => (
               <button
                 key={i}
                 onClick={() => setActiveIndex(i)}
                 className={`
                   group aspect-square flex items-center justify-center rounded-xl transition-all duration-300 border text-sm font-bold relative overflow-hidden
+                  /* Added max-h to prevent vertical stretching */
+                  max-h-[52px] max-w-[52px] mx-auto w-full
                   ${activeIndex === i
                     ? "bg-primary text-primary-content border-primary shadow-lg shadow-primary/30 scale-105 z-10"
                     : "bg-base-100/40 border-white/5 hover:bg-base-100/60 hover:border-white/20 text-base-content/40 hover:text-base-content"
