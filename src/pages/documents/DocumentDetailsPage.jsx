@@ -518,7 +518,7 @@ const DocumentDetailsPage = () => {
             {/* 1. CO-AUTHORS TABLE */}
             <div className="relative group">
               <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-[2rem] opacity-0 group-hover:scale-[1.02] transition-opacity duration-500" />
-              <div className="relative p-6 border border-base-content/10 backdrop-blur-2xl bg-base-100/5 shadow-2xl rounded-[1.5rem] flex flex-col h-[350px]">
+              <div className="relative p-6 border border-base-content/10 backdrop-blur-2xl bg-base-100/5 shadow-2xl rounded-[1.5rem] flex flex-col h-[60vh]">
                 {/* Header Section */}
                 <div className="flex items-center justify-between mb-4 px-2 shrink-0">
                   <div className="space-y-1">
@@ -533,8 +533,8 @@ const DocumentDetailsPage = () => {
 
                 {/* TABLE WRAPPER FOR X-AXIS SCROLL */}
                 <div className="flex-1 flex flex-col min-h-0 border border-base-content/5 rounded-xl bg-base-100/10 overflow-hidden">
-                  <div className="overflow-x-auto custom-scrollbar">
-                    <div className="min-w-[500px] flex flex-col">
+                  <div className="overflow-x-auto custom-scrollbar h-full">
+                    <div className="min-w-[500px] flex flex-col h-full">
                       {/* Table Header Row */}
                       <div
                         className={`grid gap-2 px-4 py-2 border-b border-base-content/10 bg-base-content/5 text-[9px] font-black uppercase tracking-widest opacity-60 shrink-0 ${canManagePermissions ? "grid-cols-12" : "grid-cols-12"}`}
@@ -620,7 +620,7 @@ const DocumentDetailsPage = () => {
             {/* 2. REVIEWERS TABLE */}
             <div className="relative group">
               <div className="absolute inset-0 bg-warning/5 blur-2xl rounded-[2rem] opacity-0 group-hover:scale-[1.02] transition-opacity duration-500" />
-              <div className="relative p-6 border border-base-content/10 backdrop-blur-2xl bg-base-100/5 shadow-2xl rounded-[1.5rem] flex flex-col h-[350px]">
+              <div className="relative p-6 border border-base-content/10 backdrop-blur-2xl bg-base-100/5 shadow-2xl rounded-[1.5rem] flex flex-col h-[60vh]">
                 <div className="flex items-center justify-between mb-4 px-2 shrink-0">
                   <div className="space-y-1">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-warning">
@@ -633,8 +633,8 @@ const DocumentDetailsPage = () => {
                 </div>
 
                 <div className="flex-1 flex flex-col min-h-0 border border-base-content/5 rounded-xl bg-base-100/10 overflow-hidden">
-                  <div className="overflow-x-auto custom-scrollbar">
-                    <div className="min-w-[500px] flex flex-col">
+                  <div className="overflow-x-auto custom-scrollbar h-full">
+                    <div className="min-w-[500px] flex flex-col h-full">
                       <div className="grid grid-cols-12 gap-2 px-4 py-2 border-b border-base-content/10 bg-base-content/5 text-[9px] font-black uppercase tracking-widest opacity-60 shrink-0">
                         <div className="col-span-7">User Details</div>
                         <div className="col-span-3 text-right">User ID</div>
