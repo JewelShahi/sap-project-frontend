@@ -7,14 +7,13 @@ import {
   CheckCircle2,
   XCircle,
   PencilLine,
-  User,
   CalendarDays,
   ShieldCheck,
   Info,
   HardDrive,
   Hash,
   Eye,
-  FileStack,
+  FileCode,
   Download,
   X,
   Search,
@@ -67,6 +66,8 @@ const STATUS_CONFIG = {
     label: "Unknown",
   },
 };
+
+const getExtension = (url) => url?.includes('.') ? url.split(/[#?]/)[0].split('.').pop().toLowerCase() : 'file';
 
 const getStatusDetails = (status) =>
   STATUS_CONFIG[status?.toLowerCase()] || STATUS_CONFIG.default;
@@ -183,15 +184,45 @@ const VersionDetailsPage = () => {
     return "unknown";
   };
 
+  // useEffect(() => {
+  //   if (!version?.file_path) return;
+  //   const type = getFileType(version.file_path);
+  //   setFileType(type);
+  //   if (type === "markdown" || type === "text") {
+  //     fetch(version.file_path)
+  //       .then((res) => res.text())
+  //       .then((data) => setPreviewContent(data.slice(0, 2000)))
+  //       .catch(() => setPreviewContent("Preview unavailable."));
+  //   }
+  // }, [version]);
+
   useEffect(() => {
-    if (!version?.file_path) return;
-    const type = getFileType(version.file_path);
-    setFileType(type);
-    if (type === "markdown" || type === "text") {
-      fetch(version.file_path)
-        .then((res) => res.text())
-        .then((data) => setPreviewContent(data.slice(0, 2000)))
-        .catch(() => setPreviewContent("Preview unavailable."));
+    if (!version?.signed_file_path) return;
+
+    // 1. Get the extension using your function
+    const ext = getExtension(version.signed_file_path);
+    setFileType(ext);
+
+    // 2. Define our Category Groups
+    const imageTypes = ["jpg", "jpeg", "png", "gif", "webp", "svg"];
+    const pdfTypes = ["pdf"];
+    const docTypes = ["doc", "docx"];
+
+    // 3. Logic: If it's an image, PDF, or Word Doc, we don't need to fetch text
+    const isSpecialView = [...imageTypes, ...pdfTypes, ...docTypes].includes(ext);
+
+    if (!isSpecialView) {
+      // Treat everything else (text/*, binary, code) as a text stream
+      fetch(version.signed_file_path)
+        .then((res) => {
+          if (!res.ok) throw new Error("Stream failed");
+          return res.text();
+        })
+        .then((data) => setPreviewContent(data.slice(0, 5000)))
+        .catch(() => setPreviewContent("Error: Source code buffer unreachable."));
+    } else {
+      // Clear preview text for binary-heavy views (PDF/Images)
+      setPreviewContent("");
     }
   }, [version]);
 
@@ -487,6 +518,8 @@ const VersionDetailsPage = () => {
                 </div>
 
                 <div className="p-6 rounded-[1.5rem] bg-primary/5 border border-primary/10 space-y-4">
+
+                  {/* File size */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <HardDrive size={14} className="opacity-40" />
@@ -499,6 +532,20 @@ const VersionDetailsPage = () => {
                     </span>
                   </div>
 
+                  {/* File extension */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <FileCode size={14} className="opacity-40" />
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-60">
+                        Extension
+                      </span>
+                    </div>
+                    <div className="px-2 py-0.5 rounded-md border border-primary/20 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-tighter">
+                      {getExtension(version?.file_path)}
+                    </div>
+                  </div>
+
+                  {/* Checksum */}
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-3">
                       <Hash size={14} className="opacity-40" />
@@ -510,6 +557,7 @@ const VersionDetailsPage = () => {
                       {version.checksum}
                     </span>
                   </div>
+
                 </div>
 
                 {version.is_active && (
@@ -573,109 +621,112 @@ const VersionDetailsPage = () => {
                 </div>
               </div>
 
-              <GlassCard className="border-info/5 overflow-hidden">
-                <table className="table w-full">
-                  <thead>
-                    <tr className="text-secondary uppercase text-[10px] tracking-widest font-black border-b border-base-300/10">
-                      <th className="bg-transparent">Identity</th>
-                      <th className="bg-transparent">Access Type</th>
-                      <th className="bg-transparent">Scope</th>
-                      <th className="bg-transparent text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {readers.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan="4"
-                          className="text-center py-10 opacity-30 text-[10px] font-black uppercase tracking-widest"
-                        >
-                          No readers assigned
-                        </td>
+              <GlassCard className="border-info/5 overflow-hidden block w-full">
+                <div className="overflow-x-auto w-full">
+                  <table className="table w-full min-w-[600px] md:min-w-full">
+                    <thead>
+                      <tr className="text-secondary uppercase text-[10px] tracking-widest font-black border-b border-base-300/10">
+                        <th className="bg-transparent">Identity</th>
+                        <th className="bg-transparent">Access Type</th>
+                        <th className="bg-transparent">Scope</th>
+                        <th className="bg-transparent text-right">Actions</th>
                       </tr>
-                    ) : (
-                      readers.map((reader) => {
-                        const isLocked = lockedReaderIds.has(reader.id);
-                        return (
-                          <tr
-                            key={reader.id}
-                            className="hover:bg-base-200/30 transition-colors group/row"
+                    </thead>
+                    <tbody>
+                      {readers.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan="4"
+                            className="text-center py-10 opacity-30 text-[10px] font-black uppercase tracking-widest"
                           >
-                            {/* Identity */}
-                            <td>
-                              <div className="flex items-center gap-3">
-                                <div className="h-8 w-8 rounded-full overflow-hidden ring-1 ring-info/20 bg-base-300/20 shrink-0">
-                                  <img
-                                    src={
-                                      reader.user_avatar ||
-                                      `https://ui-avatars.com/api/?name=${reader.username}`
-                                    }
-                                    className="h-full w-full object-cover"
-                                    alt=""
-                                  />
-                                </div>
-                                <div className="flex flex-col leading-tight">
-                                  <span className="font-bold text-sm">
-                                    {reader.full_name ||
-                                      reader.username ||
-                                      "Unidentified Subject"}
-                                  </span>
-                                  <span className="text-[10px] font-mono opacity-40">
-                                    {reader.username}
-                                  </span>
-                                </div>
-                              </div>
-                            </td>
-
-                            {/* Access badge */}
-                            <td>
-                              <span className="badge badge-outline border-info/30 text-info text-[9px] font-black uppercase px-2">
-                                Read Only
-                              </span>
-                            </td>
-
-                            {/* Scope: version-specific vs inherited */}
-                            <td>
-                              {isLocked ? (
-                                <span className="text-[9px] font-black uppercase tracking-widest opacity-40 bg-base-300/30 px-2 py-1 rounded-lg">
-                                  Document-Level
-                                </span>
-                              ) : (
-                                <span className="text-[9px] font-black uppercase tracking-widest text-info bg-info/10 border border-info/20 px-2 py-1 rounded-lg">
-                                  Version-Specific
-                                </span>
-                              )}
-                            </td>
-
-                            {/* Action */}
-                            <td className="text-right">
-                              {isLocked ? (
-                                <div
-                                  className="tooltip tooltip-left before:z-[10000] after:z-[10000]"
-                                  data-tip="Inherited from document — manage on the document page"
-                                >
-                                  <div className="btn btn-ghost btn-xs text-base-content/20 cursor-not-allowed rounded-lg p-1">
-                                    <ShieldCheck size={14} />
+                            No readers assigned
+                          </td>
+                        </tr>
+                      ) : (
+                        readers.map((reader) => {
+                          const isLocked = lockedReaderIds.has(reader.id);
+                          return (
+                            <tr
+                              key={reader.id}
+                              className="hover:bg-base-200/30 transition-colors group/row"
+                            >
+                              {/* Identity */}
+                              <td>
+                                <div className="flex items-center gap-3">
+                                  <div className="h-8 w-8 rounded-full overflow-hidden ring-1 ring-info/20 bg-base-300/20 shrink-0">
+                                    <img
+                                      src={
+                                        reader.user_avatar ||
+                                        `https://ui-avatars.com/api/?name=${reader.username}`
+                                      }
+                                      className="h-full w-full object-cover"
+                                      alt=""
+                                    />
+                                  </div>
+                                  <div className="flex flex-col leading-tight">
+                                    <span className="font-bold text-sm whitespace-nowrap">
+                                      {reader.full_name ||
+                                        reader.username ||
+                                        "Unidentified Subject"}
+                                    </span>
+                                    <span className="text-[10px] font-mono opacity-40">
+                                      {reader.username}
+                                    </span>
                                   </div>
                                 </div>
-                              ) : (
-                                <button
-                                  onClick={() =>
-                                    setRemoveReaderTarget(reader)
-                                  }
-                                  className="opacity-0 group-hover/row:opacity-100 transition-all btn btn-ghost btn-xs text-error hover:bg-error/10 rounded-lg"
-                                  title="Revoke version access"
-                                >
-                                  <Trash2 size={14} />
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
+                              </td>
+
+                              {/* Access badge */}
+                              <td className="whitespace-nowrap">
+                                <span className="badge badge-outline border-info/30 text-info text-[9px] font-black uppercase px-2">
+                                  Read Only
+                                </span>
+                              </td>
+
+                              {/* Scope */}
+                              <td className="whitespace-nowrap">
+                                {isLocked ? (
+                                  <span className="text-[9px] font-black uppercase tracking-widest opacity-40 bg-base-300/30 px-2 py-1 rounded-lg">
+                                    Document-Level
+                                  </span>
+                                ) : (
+                                  <span className="text-[9px] font-black uppercase tracking-widest text-info bg-info/10 border border-info/20 px-2 py-1 rounded-lg">
+                                    Version-Specific
+                                  </span>
+                                )}
+                              </td>
+
+                              {/* Action */}
+                              <td className="text-right">
+                                <div className="flex justify-end items-center min-h-[24px]">
+                                  {isLocked ? (
+                                    <div
+                                      className="tooltip tooltip-left before:z-[10000] after:z-[10000]"
+                                      data-tip="Inherited from document"
+                                    >
+                                      <div className="btn btn-ghost btn-xs text-base-content/20 cursor-not-allowed rounded-lg p-1">
+                                        <ShieldCheck size={14} />
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      onClick={() => setRemoveReaderTarget(reader)}
+                                      /* Changed opacity-0 to md:opacity-0 so delete button is visible on touch devices by default */
+                                      className="opacity-100 md:opacity-0 group-hover/row:opacity-100 transition-all btn btn-ghost btn-xs text-error hover:bg-error/10 rounded-lg"
+                                      title="Revoke version access"
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </GlassCard>
             </div>
           </Animate>
@@ -943,6 +994,8 @@ const VersionDetailsPage = () => {
             </div>
 
             <div className="rounded-[2rem] border border-base-300/20 bg-base-200/10 backdrop-blur-xl p-8 min-h-[400px]">
+
+              {/* 1. PDF Preview */}
               {fileType === "pdf" && (
                 <iframe
                   src={version.signed_file_path}
@@ -951,20 +1004,49 @@ const VersionDetailsPage = () => {
                 />
               )}
 
-              {(fileType === "markdown" || fileType === "text") && (
-                <div className="bg-base-300/20 p-8 rounded-2xl border border-base-300/10">
-                  <pre className="text-xs whitespace-pre-wrap font-mono opacity-80 leading-relaxed">
-                    {previewContent || "Loading internal data buffers..."}
-                  </pre>
+              {/* 2. Image Preview (Now includes GIF, SVG, WEBP) */}
+              {["jpg", "jpeg", "png", "webp", "gif", "svg"].includes(fileType) && (
+                <div className="flex justify-center items-center w-full overflow-hidden rounded-2xl bg-base-300/10 border border-base-300/20 shadow-2xl p-4">
+                  <img
+                    src={version.signed_file_path}
+                    alt="Artifact Preview"
+                    className="max-w-full max-h-[700px] object-contain rounded-xl transition-transform duration-700 hover:scale-105"
+                    loading="lazy"
+                  />
                 </div>
               )}
 
-              {fileType === "unknown" && (
-                <div className="flex flex-col items-center justify-center py-20 opacity-30">
-                  <FileText size={48} className="mb-4" />
-                  <p className="text-[10px] font-black uppercase tracking-widest">
-                    Visual preview unavailable for this file format.
+              {/* 3. Word Document Notice */}
+              {["doc", "docx"].includes(fileType) && (
+                <div className="flex flex-col items-center justify-center py-24 text-center">
+                  <div className="h-16 w-16 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center mb-6 border border-blue-500/20">
+                    <FileText size={32} />
+                  </div>
+                  <h3 className="text-sm font-bold uppercase tracking-widest opacity-80">Document Ready</h3>
+                  <p className="text-[10px] opacity-40 mt-2 max-w-[200px]">
+                    Native preview for Word files is restricted. Use the download action to view locally.
                   </p>
+                </div>
+              )}
+
+              {/* 4. Code / Text / Binary Preview (Catch-all) */}
+              {!["pdf", "jpg", "jpeg", "png", "webp", "gif", "svg", "doc", "docx"].includes(fileType) && (
+                <div className="relative group">
+                  {/* Aesthetic Terminal Header */}
+                  <div className="absolute top-0 left-0 right-0 h-8 bg-base-300/30 rounded-t-2xl border-x border-t border-base-300/10 flex items-center px-4 gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-red-500/40" />
+                    <div className="w-2 h-2 rounded-full bg-yellow-500/40" />
+                    <div className="w-2 h-2 rounded-full bg-green-500/40" />
+                    <span className="ml-2 text-[9px] font-mono uppercase opacity-30 tracking-widest">
+                      {fileType} data stream
+                    </span>
+                  </div>
+
+                  <div className="bg-base-900/50 p-8 pt-12 rounded-2xl border border-base-300/10">
+                    <pre className="text-xs whitespace-pre-wrap font-mono opacity-80 leading-relaxed max-h-[600px] overflow-y-auto">
+                      {previewContent || "Initialising data buffers..."}
+                    </pre>
+                  </div>
                 </div>
               )}
             </div>

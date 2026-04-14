@@ -20,8 +20,8 @@ api.interceptors.response.use(
 
     if (status === 401) {
       // SECURITY: Add here the routes where this needed
-      // These endpoints return 401 for wrong password — NOT expired session.
-      // Never log the current admin out because of them.
+      // NOTE: These endpoints return 401 for wrong password — NOT expired session.
+      // IMP: Never log the current admin out because of them.
       const passwordConfirmationEndpoints = [
         "/admin-delete/",
         "/toggle-admin/",

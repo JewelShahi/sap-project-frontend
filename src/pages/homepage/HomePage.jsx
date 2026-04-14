@@ -593,8 +593,8 @@ const HomePage = () => {
               <div className="absolute left-[19px] sm:left-[23px] top-4 bottom-4 w-0.5 bg-base-content/10" />
               {[
                 { version: "v1", user: "You (Owner)", action: "Uploaded initial file", time: "Jan 6 · 10:00 AM", status: "approved", statusLabel: "Approved", icon: <Upload size={15} />, file: "api-handler.py — 4.2 KB" },
-                { version: "v2", user: "Ravi (Writer)", action: "Uploaded new version", time: "Jan 6 · 2:30 PM", status: "approved", statusLabel: "Approved", icon: <RefreshCw size={15} />, file: "api-handler.py — 5.1 KB", comment: "\"Added error handling for timeout cases\"" },
-                { version: "v3", user: "Ravi (Writer)", action: "Uploaded new version", time: "Jan 7 · 9:15 AM", status: "rejected", statusLabel: "Rejected", icon: <RefreshCw size={15} />, file: "api-handler.py — 5.8 KB", comment: "\"Missing import statements, please fix\"" },
+                { version: "v2", user: "Jude (Writer)", action: "Uploaded new version", time: "Jan 6 · 2:30 PM", status: "approved", statusLabel: "Approved", icon: <RefreshCw size={15} />, file: "api-handler.py — 5.1 KB", comment: "\"Added error handling for timeout cases\"" },
+                { version: "v3", user: "Jude (Writer)", action: "Uploaded new version", time: "Jan 7 · 9:15 AM", status: "rejected", statusLabel: "Rejected", icon: <RefreshCw size={15} />, file: "api-handler.py — 5.8 KB", comment: "\"Missing import statements, please fix\"" },
                 { version: "v4", user: "Lena (Writer)", action: "Uploaded new version", time: "Jan 7 · 11:45 AM", status: "approved", statusLabel: "Approved", icon: <RefreshCw size={15} />, file: "api-handler.py — 5.3 KB" },
                 { version: "v5", user: "Lena (Writer)", action: "Uploaded new version", time: "Jan 8 · 3:00 PM", status: "pending", statusLabel: "Pending Review", icon: <Clock size={15} />, file: "api-handler.py — 6.0 KB" },
                 { version: "v6", user: "You (Owner)", action: "Deleted this version", time: "Jan 8 · 3:05 PM", status: "deleted", statusLabel: "Deleted", icon: <Trash2 size={15} />, file: "api-handler.py — 6.0 KB", deleted: true },
@@ -700,11 +700,11 @@ const HomePage = () => {
             <div className="space-y-2">
               {[
                 { icon: <UserCheck size={16} className="text-success" />, title: "Lena approved v4", desc: "api-handler.py — Version v4 has been approved and is now the current version.", time: "2 min ago", unread: true, dot: "bg-success" },
-                { icon: <RefreshCw size={16} className="text-secondary" />, title: "Ravi uploaded v5", desc: "api-handler.py — A new version is ready for your review.", time: "15 min ago", unread: true, dot: "bg-secondary" },
-                { icon: <AlertCircle size={16} className="text-error" />, title: "Omar rejected v3", desc: "api-handler.py — \"Missing import statements, please fix.\"", time: "1 hour ago", unread: true, dot: "bg-error" },
+                { icon: <RefreshCw size={16} className="text-secondary" />, title: "Jude uploaded v5", desc: "api-handler.py — A new version is ready for your review.", time: "15 min ago", unread: true, dot: "bg-secondary" },
+                { icon: <AlertCircle size={16} className="text-error" />, title: "Nick rejected v3", desc: "api-handler.py — \"Missing import statements, please fix.\"", time: "1 hour ago", unread: true, dot: "bg-error" },
                 { icon: <UserPlus size={16} className="text-primary" />, title: "You assigned Priya as Viewer", desc: "api-handler.py — Priya now has read-only access to approved versions.", time: "3 hours ago", unread: false, dot: "bg-primary" },
                 { icon: <Trash2 size={16} className="text-base-content/30" />, title: "You deleted v6", desc: "api-handler.py — The version has been removed from public view but preserved in your timeline.", time: "5 hours ago", unread: false, dot: "bg-base-content/20" },
-                { icon: <MessageSquare size={16} className="text-accent" />, title: "Omar commented on v2", desc: "api-handler.py — \"Good error handling, but consider adding a retry mechanism.\"", time: "Yesterday", unread: false, dot: "bg-accent" },
+                { icon: <MessageSquare size={16} className="text-accent" />, title: "Nick commented on v2", desc: "api-handler.py — \"Good error handling, but consider adding a retry mechanism.\"", time: "Yesterday", unread: false, dot: "bg-accent" },
               ].map((n, i) => (
                 <div key={i} className={`flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl transition-colors ${n.unread ? "bg-base-300/30 border border-base-content/5" : "hover:bg-base-content/[0.02]"}`}>
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-base-200 flex items-center justify-center shrink-0 relative">
@@ -782,11 +782,11 @@ const HomePage = () => {
               <table className="w-full text-[10px] sm:text-xs min-w-[500px]">
                 <thead>
                   <tr className="border-b border-base-content/5">
-                    <th className="text-left py-2.5 pr-3 text-base-content/30 font-semibold uppercase tracking-wider text-[9px] sm:text-[10px]">Timestamp</th>
-                    <th className="text-left py-2.5 pr-3 text-base-content/30 font-semibold uppercase tracking-wider text-[9px] sm:text-[10px]">User</th>
-                    <th className="text-left py-2.5 pr-3 text-base-content/30 font-semibold uppercase tracking-wider text-[9px] sm:text-[10px]">Action</th>
-                    <th className="text-left py-2.5 pr-3 text-base-content/30 font-semibold uppercase tracking-wider text-[9px] sm:text-[10px]">Version</th>
-                    <th className="text-left py-2.5 text-base-content/30 font-semibold uppercase tracking-wider text-[9px] sm:text-[10px]">Details</th>
+                    <th className="py-2.5 pr-3 text-base-content/30 font-semibold uppercase tracking-wider text-[9px] sm:text-[10px] text-center">Timestamp</th>
+                    <th className="py-2.5 pr-3 text-base-content/30 font-semibold uppercase tracking-wider text-[9px] sm:text-[10px] text-center">User</th>
+                    <th className="py-2.5 pr-3 text-base-content/30 font-semibold uppercase tracking-wider text-[9px] sm:text-[10px] text-center">Action</th>
+                    <th className="py-2.5 pr-3 text-base-content/30 font-semibold uppercase tracking-wider text-[9px] sm:text-[10px] text-center">Version</th>
+                    <th className="py-2.5 text-base-content/30 font-semibold uppercase tracking-wider text-[9px] sm:text-[10px] text-center">Details</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -794,24 +794,24 @@ const HomePage = () => {
                     { time: "Jan 8 · 3:05 PM", user: "You", action: "DELETE", version: "v6", detail: "Deleted version — file preserved", color: "text-error" },
                     { time: "Jan 8 · 3:00 PM", user: "Lena", action: "UPLOAD", version: "v5", detail: "api-handler.py — 6.0 KB", color: "text-secondary" },
                     { time: "Jan 7 · 11:45 AM", user: "Lena", action: "UPLOAD", version: "v4", detail: "api-handler.py — 5.3 KB", color: "text-secondary" },
-                    { time: "Jan 7 · 10:30 AM", user: "Omar", action: "APPROVE", version: "v4", detail: "Approved with no comments", color: "text-success" },
-                    { time: "Jan 7 · 9:15 AM", user: "Ravi", action: "UPLOAD", version: "v3", detail: "api-handler.py — 5.8 KB", color: "text-secondary" },
-                    { time: "Jan 7 · 9:45 AM", user: "Omar", action: "REJECT", version: "v3", detail: "\"Missing import statements\"", color: "text-error" },
-                    { time: "Jan 6 · 2:30 PM", user: "Ravi", action: "UPLOAD", version: "v2", detail: "api-handler.py — 5.1 KB", color: "text-secondary" },
-                    { time: "Jan 6 · 3:15 PM", user: "Omar", action: "APPROVE", version: "v2", detail: "Approved", color: "text-success" },
+                    { time: "Jan 7 · 10:30 AM", user: "Nick", action: "APPROVE", version: "v4", detail: "Approved with no comments", color: "text-success" },
+                    { time: "Jan 7 · 9:15 AM", user: "Jude", action: "UPLOAD", version: "v3", detail: "api-handler.py — 5.8 KB", color: "text-secondary" },
+                    { time: "Jan 7 · 9:45 AM", user: "Nick", action: "REJECT", version: "v3", detail: "\"Missing import statements\"", color: "text-error" },
+                    { time: "Jan 6 · 2:30 PM", user: "Jude", action: "UPLOAD", version: "v2", detail: "api-handler.py — 5.1 KB", color: "text-secondary" },
+                    { time: "Jan 6 · 3:15 PM", user: "Nick", action: "APPROVE", version: "v2", detail: "Approved", color: "text-success" },
                     { time: "Jan 6 · 10:00 AM", user: "You", action: "UPLOAD", version: "v1", detail: "api-handler.py — 4.2 KB", color: "text-secondary" },
-                    { time: "Jan 6 · 10:05 AM", user: "You", action: "ROLE_ASSIGN", version: "—", detail: "Ravi → Writer", color: "text-primary" },
-                    { time: "Jan 6 · 10:06 AM", user: "You", action: "ROLE_ASSIGN", version: "—", detail: "Lena → Writer, Omar → Reviewer", color: "text-primary" },
+                    { time: "Jan 6 · 10:05 AM", user: "You", action: "ROLE_ASSIGN", version: "—", detail: "Jude → Writer", color: "text-primary" },
+                    { time: "Jan 6 · 10:06 AM", user: "You", action: "ROLE_ASSIGN", version: "—", detail: "Lena → Writer, Nick → Reviewer", color: "text-primary" },
                     { time: "Jan 6 · 10:00 AM", user: "You", action: "CREATE", version: "—", detail: "Document created", color: "text-primary" },
                   ].map((log, i) => (
                     <tr key={i} className="border-b border-base-content/[0.03] hover:bg-base-content/[0.02] transition-colors">
-                      <td className="py-2.5 pr-3 text-base-content/35 font-mono whitespace-nowrap">{log.time}</td>
-                      <td className="py-2.5 pr-3 font-semibold text-base-content/60 whitespace-nowrap">{log.user}</td>
-                      <td className="py-2.5 pr-3">
+                      <td className="py-2.5 pr-3 text-base-content/35 font-mono whitespace-nowrap text-center">{log.time}</td>
+                      <td className="py-2.5 pr-3 font-semibold text-base-content/60 whitespace-nowrap text-center">{log.user}</td>
+                      <td className="py-2.5 pr-3  text-center">
                         <span className={`font-bold ${log.color}`}>{log.action}</span>
                       </td>
-                      <td className="py-2.5 pr-3 font-mono text-base-content/40 whitespace-nowrap">{log.version}</td>
-                      <td className="py-2.5 text-base-content/40">{log.detail}</td>
+                      <td className="py-2.5 pr-3 font-mono text-base-content/40 whitespace-nowrap text-center">{log.version}</td>
+                      <td className="py-2.5 text-base-content/40 text-center">{log.detail}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -929,7 +929,7 @@ const HomePage = () => {
               <ul className="space-y-3 sm:space-y-3.5 text-xs sm:text-sm text-base-content/50">
                 {[
                   "\"Which version is the right one?\"",
-                  "\"Did Omar approve this or the old one?\"",
+                  "\"Did Nick approve this or the old one?\"",
                   "\"Someone deleted the file from the drive\"",
                   "\"Who even has access to this folder?\"",
                   "\"Can you resend the latest .py file?\"",

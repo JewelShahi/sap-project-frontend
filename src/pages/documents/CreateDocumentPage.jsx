@@ -195,7 +195,7 @@ const CreateDocumentPage = () => {
               <input
                 type="file"
                 className="absolute inset-0 opacity-0 cursor-pointer z-20"
-                accept="image/jpeg,image/png,text/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,text/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 onChange={(e) => setFile(e.target.files[0])}
               />
 

@@ -6,8 +6,10 @@ import {
   CheckCircle2,
   XCircle,
   ArrowLeft,
+  ArrowRight,
   Loader2,
   Plus,
+  FileIcon,
   Minus,
   ExternalLink,
   FileCheckCorner,
@@ -26,9 +28,8 @@ import Loader from "@/components/widgets/Loader.jsx";
 import MissingArtifact from "@/components/widgets/MissingArtifact";
 import useTheme from "@/hooks/useTheme";
 
-/* ------------------------------------------------------------------ */
-/* DiffViewer — GitHub-style, notepad wrapping, Y-scroll              */
-/* ------------------------------------------------------------------ */
+
+/* DiffViewer — GitHub-style, notepad wrapping, Y-scroll */
 const DiffViewer = ({ diffData, rawContent }) => {
   const { theme } = useTheme();
 
@@ -197,22 +198,30 @@ const DiffViewer = ({ diffData, rawContent }) => {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Helpers                                                            */
-/* ------------------------------------------------------------------ */
-function formatDate(dateStr) {
+/* Helpers */
+const formatDate = (dateStr) => {
   if (!dateStr) return "N/A";
+
   const d = new Date(dateStr);
   const now = new Date();
-  const time = d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-  if (d.toDateString() === now.toDateString()) return `Today · ${time}`;
-  return d.toLocaleDateString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-    hour: "2-digit", minute: "2-digit",
-  });
-}
 
-function extractErrorMessage(err) {
+  const time = d.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true
+  });
+
+  if (d.toDateString() === now.toDateString()) {
+    return `Today · ${time}`;
+  }
+
+  const datePart = d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  const yearPart = d.getFullYear();
+
+  return `${datePart}, ${yearPart} · ${time}`;
+};
+
+const extractErrorMessage = (err) => {
   const data = err.response?.data;
   if (!data) return "An unexpected error occurred";
   if (data.error) return data.error;
@@ -224,9 +233,14 @@ function extractErrorMessage(err) {
   return "An unexpected error occurred";
 }
 
-/* ------------------------------------------------------------------ */
-/* Main page                                                          */
-/* ------------------------------------------------------------------ */
+/* Show extension */
+const getExtension = (path) => {
+  if (!path) return "Unknown";
+  // Split by dot, take the last part, and remove any potential URL parameters
+  return path.split('.').pop().split(/[?#]/)[0].toLowerCase();
+};
+
+/* Main page */
 const VersionReviewPage = () => {
   const { id } = useParams();
   const [comment, setComment] = useState("");
@@ -330,7 +344,7 @@ const VersionReviewPage = () => {
   }, [diffData]);
 
   /* loading / error */
-  if (isInitialLoading) return <Loader message="Loading review context..." />;
+  if (isInitialLoading) return <Loader message="Loading version review..." />;
 
   if (error) {
     return (
@@ -348,27 +362,15 @@ const VersionReviewPage = () => {
   }
 
   return (
-    /*
-     * Outer shell: centers the inner box, pads for the navbar.
-     * Does NOT set overflow-hidden so the page can scroll on small screens.
-     */
     <section className="min-h-screen w-full bg-base-100 flex flex-col items-center pt-16 lg:pt-20 pb-8 px-4 sm:px-6">
-
-      {/*
-       * Inner container:
-       *   - max-w-7xl keeps line width sane on ultra-wide monitors
-       *   - height: 80vh is the key constraint — fills most of the viewport
-       *     without the diff exploding to full page height
-       *   - minHeight: 600px prevents it from collapsing on very short viewports
-       */}
       <div
         className="w-full max-w-7xl flex flex-col gap-4"
       >
 
-        {/* ── HEADER (shrinks to its natural height) ── */}
+        {/* ── HEADER ── */}
         <div className="shrink-0 space-y-2.5">
           {/* top nav row */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between border-b border-base-300/10 pb-8">
             <Link
               to="/reviews"
               className="group btn btn-ghost btn-sm gap-2 border border-base-300/40 rounded-xl hover:bg-base-300/20 transition-all"
@@ -391,7 +393,7 @@ const VersionReviewPage = () => {
           </div>
 
           {/* title row */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-base-300/15 pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-12 border-b border-base-300/15 pb-3 pt-20">
             <div className="space-y-0.5">
               <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.4em]">
                 <FileCheckCorner size={13} /> Version Review
@@ -430,7 +432,7 @@ const VersionReviewPage = () => {
                   <div className="flex flex-col items-center justify-center h-full gap-3">
                     <Loader2 size={26} className="animate-spin text-primary/25" />
                     <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-25">
-                      Calculating Delta…
+                      Synthesizing Changes...
                     </span>
                   </div>
                 ) : (
@@ -510,22 +512,62 @@ const VersionReviewPage = () => {
               </p>
             </div>
 
-            {/* Version pill */}
-            {newVersion?.version_number && (
-              <div className="p-4 rounded-[1.25rem] bg-primary/8 border border-primary/15 flex items-center justify-between shrink-0">
-                <div className="flex flex-col">
-                  <span className="text-[8px] uppercase font-black text-primary tracking-[0.2em]">
-                    Release
-                  </span>
-                  <span className="text-xl font-black">
-                    v{newVersion.version_number}
-                  </span>
+            {/* FIX: Fixed but check */}
+            <div className="space-y-4">
+              {/* Release Info Block */}
+              {newVersion?.version_number && (
+                <div className="p-4 rounded-[1.25rem] bg-primary/8 border border-primary/15 flex items-center justify-between shrink-0">
+                  <div className="flex flex-col">
+                    <span className="text-[8px] uppercase font-black text-primary tracking-[0.2em]">
+                      Release Candidate
+                    </span>
+                    <span className="text-xl font-black">
+                      v{newVersion.version_number}
+                    </span>
+                  </div>
+                  <div className="h-9 w-9 rounded-xl bg-primary/15 border border-primary/20 text-primary flex items-center justify-center">
+                    <ShieldCheck size={18} />
+                  </div>
                 </div>
-                <div className="h-9 w-9 rounded-xl bg-primary/15 border border-primary/20 text-primary flex items-center justify-center">
-                  <ShieldCheck size={18} />
-                </div>
+              )}
+
+              {/* File Type Transition Analysis */}
+              <div className={`grid ${review.old_version ? "grid-cols-2" : "grid-cols-1"} gap-4`}>
+                {/* Old Version Type - Only renders if old_version exists */}
+                {review.old_version && (
+                  <div className="p-3 rounded-2xl bg-base-300/10 border border-base-300/10">
+                    <span className="text-[7px] uppercase font-bold opacity-40 tracking-widest block mb-1">
+                      Legacy Format (v{review.old_version?.version_number})
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <FileIcon size={12} className="opacity-50" />
+                      <span className="text-[11px] font-mono font-black uppercase text-error/70">
+                        .{getExtension(review.old_version?.file_path)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* New Version Type - Always renders if new_version exists */}
+                {review.new_version && (
+                  <div className={`p-3 rounded-2xl bg-success/5 border border-success/10 ${!review.old_version ? "flex flex-col justify-center" : ""}`}>
+                    <span className="text-[7px] uppercase font-bold text-success/60 tracking-widest block mb-1">
+                      {review.old_version ? `Target Format (v${review.new_version?.version_number})` : `Initial Format (v${review.new_version?.version_number})`}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {review.old_version ? (
+                        <ArrowRight size={12} className="text-success/40" />
+                      ) : (
+                        <FileIcon size={12} className="text-success/40" />
+                      )}
+                      <span className="text-[11px] font-mono font-black uppercase text-success">
+                        .{getExtension(review.new_version?.file_path)}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>

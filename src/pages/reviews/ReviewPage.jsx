@@ -25,18 +25,18 @@ const ReviewPage = () => {
   const [reviews, setReviews] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  
+
   // 1. isInitialLoading: Controls the Full Page Loader.
   //    Stays true until the VERY FIRST fetch completes successfully.
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-  
+
   // 2. isTableUpdating: Controls the Table Overlay.
   //    Only true for filter/search/page changes AFTER the initial load.
   const [isTableUpdating, setIsTableUpdating] = useState(false);
 
   // UseRef to track if this is the absolute first mount.
   const isInitialMount = useRef(true);
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
 
@@ -66,7 +66,7 @@ const ReviewPage = () => {
         const res = await api.get("/reviews/inbox/?all=true", {
           signal: controller.signal,
         });
-        
+
         const data = res.data || [];
         setReviews(data);
 
@@ -364,7 +364,7 @@ const ReviewPage = () => {
                               <div className="avatar group">
                                 <div className="w-7 h-7 rounded-full ring ring-primary/10 ring-offset-base-100 ring-offset-1 group-hover:ring-primary/40 group-hover:scale-110 transition-all duration-300 overflow-hidden bg-base-300">
                                   <img
-                                    src={review.new_version?.created_by_avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.new_version?.creator_name || "User")}`}
+                                    src={review.new_version?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.new_version?.creator_name || "User")}`}
                                     alt={review.new_version?.creator_name}
                                     className="w-full h-full object-cover"
                                   />
@@ -377,22 +377,35 @@ const ReviewPage = () => {
                           </td>
                           <td className="text-right px-10 text-[11px] opacity-60">
                             <div className="flex flex-col items-end">
-                              <span className="font-bold text-base-content/80">
-                                {review.reviewed_at
-                                  ? new Date(review.reviewed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-                                  : (review.new_version?.created_at
-                                    ? new Date(review.new_version.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-                                    : "N/A")
-                                }
-                              </span>
-                              <span className="text-[9px] opacity-50 font-mono uppercase">
-                                {review.reviewed_at
-                                  ? new Date(review.reviewed_at).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })
-                                  : (review.new_version?.created_at
-                                    ? new Date(review.new_version.created_at).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })
-                                    : "N/A")
-                                }
-                              </span>
+                              {(() => {
+                                const rawDate = review.reviewed_at || review.new_version?.created_at;
+
+                                if (!rawDate) return <span className="opacity-30">N/A</span>;
+
+                                const d = new Date(rawDate);
+                                const dateStr = d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+                                const yearStr = d.getFullYear();
+                                const timeStr = d.toLocaleTimeString(undefined, {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  second: "2-digit",
+                                  hour12: true
+                                });
+
+                                return (
+                                  <>
+                                    {/* Date Div */}
+                                    <div className="font-bold text-base-content/80 leading-tight">
+                                      {dateStr}, {yearStr}
+                                    </div>
+
+                                    {/* Time Div */}
+                                    <div className="text-[9px] opacity-50 font-mono uppercase leading-tight tracking-tighter">
+                                      {timeStr}
+                                    </div>
+                                  </>
+                                );
+                              })()}
                             </div>
                           </td>
                           <td className="text-right px-10">

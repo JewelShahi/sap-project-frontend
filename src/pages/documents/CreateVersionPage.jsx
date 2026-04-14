@@ -7,7 +7,7 @@ import {
   Upload,
   FileUp,
   Rocket,
-  CheckCircle2  
+  CheckCircle2
 } from "lucide-react";
 
 import Animate from "@/components/animation/Animate.jsx";
@@ -313,7 +313,7 @@ const CreateVersionPage = () => {
                     {/* HIDDEN INPUT */}
                     <input
                       type="file"
-                      accept="image/jpeg,image/png,text/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,text/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                       className="absolute inset-0 opacity-0 cursor-pointer z-20"
                       onChange={handleFileChange}
                     />
