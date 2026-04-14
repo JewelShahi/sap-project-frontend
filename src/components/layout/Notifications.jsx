@@ -43,19 +43,32 @@ const Notifications = () => {
   }, []);
 
   useEffect(() => {
+    // Initial fetch
     fetchNotifications();
+
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") fetchNotifications(true);
+      if (document.visibilityState === "visible") {
+        fetchNotifications(true);
+      }
     };
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Optimized Interval
     const interval = setInterval(() => {
-      if (document.visibilityState === "visible") fetchNotifications(true);
-    }, 15000);
+      // Only fetch if the tab is active AND the dropdown isn't currently open 
+      if (document.visibilityState === "visible") {
+        fetchNotifications(true);
+      }
+    }, 40000);
 
     return () => {
       clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      if (abortControllerRef.current) abortControllerRef.current.abort();
+      // Cancel any pending request when component unmounts
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
     };
   }, [fetchNotifications]);
 
@@ -97,17 +110,17 @@ const Notifications = () => {
   };
 
   const handleRequestAction = async (e, id, action) => {
-    e.stopPropagation(); 
-    
+    e.stopPropagation();
+
     setNotifications((prev) =>
       prev.map((n) =>
         n.id === id
-          ? { 
-              ...n, 
-              is_read: true, 
-              action_status: action, 
-              verb: `You ${action}ed the invitation from` 
-            }
+          ? {
+            ...n,
+            is_read: true,
+            action_status: action,
+            verb: `You ${action}ed the invitation from`
+          }
           : n
       )
     );
@@ -147,7 +160,7 @@ const Notifications = () => {
         <>
           <div className="fixed inset-0 z-[100] sm:hidden" onClick={() => setNotifOpen(false)} />
           <div className="fixed top-24 right-4 sm:top-[calc(70px+1rem)] sm:right-4 z-[101] w-auto sm:w-[420px] max-w-[calc(100vw-2rem)] bg-base-100 border border-primary/20 shadow-[0_20px_50px_rgba(0,0,0,0.3)] rounded-[1.25rem] overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-top-4 duration-200 sm:origin-top-right">
-            
+
             <div className="p-6 flex justify-between items-center border-b border-primary/10 bg-primary/5">
               <div className="flex flex-col">
                 <h3 className="text-lg font-black tracking-tight flex items-center gap-2 text-base-content uppercase">
@@ -220,8 +233,8 @@ const Notifications = () => {
                             </>
                           ) : (
                             <div className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border 
-                              ${(n.action_status === 'accept' || n.verb?.toLowerCase().includes('accept')) 
-                                ? "bg-success/10 text-success border-success/20" 
+                              ${(n.action_status === 'accept' || n.verb?.toLowerCase().includes('accept'))
+                                ? "bg-success/10 text-success border-success/20"
                                 : "bg-error/10 text-error border-error/20"}`}>
                               {(n.action_status === 'accept' || n.verb?.toLowerCase().includes('accept')) ? 'Request Accepted' : 'Request Rejected'}
                             </div>

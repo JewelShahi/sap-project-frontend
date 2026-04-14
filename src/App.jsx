@@ -11,6 +11,7 @@ import ScrollUp from "@/components/widgets/ScrollUp";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import ProtectedRoute from "@/components/protected-route/ProtectedRoute";
+import RoleProtectedRoute from "@/components/protected-route/RoleProtectedRoute";
 import NotStaffRoute from "@/components/protected-route/NotStaffRoute";
 
 // Hooks
@@ -46,7 +47,7 @@ import ViewAllNotifications from "@/pages/notifications/ViewAllNotifications";
 /**
  * 1. Detailed Page Title Logic
  */
-function PageTitleUpdater() {
+const PageTitleUpdater = () => {
   const location = useLocation();
 
   useEffect(() => {
@@ -71,7 +72,7 @@ function PageTitleUpdater() {
           title = "Version Details";
           break;
         case "version-review":
-          title = "Reviewing Version";
+          title = "Version Review";
           break;
         case "profile":
           title = "User Profile";
@@ -86,7 +87,7 @@ function PageTitleUpdater() {
           title = "My Notifications";
           break;
         case "reviews":
-          title = "Review Queue";
+          title = "Reviews Page";
           break;
         case "login":
           title = "Sign In";
@@ -105,20 +106,6 @@ function PageTitleUpdater() {
 
   return null;
 }
-
-/**
- * 2. Role Based Guard
- */
-const RoleProtectedRoute = ({ children, roleRequired }) => {
-  const { user, isAuthenticated } = useAuth();
-  if (!isAuthenticated) return <Navigate to="/login" />;
-  
-  // Logic: Only allow access if user is admin
-  if (roleRequired === "admin" && !user?.is_superuser && user?.role !== "admin") {
-    return <Navigate to="/forbidden" />;
-  }
-  return children;
-};
 
 export default function App() {
   const { theme, toggleTheme } = useTheme();

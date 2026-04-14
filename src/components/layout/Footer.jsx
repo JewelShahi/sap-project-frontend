@@ -98,7 +98,7 @@ const Footer = () => {
                   <Icon
                     size={20}
                     className="text-white z-10 transition-transform duration-500 group-hover:scale-110 will-change-transform"
-                  />                  
+                  />
                 </a>
               ))}
             </div>
@@ -137,25 +137,39 @@ const Footer = () => {
           </div>
 
           {/* 4. Support Info */}
-          <div className="flex flex-col items-center sm:items-start space-y-6">
+          <div className="flex flex-col items-center sm:items-start space-y-6 w-full max-w-full overflow-hidden">
             <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary/80">Support</h4>
-            <div className="w-full space-y-4 flex flex-col items-center sm:items-start">
-              <a href="mailto:support@saphub.com" className="group flex items-center gap-4 p-4 rounded-2xl bg-base-100 border border-base-300 transition-all duration-300 hover:border-primary/50 hover:shadow-xl">
+
+            <div className="w-full space-y-4 flex flex-col items-center sm:items-start max-w-full">
+              {/* Email Card: Added w-full, max-w-sm, and overflow handling */}
+              <a
+                href="mailto:support@saphub.com"
+                className="group flex items-center gap-4 p-4 rounded-2xl bg-base-100 border border-base-300 transition-all duration-300 hover:border-primary/50 hover:shadow-xl w-full max-w-xs sm:max-w-sm"
+              >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-content">
                   <Mail size={18} />
                 </div>
-                <div className="overflow-hidden">
-                  <span className="block text-[10px] font-bold uppercase text-base-content/40">Get in touch</span>
-                  <span className="block text-sm font-bold truncate">support@saphub.com</span>
+
+                {/* Container for text: Added min-w-0 to allow truncation/wrapping */}
+                <div className="min-w-0 flex-1">
+                  <span className="block text-[10px] font-bold uppercase text-base-content/40 tracking-tight">
+                    Get in touch
+                  </span>
+                  <span className="block text-sm font-bold truncate break-all sm:break-normal">
+                    support@saphub.com
+                  </span>
                 </div>
               </a>
 
+              {/* Status Badge */}
               <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-success/5 border border-success/10 w-fit">
-                <span className="relative flex h-2 w-2">
+                <span className="relative flex h-2 w-2 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
                 </span>
-                <span className="text-[10px] font-bold text-success uppercase tracking-wider">Systems Operational</span>
+                <span className="text-[10px] font-bold text-success uppercase tracking-wider">
+                  Systems Operational
+                </span>
               </div>
             </div>
           </div>

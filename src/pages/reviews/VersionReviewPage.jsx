@@ -1,197 +1,214 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   FileText,
-  User,
   Clock,
-  CheckCircle,
+  CheckCircle2,
   XCircle,
-  MessageSquare,
   ArrowLeft,
   Loader2,
   Plus,
   Minus,
   ExternalLink,
+  FileStack,
+  FileCheck,
+  FileX,
+  ShieldCheck,
+  Info,
 } from "lucide-react";
 
 import Animate from "@/components/animation/Animate.jsx";
 import FileStatus from "@/components/widgets/FileStatus.jsx";
+import GlassCard from "@/components/widgets/GlassCard.jsx";
 import notify from "@/components/toaster/notify";
 import api from "@/components/api/api";
+import Loader from "@/components/widgets/Loader.jsx";
+import MissingArtifact from "@/components/widgets/MissingArtifact";
+import useTheme from "@/hooks/useTheme";
 
 /* ------------------------------------------------------------------ */
-/*  Diff viewer                                                        */
+/* DiffViewer — GitHub-style, notepad wrapping, Y-scroll              */
 /* ------------------------------------------------------------------ */
-function DiffViewer({ diffData, rawContent }) {
+const DiffViewer = ({ diffData, rawContent }) => {
+  const { theme } = useTheme();
+
   const { lines, additions, deletions } = useMemo(() => {
     if (!diffData) return { lines: [], additions: 0, deletions: 0 };
 
     let diffLines = diffData.diff || [];
-
-    // First version with no parent — show all lines as insertions
     if (
       diffData.has_parent === false &&
       diffLines.length === 0 &&
       diffData.new_content
     ) {
-      diffLines = diffData.new_content.split("\n").map((v) => ({
-        type: "insert",
-        value: v,
-      }));
+      diffLines = diffData.new_content
+        .split("\n")
+        .map((v) => ({ type: "insert", value: v }));
     }
 
-    let oNum = 0,
-      nNum = 0,
-      adds = 0,
-      dels = 0;
-
+    let oNum = 0, nNum = 0, adds = 0, dels = 0;
     const numbered = diffLines.map((entry) => {
-      let o = "",
-        n = "";
-      if (entry.type === "equal") {
-        oNum++;
-        nNum++;
-        o = oNum;
-        n = nNum;
-      } else if (entry.type === "delete") {
-        oNum++;
-        dels++;
-        o = oNum;
-      } else if (entry.type === "insert") {
-        nNum++;
-        adds++;
-        n = nNum;
-      }
+      let o = "", n = "";
+      if (entry.type === "equal") { oNum++; nNum++; o = oNum; n = nNum; }
+      else if (entry.type === "delete") { oNum++; dels++; o = oNum; }
+      else if (entry.type === "insert") { nNum++; adds++; n = nNum; }
       return { ...entry, o, n };
     });
-
     return { lines: numbered, additions: adds, deletions: dels };
   }, [diffData]);
 
   if (!diffData && !rawContent) return null;
 
-  /* Binary fallback */
+  /* cannot-compare fallback */
   if (diffData?.can_compare === false) {
     return (
-      <div className="flex flex-col items-center gap-4 min-h-[460px] justify-center text-base-content/40">
-        <FileText size={48} />
-        <p className="text-sm max-w-md text-center">{diffData.message}</p>
+      <div className="flex flex-col items-center justify-center h-full min-h-[160px] text-base-content/30 gap-4 border-2 border-dashed border-base-content/10 rounded-2xl">
+        <FileText size={36} className="opacity-40" />
+        <p className="text-xs max-w-xs text-center font-semibold leading-relaxed">
+          {diffData.message}
+        </p>
         {diffData.file_url && (
           <a
             href={diffData.file_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn btn-sm btn-outline gap-2"
+            className="btn btn-sm btn-outline gap-2 border-base-content/20 hover:bg-base-content/5 rounded-xl text-[10px] uppercase tracking-widest font-black"
           >
-            <ExternalLink size={14} />
-            View File
+            <ExternalLink size={12} /> View File
           </a>
         )}
       </div>
     );
   }
 
-  /* Raw content — diff endpoint hasn't loaded yet or no parent */
+  /* stat header */
+  const hasStats = lines.length > 0;
+
+  /* raw-content mode (no diff data) */
   if (!diffData && rawContent) {
+    const rawLines = rawContent.split("\n");
     return (
-      <div className="font-mono text-[13px] leading-6 overflow-auto max-h-[520px] rounded-lg border border-base-300/30">
-        {rawContent.split("\n").map((line, i) => (
-          <div key={i} className="flex hover:bg-base-content/[0.03]">
-            <span className="w-14 shrink-0 text-right pr-3 text-base-content/20 select-none border-r border-base-300/20">
-              {i + 1}
-            </span>
-            <span className="whitespace-pre px-3 text-base-content/75">
-              {line}
-            </span>
+      <div className="flex flex-col h-full w-full overflow-hidden">
+        <div className="overflow-y-auto overflow-x-hidden flex-1 rounded-xl border border-base-300/20 bg-base-950/40 shadow-inner custom-scrollbar">
+          <div className="font-mono text-[12px] leading-6 w-full">
+            {rawLines.map((line, i) => (
+              <div
+                key={i}
+                className="flex items-start hover:bg-primary/5 transition-colors border-b border-base-300/5 last:border-0"
+              >
+                <span className="sticky left-0 w-12 shrink-0 text-right pr-3 py-0.5 text-base-content/25 select-none border-r border-base-300/15 bg-base-950/80 font-bold text-[11px] self-start pt-[3px]">
+                  {i + 1}
+                </span>
+                {/* whitespace-pre-wrap so long lines wrap instead of overflow */}
+                <span className="whitespace-pre-wrap break-all py-0.5 px-4 text-base-content/75 min-w-0 flex-1">
+                  {line || "\u00A0"}
+                </span>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     );
   }
 
-  /* Diff view */
+  /* diff mode */
   return (
-    <div className="space-y-3">
-      {lines.length > 0 && (
-        <div className="flex items-center gap-4 text-xs font-medium">
-          <span className="flex items-center gap-1 text-green-400">
-            <Plus size={12} />
-            {additions} addition{additions !== 1 ? "s" : ""}
+    <div className="flex flex-col h-full w-full overflow-hidden">
+      {/* stat bar */}
+      {hasStats && (
+        <div className="flex items-center gap-5 text-[10px] font-black uppercase tracking-widest shrink-0 pb-2.5 mb-2.5 border-b border-base-300/20">
+          <span className="flex items-center gap-1.5 text-success">
+            <Plus size={11} />
+            {additions} Addition{additions !== 1 ? "s" : ""}
           </span>
-          <span className="flex items-center gap-1 text-red-400">
-            <Minus size={12} />
-            {deletions} deletion{deletions !== 1 ? "s" : ""}
+          <span className="flex items-center gap-1.5 text-error">
+            <Minus size={11} />
+            {deletions} Deletion{deletions !== 1 ? "s" : ""}
+          </span>
+          <span className="ml-auto text-base-content/20">
+            {lines.length} line{lines.length !== 1 ? "s" : ""}
           </span>
         </div>
       )}
 
-      <div className="font-mono text-[13px] leading-6 overflow-auto max-h-[520px] rounded-lg border border-base-300/30">
-        {lines.map((entry, i) => {
-          const isDel = entry.type === "delete";
-          const isIns = entry.type === "insert";
-          const bg = isDel
-            ? "bg-red-500/10"
-            : isIns
-              ? "bg-green-500/10"
-              : "";
-          const prefix = isDel ? "-" : isIns ? "+" : " ";
-          const prefixClr = isDel
-            ? "text-red-500"
-            : isIns
-              ? "text-green-500"
-              : "text-transparent";
-
-          return (
-            <div
-              key={i}
-              className={`flex ${bg} hover:brightness-125 transition-colors`}
-            >
-              <span className="w-14 shrink-0 text-right pr-3 text-base-content/20 select-none border-r border-base-300/20">
-                {entry.o}
-              </span>
-              <span className="w-14 shrink-0 text-right pr-3 text-base-content/20 select-none border-r border-base-300/20">
-                {entry.n}
-              </span>
-              <span
-                className={`w-5 shrink-0 text-center select-none ${prefixClr}`}
-              >
-                {prefix}
-              </span>
-              <span className="whitespace-pre px-1 pr-2 text-base-content/80">
-                {entry.value}
-              </span>
+      {/* scrollable diff body — Y-only; lines wrap at container width */}
+      <div className="overflow-y-auto overflow-x-hidden flex-1 rounded-xl border border-base-300/20 bg-base-950/40 shadow-inner custom-scrollbar">
+        <div className="font-mono text-[12px] leading-6 w-full">
+          {lines.length === 0 ? (
+            <div className="flex items-center justify-center h-40 text-base-content/20 text-[10px] font-black uppercase tracking-widest">
+              No Differences Found
             </div>
-          );
-        })}
+          ) : (
+            lines.map((entry, i) => {
+              const isDel = entry.type === "delete";
+              const isIns = entry.type === "insert";
 
-        {lines.length === 0 && (
-          <div className="flex items-center justify-center h-32 text-base-content/30 text-sm">
-            No differences found
-          </div>
-        )}
+              const rowBg = isDel
+                ? "bg-error/15 hover:bg-error/20"
+                : isIns
+                  ? "bg-success/15 hover:bg-success/20"
+                  : "hover:bg-base-content/5";
+
+              const gutterBg = isDel
+                ? (theme === 'light' ? "bg-error/10" : "bg-error/20")
+                : isIns
+                  ? "bg-success/20"
+                  : "bg-base-200/60";
+
+              const prefix = isDel ? "−" : isIns ? "+" : " ";
+              const prefixClr = isDel ? "text-red-400" : isIns ? "text-success" : "text-transparent";
+              const numClr = isDel
+                ? (theme === 'light' ? "text-red-900" : "text-red-200")
+                : isIns
+                  ? "text-success/60"
+                  : "text-base-content/30";
+
+              return (
+                <div
+                  key={i}
+                  className={`flex items-start transition-colors border-b border-base-content/5 last:border-0 ${rowBg}`}
+                >
+                  {/* gutter */}
+                  <div className={`sticky left-0 flex shrink-0 select-none border-r border-base-content/10 z-10 ${gutterBg} ${numClr}`}>
+                    <span className="w-10 text-right pr-2 py-0.5 text-[10px] font-bold self-start pt-[4px]">
+                      {entry.o}
+                    </span>
+                    <span className="w-10 text-right pr-2 py-0.5 text-[10px] font-bold self-start pt-[4px]">
+                      {entry.n}
+                    </span>
+                  </div>
+
+                  {/* +/- symbol */}
+                  <span className={`w-5 shrink-0 text-center py-0.5 select-none font-black self-start pt-[3px] ${prefixClr}`}>
+                    {prefix}
+                  </span>
+
+                  {/* content */}
+                  <span className="whitespace-pre-wrap break-all py-0.5 pl-2 pr-4 text-base-content/80 min-w-0 flex-1">
+                    {entry.value || "\u00A0"}
+                  </span>
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
+/* Helpers                                                            */
 /* ------------------------------------------------------------------ */
 function formatDate(dateStr) {
   if (!dateStr) return "N/A";
   const d = new Date(dateStr);
   const now = new Date();
-  const time = d.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const time = d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
   if (d.toDateString() === now.toDateString()) return `Today · ${time}`;
   return d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+    month: "short", day: "numeric", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
   });
 }
 
@@ -201,82 +218,74 @@ function extractErrorMessage(err) {
   if (data.error) return data.error;
   const field = Object.keys(data)[0];
   if (field) {
-    const msgs = Array.isArray(data[field])
-      ? data[field].join(", ")
-      : data[field];
+    const msgs = Array.isArray(data[field]) ? data[field].join(", ") : data[field];
     return `${field}: ${msgs}`;
   }
   return "An unexpected error occurred";
 }
 
 /* ------------------------------------------------------------------ */
-/*  Main page                                                          */
+/* Main page                                                          */
 /* ------------------------------------------------------------------ */
 const VersionReviewPage = () => {
   const { id } = useParams();
   const [comment, setComment] = useState("");
   const [review, setReview] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [diffData, setDiffData] = useState(null);
   const [diffLoading, setDiffLoading] = useState(false);
+  const isInitialMount = useRef(true);
 
   const status = review?.review_status?.toLowerCase() || "pending";
   const isFinalized = status === "approved" || status === "rejected";
   const newVersion = review?.new_version;
-  const oldVersion = review?.old_version;
 
-  /* ---- Fetch review ---- */
+  /* fetch review */
   useEffect(() => {
+    const controller = new AbortController();
     const fetchReview = async () => {
       try {
-        setLoading(true);
         setError(null);
-        const res = await api.get(`/reviews/${id}/`);
+        const res = await api.get(`/reviews/${id}/`, { signal: controller.signal });
         setReview(res.data);
+        if (isInitialMount.current) {
+          isInitialMount.current = false;
+          setIsInitialLoading(false);
+        }
       } catch (err) {
-        const msg = extractErrorMessage(err);
-        setError(msg);
-        notify.error(msg);
-      } finally {
-        setLoading(false);
+        if (err.name !== "CanceledError") {
+          const msg = extractErrorMessage(err);
+          setError(msg);
+          notify.error(msg);
+        }
       }
     };
     if (id) fetchReview();
+    return () => controller.abort();
   }, [id]);
 
-  /* ---- Fetch parent diff ---- */
+  /* fetch diff */
   useEffect(() => {
     if (!newVersion?.id) return;
-
     let cancelled = false;
-
     const fetchDiff = async () => {
       try {
         setDiffLoading(true);
         const res = await api.get(`/versions/${newVersion.id}/diff/`);
         if (!cancelled) setDiffData(res.data);
       } catch (err) {
-        console.error("Diff error", err);
-        if (!cancelled) {
-          setDiffData({
-            can_compare: false,
-            message: extractErrorMessage(err),
-          });
-        }
+        if (!cancelled)
+          setDiffData({ can_compare: false, message: extractErrorMessage(err) });
       } finally {
         if (!cancelled) setDiffLoading(false);
       }
     };
-
     fetchDiff();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [newVersion?.id]);
 
-  /* ---- Actions ---- */
   const handleApprove = async () => {
     try {
       setSubmitting(true);
@@ -314,249 +323,213 @@ const VersionReviewPage = () => {
     }
   };
 
-  /* ---- Diff label ---- */
   const diffLabel = useMemo(() => {
     if (!diffData || diffData.can_compare === false) return null;
-    if (diffData.has_parent === false) return "v1 — initial version";
+    if (diffData.has_parent === false) return "v1 — Initial Version";
     return `v${diffData.old_v} → v${diffData.new_v}`;
   }, [diffData]);
 
-  /* ================================================================ */
-  /*  RENDER                                                           */
-  /* ================================================================ */
-  if (loading) {
-    return (
-      <div className="px-6 pt-10 pb-16">
-        <div className="max-w-[1400px] mx-auto flex items-center justify-center min-h-[60vh]">
-          <div className="flex flex-col items-center gap-3 text-base-content/40">
-            <Loader2 className="animate-spin" size={36} />
-            <span className="text-sm">Loading review…</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  /* loading / error */
+  if (isInitialLoading) return <Loader message="Loading review context..." />;
 
   if (error) {
     return (
-      <div className="px-6 pt-10 pb-16">
-        <div className="max-w-[1400px] mx-auto space-y-6">
-          <Link
-            to="/reviews"
-            className="btn btn-sm btn-ghost border border-base-300 hover:text-white transition w-fit"
-          >
-            <ArrowLeft size={16} />
-            Back to Reviews
-          </Link>
-          <div className="card bg-error/10 border border-error/30 p-8 text-center">
-            <p className="text-error font-medium">{error}</p>
-          </div>
+      <section className="px-6 py-20 h-screen bg-base-100 flex flex-col">
+        <div className="w-full max-w-7xl mx-auto">
+          <MissingArtifact
+            title="Review Access Denied"
+            message={error}
+            linkTo="/reviews"
+            linkText="Return to Queue"
+          />
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="px-6 pt-10 pb-16">
-      <div className="max-w-[1400px] mx-auto space-y-12">
-        {/* Back */}
-        <Animate>
-          <Link
-            to="/reviews"
-            className="btn btn-sm btn-ghost border border-base-300 hover:text-white transition w-fit"
-          >
-            <ArrowLeft size={16} />
-            Back to Reviews
-          </Link>
-        </Animate>
+    /*
+     * Outer shell: centers the inner box, pads for the navbar.
+     * Does NOT set overflow-hidden so the page can scroll on small screens.
+     */
+    <section className="min-h-screen w-full bg-base-100 flex flex-col items-center pt-16 lg:pt-20 pb-8 px-4 sm:px-6">
 
-        {/* Header */}
-        <Animate variant="fade-down">
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-4xl font-bold tracking-tight">
-                {newVersion?.title ||
-                  newVersion?.name ||
-                  `Version ${newVersion?.version_number || ""}`}
-              </h1>
+      {/*
+       * Inner container:
+       *   - max-w-7xl keeps line width sane on ultra-wide monitors
+       *   - height: 80vh is the key constraint — fills most of the viewport
+       *     without the diff exploding to full page height
+       *   - minHeight: 600px prevents it from collapsing on very short viewports
+       */}
+      <div
+        className="w-full max-w-7xl flex flex-col gap-4"
+      >
+
+        {/* ── HEADER (shrinks to its natural height) ── */}
+        <div className="shrink-0 space-y-2.5">
+          {/* top nav row */}
+          <div className="flex items-center justify-between">
+            <Link
+              to="/reviews"
+              className="group btn btn-ghost btn-sm gap-2 border border-base-300/40 rounded-xl hover:bg-base-300/20 transition-all"
+            >
+              <ArrowLeft
+                size={13}
+                className="group-hover:-translate-x-0.5 transition-transform"
+              />
+              <span className="text-[10px] uppercase tracking-[0.2em] font-black">Back</span>
+            </Link>
+
+            <div className="flex items-center gap-3">
+              {diffLabel && (
+                <span className="text-[10px] font-mono opacity-50 bg-base-200/60 px-3 py-1 rounded-lg border border-base-300/30">
+                  {diffLabel}
+                </span>
+              )}
               <FileStatus status={status} />
             </div>
+          </div>
 
-            <div className="flex gap-6 text-sm text-base-content/60">
-              {newVersion?.created_by && (
-                <span className="flex items-center gap-1">
-                  <User size={14} />
-                  {newVersion.created_by.username ||
-                    newVersion.created_by.name ||
-                    "Unknown"}
-                </span>
-              )}
-              <span className="flex items-center gap-1">
-                <Clock size={14} />
-                {formatDate(newVersion?.created_at)}
-              </span>
-              {newVersion?.version_number && (
-                <span className="flex items-center gap-1 text-base-content/40">
-                  <FileText size={14} />
-                  v{newVersion.version_number}
-                </span>
-              )}
+          {/* title row */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-base-300/15 pb-3">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.4em]">
+                <FileStack size={13} /> Version Audit
+              </div>
+              <h1 className="text-2xl md:text-[1.75rem] font-black tracking-tighter truncate max-w-2xl leading-none">
+                {newVersion?.title || newVersion?.name || `Version ${newVersion?.version_number}`}
+              </h1>
+            </div>
+
+            <span className="flex items-center gap-2 text-[10px] font-bold opacity-40 w-fit shrink-0">
+              <Clock size={11} /> {formatDate(newVersion?.created_at)}
+            </span>
+          </div>
+        </div>
+
+        {/* ── BODY: fills remaining height ── */}
+        <div className="flex-1 flex flex-col-reverse lg:grid lg:grid-cols-[1fr_330px] gap-4">
+
+          {/* ── LEFT: Diff Viewer panel ── */}
+          <div className="flex flex-col h-[80vh] bg-base-200/15 border border-base-300/20 rounded-[1.5rem] p-5 overflow-hidden shadow-xl relative group">
+            {/* subtle ambient glow */}
+            <div className="absolute inset-0 bg-primary/4 blur-3xl rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+            <div className="relative flex flex-col h-full">
+              {/* panel header */}
+              <div className="flex items-center gap-2.5 text-sm font-bold text-base-content mb-3 shrink-0">
+                <div className="h-7 w-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                  <FileText size={13} className="text-primary" />
+                </div>
+                Source Comparison
+              </div>
+
+              {/* diff — flex-1 fills remaining panel height */}
+              <div className="flex-1 min-h-0">
+                {diffLoading ? (
+                  <div className="flex flex-col items-center justify-center h-full gap-3">
+                    <Loader2 size={26} className="animate-spin text-primary/25" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-25">
+                      Calculating Delta…
+                    </span>
+                  </div>
+                ) : (
+                  <DiffViewer diffData={diffData} rawContent={newVersion?.content} />
+                )}
+              </div>
             </div>
           </div>
-        </Animate>
 
-        {/* Grid */}
-        <div className="grid xl:grid-cols-[2fr_1fr] gap-10 max-w-[1200px] mx-auto">
-          {/* -------- LEFT: Diff viewer -------- */}
-          <Animate className="xl:col-span-2">
-            <div className="card bg-base-200/70 border border-base-300/40 backdrop-blur p-8 space-y-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 font-semibold text-lg">
-                  <FileText size={20} />
-                  Version Preview
-                </div>
+          {/* ── RIGHT: Sidebar ── */}
+          <div className="flex flex-col gap-4">
 
-                {diffLabel && (
-                  <span className="text-xs font-mono text-base-content/50 bg-base-100/60 px-3 py-1 rounded-md border border-base-300/30">
-                    {diffLabel}
-                  </span>
-                )}
+            {/* Review Protocol */}
+            <GlassCard className="p-5 space-y-4 shrink-0 border-primary/10 shadow-lg rounded-[1.25rem]">
+              <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.3em]">
+                <ShieldCheck size={13} /> Review Protocol
               </div>
 
-              {diffLoading && (
-                <div className="flex items-center justify-center min-h-[460px] text-base-content/30 gap-2">
-                  <Loader2 size={20} className="animate-spin" />
-                  <span className="text-sm">Loading diff…</span>
-                </div>
-              )}
-
-              {!diffLoading && (
-                <DiffViewer
-                  diffData={diffData}
-                  rawContent={newVersion?.content}
-                />
-              )}
-            </div>
-          </Animate>
-
-          {/* -------- RIGHT: Side panel -------- */}
-          <Animate variant="fade-left">
-            <div className="flex flex-col gap-8">
-              {/* Summary */}
-              <div className="card bg-base-200/70 border border-base-300/40 backdrop-blur p-7 space-y-3">
-                <div className="font-semibold text-base">Summary</div>
-                <p className="text-sm text-base-content/70 leading-relaxed">
-                  {newVersion?.summary ||
-                    newVersion?.description ||
-                    "No summary provided for this version."}
-                </p>
-              </div>
-
-              {/* Comments */}
-              <div className="card bg-base-200/70 border border-base-300/40 backdrop-blur p-7 space-y-5">
-                <div className="flex items-center gap-2 font-semibold text-base">
-                  <MessageSquare size={18} />
-                  Comments
-                </div>
-
-                {review?.comments ? (
-                  <div className="text-sm text-base-content/70 bg-base-100/50 rounded-lg p-4 border border-base-300/30">
-                    {review.comments}
-                  </div>
-                ) : !isFinalized ? (
-                  <div className="text-sm text-base-content/50">
-                    No comments yet.
-                  </div>
-                ) : null}
-
-                {!isFinalized && (
-                  <>
-                    <textarea
-                      className="textarea textarea-bordered w-full min-h-[100px]"
-                      placeholder={
-                        "Leave feedback before approving…\n\n(Required for rejection)"
-                      }
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                    />
-                    {!comment.trim() && (
-                      <p className="text-xs text-base-content/40">
-                        Adding a comment is required when rejecting.
-                      </p>
-                    )}
-                  </>
-                )}
-              </div>
-
-              {/* Decision */}
-              <div className="card bg-base-200/70 border border-base-300/40 backdrop-blur p-7 flex flex-col gap-3">
-                {!isFinalized ? (
-                  <div className="flex gap-4">
+              {!isFinalized ? (
+                <div className="space-y-3">
+                  <textarea
+                    className="textarea textarea-bordered w-full min-h-[96px] bg-base-100/40 rounded-xl border-base-300/40 focus:ring-1 focus:ring-primary/40 text-sm resize-none"
+                    placeholder="Optional feedback or rejection reason…"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                  />
+                  <div className="grid grid-cols-2 gap-2">
                     <button
-                      className="btn btn-error flex-1 shadow-md shadow-error/30"
                       onClick={handleReject}
                       disabled={submitting}
+                      className="btn btn-outline border-error/30 text-error hover:bg-error hover:text-white hover:border-error rounded-xl text-[9px] font-black tracking-widest uppercase gap-1.5"
                     >
-                      {submitting ? (
-                        <Loader2 size={18} className="animate-spin" />
-                      ) : (
-                        <XCircle size={18} />
-                      )}
+                      {submitting
+                        ? <Loader2 size={13} className="animate-spin" />
+                        : <XCircle size={13} />}
                       Reject
                     </button>
                     <button
-                      className="btn btn-success flex-1 shadow-md shadow-success/30"
                       onClick={handleApprove}
                       disabled={submitting}
+                      className="btn bg-success/10 text-success hover:bg-success hover:text-white border-success/20 rounded-xl text-[9px] font-black tracking-widest uppercase gap-1.5"
                     >
-                      {submitting ? (
-                        <Loader2 size={18} className="animate-spin" />
-                      ) : (
-                        <CheckCircle size={18} />
-                      )}
+                      {submitting
+                        ? <Loader2 size={13} className="animate-spin" />
+                        : <CheckCircle2 size={13} />}
                       Approve
                     </button>
                   </div>
-                ) : (
-                  <>
-                    <div className="text-sm text-center">
-                      Current status:
-                      <span
-                        className={`ml-2 font-semibold capitalize px-2 py-1 rounded-md ${
-                          status === "approved"
-                            ? "text-success bg-success/10 shadow-md shadow-success/30"
-                            : "text-error bg-error/10 shadow-md shadow-error/30"
-                        }`}
-                      >
-                        {status}
-                      </span>
-                    </div>
-
-                    {review?.reviewed_at && (
-                      <p className="text-xs text-center text-base-content/40">
-                        Reviewed {formatDate(review.reviewed_at)}
-                      </p>
-                    )}
-
-                    <p className="text-xs text-center text-base-content/40 pt-1">
-                      This decision is final. Contact an admin to make changes.
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-base-100/40 text-center border border-base-300/15">
+                  <div
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl font-black uppercase text-xs tracking-wider ${status === "approved"
+                      ? "text-success bg-success/10 border border-success/20"
+                      : "text-error bg-error/10 border border-error/20"
+                      }`}
+                  >
+                    {status === "approved" ? <FileCheck size={14} /> : <FileX size={14} />}
+                    {status}
+                  </div>
+                  {review?.comments && (
+                    <p className="mt-3 text-xs text-base-content/50 italic font-medium leading-relaxed">
+                      "{review.comments}"
                     </p>
+                  )}
+                </div>
+              )}
+            </GlassCard>
 
-                    <Link
-                      to="/reviews"
-                      className="btn btn-ghost w-full mt-1"
-                    >
-                      <ArrowLeft size={16} />
-                      Back to Reviews
-                    </Link>
-                  </>
-                )}
+            {/* Summary */}
+            <div className="p-5 rounded-[1.25rem] bg-base-200/20 border border-base-300/20 backdrop-blur-xl shrink-0">
+              <div className="flex items-center gap-2 text-secondary font-black text-[10px] uppercase tracking-[0.3em] mb-2.5">
+                <Info size={12} /> Summary
               </div>
+              <p className="text-base-content/55 text-xs leading-relaxed font-medium italic">
+                {newVersion?.summary || newVersion?.description || "No summary provided."}
+              </p>
             </div>
-          </Animate>
+
+            {/* Version pill */}
+            {newVersion?.version_number && (
+              <div className="p-4 rounded-[1.25rem] bg-primary/8 border border-primary/15 flex items-center justify-between shrink-0">
+                <div className="flex flex-col">
+                  <span className="text-[8px] uppercase font-black text-primary tracking-[0.2em]">
+                    Release
+                  </span>
+                  <span className="text-xl font-black">
+                    v{newVersion.version_number}
+                  </span>
+                </div>
+                <div className="h-9 w-9 rounded-xl bg-primary/15 border border-primary/20 text-primary flex items-center justify-center">
+                  <ShieldCheck size={18} />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

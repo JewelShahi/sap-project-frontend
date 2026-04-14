@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Search, Users, ChevronLeft, ChevronRight, Calendar,
-  FilterX, ShieldCheck, UserCheck, UserMinus,
+  FilterX, Funnel, UserCheck, UserMinus,
   Trash2, Lock, ShieldAlert, X, AlertTriangle, Shield, UserCog
 } from "lucide-react";
 import Animate from "@/components/animation/Animate.jsx";
 import api from "@/components/api/api";
 import notify from "@/components/toaster/notify";
-import Loader from "@/components/widgets/Loader.jsx";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext.jsx";
+import LoadingTableData from "@/components/widgets/LoadingTableData"; // NEW IMPORT
 
 const ManageUsers = () => {
   const { user: currentUser } = useAuth();
@@ -95,7 +95,7 @@ const ManageUsers = () => {
     try {
       const res = await api.patch(`/users/${id}/toggle/`);
       setUsers(prev => prev.map(u => u.id === id ? { ...u, is_active: res.data.is_active } : u));
-      notify.success(`User ${res.data.is_active ? "Activated" : "Suspended"} successfully`);
+      notify.success(`User ${res.data.is_active ? "Activated" : "Banned"} successfully`);
     } catch (err) {
       notify.error(err.response?.data?.detail || "Authorization denied");
     }
@@ -208,9 +208,10 @@ const ManageUsers = () => {
     setCurrentPage(1);
   };
 
-  if (loading && users.length === 0) {
-    return <Loader message="Loading user registry..." />;
-  }
+  // REMOVED FULL PAGE LOADER TO SHOW SITE IMMEDIATELY
+  // if (loading && users.length === 0) {
+  //   return <Loader message="Loading user registry..." />;
+  // }
 
   return (
     <div className="relative min-h-screen px-6 pb-12 pt-20 overflow-hidden font-sans bg-base-100">
@@ -356,14 +357,14 @@ const ManageUsers = () => {
             {/* Status Filters */}
             <div className="space-y-4">
               <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 flex items-center gap-2">
-                <ShieldCheck size={14} className="text-primary" /> Access State
+                <Funnel size={14} className="text-primary" /> Filter Types
               </span>
               <div className="flex flex-wrap gap-3">
                 {[
                   { id: "ALL", label: "All Users", color: "bg-slate-500" },
                   { id: "ADMINS", label: "Administrators", color: "bg-accent" },
                   { id: "ACTIVE", label: "Active Users", color: "bg-success" },
-                  { id: "INACTIVE", label: "Suspended Users", color: "bg-error" },
+                  { id: "INACTIVE", label: "Banned Users", color: "bg-error" },
                 ].map(opt => (
                   <button
                     key={opt.id}
@@ -424,7 +425,11 @@ const ManageUsers = () => {
       {/* Main Table */}
       <Animate>
         <div className="max-w-7xl mx-auto space-y-8">
-          <div className="relative rounded-[2rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-2xl overflow-hidden">
+          <div className="relative rounded-[2rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-2xl overflow-hidden min-h-[400px]">
+
+            {/* Overlay Loader */}
+            {loading && <LoadingTableData />}
+
             <div className="overflow-x-auto max-h-[70vh] scrollbar-custom">
               <table className="table w-full border-separate border-spacing-0">
                 <thead className="sticky top-0 z-20">
@@ -436,148 +441,190 @@ const ManageUsers = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-base-300/5">
-                  {users.map((user) => {
-                    const isManageable = canModify(user);
+                  {users.length > 0 ? (
+                    users.map((user) => {
+                      const isManageable = canModify(user);
 
-                    return (
-                      <tr key={user.id} className="hover:bg-primary/5 transition-colors group">
-                        <td className="py-6 px-10">
-                          <div className="flex flex-col gap-3 min-w-0">
-                            <Link to={`/profile/${user.id}`}>
-                              <div className="flex items-center gap-3 justify-center">
-                                <div className="avatar">
-                                  <div className="w-10 h-10 rounded-full ring-2 ring-primary/10 group-hover:ring-primary/40 group-hover:scale-110 transition-all duration-300 overflow-hidden bg-base-300">
-                                    <img src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=random`} alt="avatar" />
+                      return (
+                        <tr key={user.id} className="hover:bg-primary/5 transition-colors group">
+                          <td className="py-6 px-10">
+                            <div className="flex flex-col gap-3 min-w-0">
+                              <Link to={`/profile/${user.id}`}>
+                                <div className="flex items-center gap-3 justify-center">
+                                  <div className="avatar">
+                                    <div className="w-10 h-10 rounded-full ring-2 ring-primary/10 group-hover:ring-primary/40 group-hover:scale-110 transition-all duration-300 overflow-hidden bg-base-300">
+                                      <img src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=random`} alt="avatar" />
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col justify-center items-center">
+                                    <p className="font-bold text-sm tracking-tight">
+                                      {user.first_name + " " + user.last_name}
+                                      {currentUser?.id === user.id && (
+                                        <span className="badge badge-soft bg-primary/60 text-[13px] ml-1 text-white">
+                                          You
+                                        </span>
+                                      )}
+                                    </p>
+                                  </div>
+
+                                </div>
+                              </Link>
+
+                              <div className="flex flex-col gap-1.5 w-full">
+                                <div className="flex items-center w-full border border-accent/20 bg-accent/5 rounded-[0.6rem] p-1 py-1.5 shadow-sm">
+                                  <div className="bg-accent px-2 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0">
+                                    <span className="text-[9px] font-black uppercase tracking-tight text-white">
+                                      Username
+                                    </span>
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <span className="px-3 text-[10px] font-mono font-medium text-accent truncate block">
+                                      {user.username}
+                                    </span>
                                   </div>
                                 </div>
-                                <div className="flex flex-col justify-center items-center">
-                                  <p className="font-bold text-sm tracking-tight">
-                                    {user.first_name + " " + user.last_name}
-                                    {currentUser?.id === user.id && (
-                                      <span className="badge badge-soft bg-primary/60 text-[13px] ml-1 text-white">
-                                        You
-                                      </span>
-                                    )}
-                                  </p>
+                                <div className="flex items-center w-full border border-blue-500/20 bg-blue-500/5 rounded-[0.6rem] p-1 py-1.5 shadow-sm">
+                                  <div className="bg-blue-500 w-12 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0"><span className="text-[9px] font-black uppercase tracking-tight text-white">E-mail</span></div>
+                                  <span className="px-3 text-[10px] font-mono font-medium text-blue-600 truncate">{user.email}</span>
                                 </div>
-
+                                <div className="flex items-center w-full border border-slate-500/20 bg-slate-500/5 rounded-[0.6rem] p-1 py-1.5 shadow-sm">
+                                  <div className="bg-slate-500 w-12 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0"><span className="text-[9px] font-black uppercase tracking-tight text-white">ID</span></div>
+                                  <span className="px-3 text-[10px] font-mono font-medium text-slate-600 truncate">{user.id}</span>
+                                </div>
                               </div>
-                            </Link>
+                            </div>
+                          </td>
 
-                            <div className="flex flex-col gap-1.5 w-full">
-                              <div className="flex items-center w-full border border-accent/20 bg-accent/5 rounded-[0.6rem] p-1 py-1.5 shadow-sm">
-                                <div className="bg-accent px-2 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0">
-                                  <span className="text-[9px] font-black uppercase tracking-tight text-white">
-                                    Username
+                          <td className="py-6">
+                            <div className="flex flex-col gap-2 items-center">
+                              <div className="flex items-center gap-2">
+                                {user.is_superuser && <span className="badge bg-purple font-black py-3 px-3 uppercase text-[9px] text-white border-none shadow-sm">SUPERUSER</span>}
+                                {user.is_staff && <span className="badge badge-warning font-black py-3 px-3 uppercase text-[9px] text-white border-none shadow-sm">ADMIN STAFF</span>}
+                                {!user.is_staff && !user.is_superuser && (
+                                  <span
+                                    className={`badge font-black py-3 px-3 uppercase text-[9px] text-white border-none shadow-sm ${user.is_active ? 'bg-primary' : 'bg-error'
+                                      }`}
+                                  >
+                                    {user.is_active ? 'STANDARD' : 'BANNED'}
                                   </span>
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <span className="px-3 text-[10px] font-mono font-medium text-accent truncate block">
-                                    {user.username}
-                                  </span>
-                                </div>
+                                )}
                               </div>
-                              <div className="flex items-center w-full border border-blue-500/20 bg-blue-500/5 rounded-[0.6rem] p-1 py-1.5 shadow-sm">
-                                <div className="bg-blue-500 w-12 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0"><span className="text-[9px] font-black uppercase tracking-tight text-white">E-mail</span></div>
-                                <span className="px-3 text-[10px] font-mono font-medium text-blue-600 truncate">{user.email}</span>
-                              </div>
-                              <div className="flex items-center w-full border border-slate-500/20 bg-slate-500/5 rounded-[0.6rem] p-1 py-1.5 shadow-sm">
-                                <div className="bg-slate-500 w-12 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0"><span className="text-[9px] font-black uppercase tracking-tight text-white">ID</span></div>
-                                <span className="px-3 text-[10px] font-mono font-medium text-slate-600 truncate">{user.id}</span>
+                              <div className={`p-3 rounded-xl border text-[11px] font-bold uppercase tracking-tight max-w-[200px] text-center ${!user.is_active
+                                ? "bg-error/10 border-error/20 text-error"
+                                : "bg-base-300/10 border-base-300/20 text-base-content/70"
+                                }`}>
+                                {!user.is_active
+                                  ? "Account Deactivated — Access Denied"
+                                  : user.is_superuser
+                                    ? "Full System Access"
+                                    : user.is_staff
+                                      ? "Management Access"
+                                      : "Standard Platform Access"
+                                }
                               </div>
                             </div>
-                          </div>
-                        </td>
+                          </td>
 
-                        <td className="py-6">
-                          <div className="flex flex-col gap-2 items-center">
-                            <div className="flex items-center gap-2">
-                              {user.is_superuser && <span className="badge bg-purple font-black py-3 px-3 uppercase text-[9px] text-white border-none shadow-sm">SUPERUSER</span>}
-                              {user.is_staff && <span className="badge badge-warning font-black py-3 px-3 uppercase text-[9px] text-white border-none shadow-sm">ADMIN STAFF</span>}
-                              {!user.is_staff && !user.is_superuser && (
-                                <span
-                                  className={`badge font-black py-3 px-3 uppercase text-[9px] text-white border-none shadow-sm ${user.is_active ? 'bg-primary' : 'bg-error'
-                                    }`}
-                                >
-                                  {user.is_active ? 'STANDARD' : 'BANNED'}
-                                </span>
-                              )}
-                            </div>
-                            <div className="bg-base-300/10 p-3 rounded-xl border border-base-300/20 text-[11px] font-medium opacity-80 max-w-[200px] text-center">
-                              {user.is_superuser ? "Full System Access" : user.is_staff ? "Management Access" : "Standard Platform Access"}
-                            </div>
-                          </div>
-                        </td>
+                          <td className="p-4 text-center align-middle">
+                            {isManageable ? (
+                              <div className="flex flex-col items-center gap-2">
 
-                        <td className="text-center">
-                          {isManageable ? (
-                            <div className="flex flex-col items-center gap-2">
-                              {/* Staff Toggle Button - only for Superuser */}
-                              {currentUser?.is_superuser && (
+                                {/* 1. Staff Toggle Button (Superuser only) */}
+                                {currentUser?.is_superuser && (
+                                  <button
+                                    onClick={() => openStaffToggleModal(user)}
+                                    disabled={!user.is_active}
+                                    className={`btn btn-xs h-9 rounded-xl border-none font-bold uppercase text-[10px] gap-2 px-4 shadow-sm w-36 transition-all 
+            active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-500/20 disabled:text-slate-500
+            ${user.is_staff
+                                        ? 'bg-warning text-white hover:bg-warning/80'
+                                        : 'bg-primary text-white hover:bg-primary/80'
+                                      }`}
+                                  >
+                                    {!user.is_active ? <Lock size={14} /> : <UserCog size={14} />}
+                                    <span className="truncate">
+                                      {!user.is_active ? 'User Banned' : user.is_staff ? 'Revoke Admin' : 'Make Admin'}
+                                    </span>
+                                  </button>
+                                )}
+
+                                {/* 2. Active/Ban Toggle Button */}
                                 <button
-                                  onClick={() => openStaffToggleModal(user)}
-                                  className={`btn btn-xs h-9 rounded-xl border-none font-black uppercase text-[9px] gap-2 px-4 shadow-md w-32 transition-all active:scale-95 ${user.is_staff
-                                    ? 'bg-warning text-white hover:bg-warning/80'
-                                    : 'bg-primary text-white hover:bg-primary/80'
+                                  onClick={() => handleToggle(user.id)}
+                                  className={`btn btn-xs h-9 rounded-xl border-none font-bold uppercase text-[10px] gap-2 px-4 shadow-sm w-36 transition-all active:scale-95 
+          ${user.is_active
+                                      ? 'bg-success text-white hover:bg-success/80'
+                                      : 'bg-error text-white hover:bg-error/80'
                                     }`}
                                 >
-                                  <UserCog size={14} />
-                                  {user.is_staff ? 'Revoke Admin' : 'Make Admin'}
+                                  {user.is_active ? <UserCheck size={14} /> : <UserMinus size={14} />}
+                                  <span>{user.is_active ? 'Active' : 'Banned'}</span>
                                 </button>
-                              )}
 
-                              {/* Active/Suspend Toggle */}
-                              <button
-                                onClick={() => handleToggle(user.id)}
-                                className={`btn btn-xs h-9 rounded-xl border-none font-black uppercase text-[9px] gap-2 px-4 shadow-md w-32 transition-all active:scale-95 ${user.is_active ? 'bg-success text-white hover:bg-success/80' : 'bg-warning text-white hover:bg-warning/80'
-                                  }`}
-                              >
-                                {user.is_active ? <UserCheck size={14} /> : <UserMinus size={14} />}
-                                {user.is_active ? 'Active' : 'Suspended'}
-                              </button>
+                                {/* 3. Terminate Button */}
+                                <button
+                                  onClick={() => openDeleteModal(user)}
+                                  className="btn btn-xs h-9 rounded-xl bg-error/10 text-error border border-error/20 hover:bg-error hover:text-white font-bold uppercase text-[10px] gap-2 px-4 w-36 transition-all active:scale-95 shadow-sm"
+                                >
+                                  <Trash2 size={14} />
+                                  <span>Terminate</span>
+                                </button>
 
-                              {/* Terminate Button */}
-                              <button
-                                onClick={() => openDeleteModal(user)}
-                                className="btn btn-xs h-9 rounded-xl bg-error/10 text-error border border-error/20 hover:bg-error hover:text-white font-black uppercase text-[9px] gap-2 px-4 w-32 transition-all active:scale-95"
-                              >
-                                <Trash2 size={14} /> TERMINATE
-                              </button>
+                              </div>
+                            ) : (
+                              /* Protected State */
+                              <div className="flex flex-col items-center justify-center py-4 opacity-30 group-hover:opacity-60 transition-opacity">
+                                <Lock size={20} className="mb-1" />
+                                <span className="text-[9px] font-bold uppercase tracking-widest text-base-content">
+                                  System Protected
+                                </span>
+                              </div>
+                            )}
+                          </td>
+
+                          <td className="text-[11px] opacity-60 px-10 font-mono text-center">
+                            <div className="flex flex-col items-end">
+                              <span className="font-black text-base-content tracking-tighter text-[13px]">
+                                {user.created_at
+                                  ? new Date(user.created_at).toLocaleDateString("en-GB", {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit'
+                                  })
+                                  : "DATE_MISSING"}
+                              </span>
+                              <span className="text-[9px] font-bold opacity-30 uppercase tracking-widest">
+                                {user.created_at
+                                  ? new Date(user.created_at).toLocaleTimeString(undefined, {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit',
+                                    hour12: true
+                                  })
+                                  : "TIME_MISSING"}
+                              </span>
                             </div>
-                          ) : (
-                            <div className="flex flex-col items-center gap-1 opacity-20 group-hover:opacity-40 transition-opacity">
-                              <Lock size={18} />
-                              <span className="text-[8px] font-black uppercase tracking-[0.2em]">Protected</span>
-                            </div>
-                          )}
-                        </td>
-
-                        <td className="text-[11px] opacity-60 px-10 font-mono text-center">
-                          <div className="flex flex-col items-end">
-                            <span className="font-black text-base-content tracking-tighter text-[13px]">
-                              {user.created_at
-                                ? new Date(user.created_at).toLocaleDateString("en-GB", {
-                                  year: 'numeric',
-                                  month: '2-digit',
-                                  day: '2-digit'
-                                })
-                                : "DATE_MISSING"}
-                            </span>
-                            <span className="text-[9px] font-bold opacity-30 uppercase tracking-widest">
-                              {user.created_at
-                                ? new Date(user.created_at).toLocaleTimeString(undefined, {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  second: '2-digit',
-                                  hour12: true
-                                })
-                                : "TIME_MISSING"}
-                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    !loading && (
+                      <tr>
+                        <td colSpan="4" className="py-20 text-center opacity-30">
+                          <div className="flex flex-col items-center justify-center gap-4">
+                            <Users size={60} strokeWidth={1} />
+                            <p className="text-xl font-black uppercase tracking-[0.3em]">
+                              No Users Found
+                            </p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest">
+                              Try adjusting your filters
+                            </p>
                           </div>
                         </td>
                       </tr>
-                    );
-                  })}
+                    )
+                  )}
                 </tbody>
               </table>
             </div>

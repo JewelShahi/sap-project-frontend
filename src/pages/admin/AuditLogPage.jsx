@@ -3,8 +3,8 @@ import { Search, Activity, FileText, ChevronLeft, ChevronRight, Calendar, Filter
 import Animate from "@/components/animation/Animate.jsx";
 import api from "@/components/api/api";
 import notify from "@/components/toaster/notify";
-import Loader from "@/components/widgets/Loader.jsx";
 import { Link } from "react-router-dom";
+import LoadingTableData from "@/components/widgets/LoadingTableData"; // IMPORT THE NEW COMPONENT
 
 const GLOBAL_GROUPS = [
   { id: "CREATE", label: "Creations", icon: <UserPlus size={14} />, values: ["create document", "create user", "create version"], color: "bg-success" },
@@ -46,49 +46,6 @@ const AuditLogPage = () => {
     setCurrentPage(1);
   };
 
-  // const fetchLogs = useCallback(async () => {
-  //   setLoading(true);
-  //   try {
-  //     const params = { page: currentPage, search: searchTerm };
-  //     if (startDate) params.start_date = startDate;
-  //     if (endDate) params.end_date = endDate;
-  //     if (backendActions.length > 0) params.action = backendActions;
-
-  //     const res = await api.get(`/audit-log/logs/`, {
-  //       params,
-  //       paramsSerializer: { indexes: null }
-  //     });
-
-  //     const rawArray = res.data.results || [];
-  //     setLogs(rawArray.map(item => ({
-  //       id: item.id,
-  //       user: item.username || "Unknown User",
-  //       user_id: item.user || "unknown",
-  //       action: item.action_type || "Unknown",
-  //       description: item.description || "No technical details provided.",
-  //       target: item.document_title || "Root System",
-  //       ip: item.ip_address || "0.0.0.0",
-  //       created_by_avatar_url: item.created_by_avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.username || "Unknown")}`,
-  //       time: item.timestamp
-  //     })));
-
-  //     setPaginationInfo({
-  //       count: res.data.count || 0,
-  //       hasNext: !!res.data.next,
-  //       hasPrev: !!res.data.previous
-  //     });
-  //   } catch (err) {
-  //     notify.error("Failed to fetch logs");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, [currentPage, searchTerm, backendActions, startDate, endDate]);
-
-  // useEffect(() => {
-  //   const delayDebounceFn = setTimeout(() => fetchLogs(), 300);
-  //   return () => clearTimeout(delayDebounceFn);
-  // }, [fetchLogs]);
-
   const fetchLogs = useCallback(async (signal) => {
     setLoading(true);
     try {
@@ -115,7 +72,9 @@ const AuditLogPage = () => {
       setLogs((results || []).map(item => ({
         id: item.id,
         user: item.username || "Unknown User",
+        full_name: (item.first_name + ' ' + item.last_name) || "Unknown User",
         user_id: item.user || "unknown",
+        email: item.email,
         action: item.action_type || "Unknown",
         description: item.description || "No technical details provided.",
         target: item.document_title || "Root System",
@@ -149,7 +108,7 @@ const AuditLogPage = () => {
 
     return () => {
       controller.abort();
-      // Cancel pervious request if still pending
+      // Cancel previous request if still pending
       clearTimeout(delayDebounceFn);
     };
   }, [fetchLogs]);
@@ -164,7 +123,8 @@ const AuditLogPage = () => {
     return 'badge-primary';
   };
 
-  if (loading && logs.length === 0) return <Loader message="Loading audit logs..." />;
+  // REMOVED THE EARLY RETURN LOADER TO ALLOW SITE TO SHOW IMMEDIATELY
+  // if (loading && logs.length === 0) return <Loader message="Loading audit logs..." />;
 
   return (
     <div className="relative min-h-screen px-6 pb-12 pt-20 overflow-hidden font-sans bg-base-100">
@@ -202,7 +162,7 @@ const AuditLogPage = () => {
           {/* Filter Panel */}
           <div className="bg-base-200/40 border border-base-300/30 rounded-[2.5rem] p-6 lg:p-10 backdrop-blur-xl shadow-2xl flex flex-col gap-10">
 
-            {/* Filter by Type - Border 0 when selected */}
+            {/* Filter by Type */}
             <div className="space-y-4">
               <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 flex items-center gap-2">
                 <Tags size={14} className="text-primary" /> Action Types
@@ -226,7 +186,7 @@ const AuditLogPage = () => {
 
             <div className="h-px bg-base-content/5 w-full"></div>
 
-            {/* Improved Date Visualization (No Time) */}
+            {/* Improved Date Visualization */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               <div className="space-y-4">
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 flex items-center gap-2 text-success">
@@ -266,86 +226,122 @@ const AuditLogPage = () => {
         </div>
       </Animate>
 
-      {/* REVERTED TABLE DESIGN */}
+      {/* TABLE SECTION */}
       <Animate>
         <div className="max-w-7xl mx-auto space-y-8">
-          <div className="relative rounded-[2rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-2xl overflow-hidden">
+          {/* Main Table Container */}
+          <div className="relative rounded-[2rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-2xl overflow-hidden min-h-[400px]">
+
+            {/* Overlay Loader - Shows when fetching data */}
+            {loading && <LoadingTableData message="Loading logs..." />}
+
             <div className="overflow-x-auto overflow-y-auto max-h-[70vh] scrollbar-custom">
               <table className="table w-full border-separate border-spacing-0">
                 <thead className="sticky top-0 z-20">
                   <tr className="bg-base-300/95 backdrop-blur-md text-secondary uppercase text-[11px] font-black">
                     <th className="py-6 px-10">User Identity</th>
-                    <th>Action Details</th>
+                    <th className="text-center">Action Details</th>
                     <th className="text-center">IP</th>
                     <th className="text-right px-10">Timestamp</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-base-300/5">
-                  {logs.map((log) => (
-                    <tr key={log.id} className="hover:bg-primary/5 transition-colors group">
-                      <td className="py-6 px-10">
-                        <div className="flex flex-col gap-3 min-w-0">
-                          <Link to={`/profile/${log.user_id}`}>
-                            <div className="flex items-center justify-center gap-3">
-                              <div className="avatar">
-                                <div className="w-10 h-10 rounded-full ring-2 ring-primary/10 group-hover:ring-primary/40 group-hover:scale-110 transition-all duration-300 overflow-hidden bg-base-300">
-                                  <img src={log.created_by_avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                  {logs.length > 0 ? (
+                    logs.map((log) => (
+                      <tr key={log.id} className="hover:bg-primary/5 transition-colors group">
+                        <td className="py-6 px-10">
+                          <div className="flex flex-col gap-3 min-w-0">
+                            <Link to={`/profile/${log.user_id}`}>
+                              <div className="flex items-center justify-center gap-3">
+                                <div className="avatar">
+                                  <div className="w-10 h-10 rounded-full ring-2 ring-primary/10 group-hover:ring-primary/40 group-hover:scale-110 transition-all duration-300 overflow-hidden bg-base-300">
+                                    <img src={log.created_by_avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                                  </div>
+                                </div>
+                                <div className=" flex flex-col items center justify-center text-center tracking-tight">
+                                  <p className="font-bold text-sm">{log.full_name}</p>
+                                  <p className="font-mono opacity-40 text-[10px]">{log.user}</p>
                                 </div>
                               </div>
-                              <span className="font-bold text-sm tracking-tight">{log.user}</span>
-                            </div>
-                          </Link>
-                          <div className="flex flex-col gap-1.5 w-full">
-                            <div className="flex items-center w-full overflow-hidden border border-blue-500/20 bg-blue-500/5 rounded-[0.6rem] p-1 py-1.5 shadow-sm">
-                              <div className="bg-blue-500 w-12 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0"><span className="text-[9px] font-black uppercase tracking-tight text-white">User</span></div>
-                              <span className="px-3 text-[10px] font-mono font-medium text-blue-600 dark:text-blue-400 truncate">{log.user_id}</span>
-                            </div>
-                            <div className="flex items-center w-full overflow-hidden border border-slate-500/20 bg-slate-500/5 rounded-[0.6rem] p-1 py-1.5 shadow-sm">
-                              <div className="bg-slate-500 w-12 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0"><span className="text-[9px] font-black uppercase tracking-tight text-white">Log</span></div>
-                              <span className="px-3 text-[10px] font-mono font-medium text-slate-600 dark:text-slate-400 truncate">{log.id}</span>
+                            </Link>
+                            <div className="flex flex-col gap-1.5 w-full">
+                              <div className="flex items-center w-full overflow-hidden border border-accent/20 bg-accent/5 rounded-[0.6rem] p-1 py-1.5 shadow-sm">
+                                <div className="bg-accent w-12 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0"><span className="text-[9px] font-black uppercase tracking-tight text-white">Email</span></div>
+                                <span className="px-3 text-[10px] font-mono font-medium text-accent dark:text-accent">{log.email}</span>
+                              </div>
+                              <div className="flex items-center w-full overflow-hidden border border-blue-500/20 bg-blue-500/5 rounded-[0.6rem] p-1 py-1.5 shadow-sm">
+                                <div className="bg-blue-500 w-12 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0"><span className="text-[9px] font-black uppercase tracking-tight text-white">User</span></div>
+                                <span className="px-3 text-[10px] font-mono font-medium text-blue-600 dark:text-blue-400 truncate">{log.user_id}</span>
+                              </div>
+                              <div className="flex items-center w-full overflow-hidden border border-slate-500/20 bg-slate-500/5 rounded-[0.6rem] p-1 py-1.5 shadow-sm">
+                                <div className="bg-slate-500 w-12 flex justify-center py-0.5 rounded-[0.5rem] ml-1 shrink-0"><span className="text-[9px] font-black uppercase tracking-tight text-white">Log</span></div>
+                                <span className="px-3 text-[10px] font-mono font-medium text-slate-600 dark:text-slate-400 truncate">{log.id}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="py-6">
-                        <div className="flex flex-col gap-2 max-w-md">
-                          <div className="flex items-center gap-2">
-                            <span className={`badge badge-sm font-black py-3 px-3 uppercase text-[9px] ${getActionColor(log.action)} text-white border-none shadow-sm`}>
-                              {log.action}
+                        </td>
+                        <td className="py-6">
+                          <div className="flex flex-col justify-center items-center text-center gap-2 max-w-md">
+                            <div className="flex items-center gap-2.5">
+                              <div className={`badge font-bold px-3.5 py-3.5 uppercase text-[10px] tracking-wide text-center ${getActionColor(log.action)} text-white border-none shadow-sm h-auto flex items-center leading-none`}>
+                                {log.action}
+                              </div>
+
+                              {/* The Target: Balanced opacity and icon size for better fit */}
+                              <div className="text-[10.5px] text-slate-500/80 font-semibold uppercase flex flex-row items-center tracking-tight min-w-0">
+                                <FileText size={12} className="inline mr-1.5 opacity-60 flex-shrink-0" />
+                                <span>{log.target}</span>
+                              </div>
+                            </div>
+                            <div className="bg-base-300/10 p-3 rounded-xl border border-base-300/20 text-[11px] font-medium opacity-80">{log.description}</div>
+                          </div>
+                        </td>
+                        <td className="text-center">
+                          <div className="relative flex justify-center items-center">
+                            <div className="tooltip tooltip-primary font-mono text-[10px] before:z-[100] after:z-[100]" data-tip={log.ip}>
+                              <div className="badge badge-outline h-8 opacity-30 group-hover:opacity-100 transition-opacity cursor-help border-base-content/20 px-3 font-mono">***.***.***</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="text-[11px] opacity-60 px-10 font-mono text-center">
+                          <div className="flex flex-col items-end">
+                            <span className="font-black text-base-content tracking-tighter">{
+                              new Date(log.time).toLocaleTimeString(undefined, {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                hour12: true
+                              })}
                             </span>
-                            <span className="text-[10px] opacity-40 font-bold uppercase flex flex-row items-center"><FileText size={10} className="inline mr-1" /> {log.target}</span>
+                            <span className="text-[9px] font-bold opacity-30 uppercase tracking-widest">{
+                              new Date(log.time).toLocaleDateString("en-GB", {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric'
+                              })}
+                            </span>
                           </div>
-                          <div className="bg-base-300/10 p-3 rounded-xl border border-base-300/20 text-[11px] font-medium opacity-80">{log.description}</div>
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <div className="relative flex justify-center items-center">
-                          <div className="tooltip tooltip-primary font-mono text-[10px] before:z-[100] after:z-[100]" data-tip={log.ip}>
-                            <div className="badge badge-outline h-8 opacity-30 group-hover:opacity-100 transition-opacity cursor-help border-base-content/20 px-3 font-mono">***.***.***</div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    /* EMPTY STATE - Only shows if not loading */
+                    !loading && (
+                      <tr>
+                        <td colSpan="4" className="py-20 text-center opacity-30">
+                          <div className="flex flex-col items-center justify-center gap-4">
+                            <FileText size={60} strokeWidth={1} />
+                            <p className="text-xl font-black uppercase tracking-[0.3em]">
+                              No Logs Found
+                            </p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest">
+                              Try adjusting your filters
+                            </p>
                           </div>
-                        </div>
-                      </td>
-                      <td className="text-[11px] opacity-60 px-10 font-mono text-center">
-                        <div className="flex flex-col items-end">
-                          <span className="font-black text-base-content tracking-tighter">{
-                            new Date(log.time).toLocaleTimeString(undefined, {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              second: '2-digit',
-                              hour12: true
-                            })}
-                          </span>
-                          <span className="text-[9px] font-bold opacity-30 uppercase tracking-widest">{
-                            new Date(log.time).toLocaleDateString("en-GB", {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric'
-                            })}
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                      </tr>
+                    )
+                  )}
                 </tbody>
               </table>
             </div>
