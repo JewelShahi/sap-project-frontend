@@ -79,7 +79,7 @@ const VersionDetailsPage = () => {
   const { user } = useAuth();
 
   const [version, setVersion] = useState(null);
-  const [document, setDocument] = useState(null);
+  const [documentData, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -197,18 +197,6 @@ const VersionDetailsPage = () => {
     return "unknown";
   };
 
-  // useEffect(() => {
-  //   if (!version?.file_path) return;
-  //   const type = getFileType(version.file_path);
-  //   setFileType(type);
-  //   if (type === "markdown" || type === "text") {
-  //     fetch(version.file_path)
-  //       .then((res) => res.text())
-  //       .then((data) => setPreviewContent(data.slice(0, 2000)))
-  //       .catch(() => setPreviewContent("Preview unavailable."));
-  //   }
-  // }, [version]);
-
   useEffect(() => {
     if (!version?.signed_file_path) return;
 
@@ -300,8 +288,29 @@ const VersionDetailsPage = () => {
     }
   };
 
+  const handleExport = async (format) => {
+    try {
+      const res = await api.get(
+        `/versions/${version.id}/export/${format}/`,
+        { responseType: "blob" }
+      );
+
+      const blob = new Blob([res.data]);
+      const url = window.URL.createObjectURL(blob);
+
+      const a = window.document.createElement("a"); // extra safety
+      a.href = url;
+      a.download = `version-${version.version_number}.${format}`;
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export failed", err);
+    }
+  };
+
   const statusInfo = getStatusDetails(version?.status);
-  const isDocumentOwner = document?.created_by_username === user?.username;
+  const isDocumentOwner = documentData?.created_by_username === user?.username;
   const isOwner = isDocumentOwner || user?.is_superuser;
   const isCoAuthor = useMemo(() => {
     if (!user || !members.length) return false;
@@ -310,7 +319,7 @@ const VersionDetailsPage = () => {
     );
   }, [members, user]);
 
-  const isDeleted = document?.is_deleted;
+  const isDeleted = documentData?.is_deleted;
   const isSuperUser = user?.is_superuser;
   const isReviewer = useMemo(() => {
     if (!user || !members.length) return false;
@@ -423,7 +432,7 @@ const VersionDetailsPage = () => {
         <Animate variant="fade-down">
           <div className="flex flex-col sm:flex-row items-center justify-between w-full border-b border-base-300/10 pb-8 gap-4">
             <Link
-              to={`/documents/${document?.id}`}
+              to={`/documents/${documentData?.id}`}
               className="group btn btn-ghost btn-sm gap-2 rounded-xl border border-base-300/50 hover:bg-base-300/50 transition-all"
             >
               <ArrowLeft
@@ -436,17 +445,42 @@ const VersionDetailsPage = () => {
             </Link>
 
             {isOwner && (
-              <a
-                href={version.signed_file_path}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary btn-sm rounded-xl border-none hover:scale-105 transition-all h-10 px-6 flex items-center gap-2"
-              >
-                <Download size={16} />
-                <span className="font-bold text-[10px] uppercase tracking-widest">
-                  Download v.{version.version_number} File
-                </span>
-              </a>
+              <div className="flex items-center gap-2">
+                {/* Download original file */}
+                <a
+                  href={version.signed_file_path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary btn-sm rounded-xl border-none hover:scale-105 transition-all h-10 px-4 flex items-center gap-2"
+                >
+                  <Download size={16} />
+                  <span className="font-bold text-[10px] uppercase tracking-widest">
+                    File
+                  </span>
+                </a>
+
+                {/* Export TXT */}
+                <button
+                  onClick={() => handleExport("txt")}
+                  className="btn btn-outline btn-sm rounded-xl h-10 px-4 flex items-center gap-2"
+                >
+                  <FileText size={14} />
+                  <span className="text-[10px] uppercase tracking-widest font-bold">
+                    TXT
+                  </span>
+                </button>
+
+                {/* Export PDF */}
+                <button
+                  onClick={() => handleExport("pdf")}
+                  className="btn btn-outline btn-sm rounded-xl h-10 px-4 flex items-center gap-2"
+                >
+                  <FileCode size={14} />
+                  <span className="text-[10px] uppercase tracking-widest font-bold">
+                    PDF
+                  </span>
+                </button>
+              </div>
             )}
           </div>
         </Animate>
@@ -463,7 +497,7 @@ const VersionDetailsPage = () => {
                 <span className="text-primary">№ {version.version_number}</span>
               </h1>
               <p className="text-base-content/50 font-bold uppercase tracking-widest text-xs">
-                {document?.title}
+                {documentData?.title}
               </p>
             </div>
 
