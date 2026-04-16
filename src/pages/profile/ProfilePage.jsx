@@ -4,8 +4,8 @@ import { useAuth } from "@/context/AuthContext";
 
 import {
   User, Mail, Calendar, ShieldCheck, CircleCheck, CircleX,
-  LogOut, Edit3, Trash2, Camera, BarChart3, EyeOff, Eye,
-  Lock, ArrowLeft, Crown, Fingerprint
+  LogOut, Edit3, Trash2, Camera, EyeOff, Eye,
+  Lock, ArrowLeft, Crown, Fingerprint, UserCheck, UserMinus,
 } from "lucide-react";
 
 import api from "@/components/api/api";
@@ -131,9 +131,13 @@ const ProfilePage = () => {
   }, [authUser, id, isOwnProfile]);
 
   const handleAssignRole = async () => {
-    const targetIsPrivileged = Boolean(profileData?.is_superuser || profileData?.is_staff);
-    const canManageTarget = Boolean((authUser?.is_staff || authUser?.is_superuser) && id && !targetIsPrivileged);
-    if (!canManageTarget) return notify.error("You cannot manage roles for this user");
+    const p = profileData;
+    if (!p || !authUser || !id) return;
+    const canManageRoles =
+      authUser.is_superuser
+        ? !p.is_superuser
+        : Boolean(authUser.is_staff && !p.is_superuser && !p.is_staff);
+    if (!canManageRoles) return notify.error("You cannot manage roles for this user");
     if (!selectedRole || !id) return notify.error("Select a role first");
     try {
       await api.post("/roles/manage/", { user: id, role_name: selectedRole });
@@ -145,9 +149,13 @@ const ProfilePage = () => {
   };
 
   const handleRemoveRole = async () => {
-    const targetIsPrivileged = Boolean(profileData?.is_superuser || profileData?.is_staff);
-    const canManageTarget = Boolean((authUser?.is_staff || authUser?.is_superuser) && id && !targetIsPrivileged);
-    if (!canManageTarget) return notify.error("You cannot manage roles for this user");
+    const p = profileData;
+    if (!p || !authUser || !id) return;
+    const canManageRoles =
+      authUser.is_superuser
+        ? !p.is_superuser
+        : Boolean(authUser.is_staff && !p.is_superuser && !p.is_staff);
+    if (!canManageRoles) return notify.error("You cannot manage roles for this user");
     if (!selectedRole || !id) return notify.error("Select a role first");
     try {
       await api.delete("/roles/manage/", {
@@ -157,6 +165,28 @@ const ProfilePage = () => {
       notify.success("Role removed");
     } catch (err) {
       notify.error(err.response?.data?.detail || "Failed to remove role");
+    }
+  };
+
+  const handleToggleProfileActive = async () => {
+    const p = profileData;
+    if (!p || !authUser || !id || isOwnProfile) {
+      return notify.error("You cannot change this account status");
+    }
+    if (p.id === authUser.id) {
+      return notify.error("You cannot change this account status");
+    }
+    const canToggleBan =
+      !p.is_superuser &&
+      (authUser.is_superuser ||
+        Boolean(authUser.is_staff && !p.is_staff));
+    if (!canToggleBan) return notify.error("You cannot change this account status");
+    try {
+      const { data } = await api.patch(`/users/${id}/toggle/`);
+      setProfileData((prev) => (prev ? { ...prev, is_active: data.is_active } : prev));
+      notify.success(data.is_active ? "User activated" : "User banned");
+    } catch (err) {
+      notify.error(err.response?.data?.detail || "Could not update account status");
     }
   };
 
@@ -214,6 +244,15 @@ const ProfilePage = () => {
     }
   };
 
+  const assignedGeneralRoles = useMemo(
+    () => Array.from(new Set(userRoles)),
+    [userRoles],
+  );
+  const selectedRoleAlreadyAssigned = Boolean(
+    selectedRole && assignedGeneralRoles.includes(selectedRole),
+  );
+  const noRoleSelected = !selectedRole;
+
   // Loading 
   if (loading) return <Loader message="Loading profile page..." />;
 
@@ -223,7 +262,25 @@ const ProfilePage = () => {
   const viewerIsAdmin = Boolean(authUser?.is_staff);
   const viewerCanManageRoles = viewerIsSuperuser || viewerIsAdmin;
   const targetIsPrivileged = Boolean(profile?.is_superuser || profile?.is_staff);
-  const canManageTargetRoles = !isOwnProfile && viewerCanManageRoles && !targetIsPrivileged;
+  /* Superuser: roles for anyone except other superusers (includes admins). Staff: only non-admin, non-superuser. */
+  const canManageTargetRoles =
+    !isOwnProfile &&
+    (viewerIsSuperuser || viewerIsAdmin) &&
+    !profile?.is_superuser &&
+    !profile?.is_staff;
+  /* Superuser: ban/activate any non–super-user (including admins). Staff: only normal users. */
+  const canToggleProfileBan =
+    !isOwnProfile &&
+    profile &&
+    authUser?.id &&
+    profile?.id &&
+    authUser.id !== profile.id &&
+    !profile.is_superuser &&
+    (viewerIsSuperuser || (viewerIsAdmin && !profile.is_staff));
+  const showAdministrationPanel =
+    (canManageTargetRoles || canToggleProfileBan) &&
+    !(viewerIsSuperuser && profile?.is_superuser) &&
+    !(viewerIsAdmin && profile?.is_staff);
   const canSeePrivilegedBadges =
     isOwnProfile || viewerIsSuperuser || (viewerIsAdmin && !targetIsPrivileged);
   const canSeeGlobalRoles = isOwnProfile
@@ -389,7 +446,7 @@ const ProfilePage = () => {
 
                 {/* ID - Primary */}
                 <div className="card bg-primary/5 backdrop-blur-md border-primary/20 p-4 rounded-2xl hover:bg-primary/10 transition-all shadow-sm">
-                  <div className="flex items-center gap-3 justify-center">
+                  <div className="flex items-center gap-3">
                     <div className="p-2 rounded-full bg-primary/10">
                       <Fingerprint size={20} className="text-primary" />
                     </div>
@@ -455,7 +512,7 @@ const ProfilePage = () => {
                         </div>
                         <button
                           onClick={() => document.getElementById("delete_account_modal").showModal()}
-                          className="btn btn-error btn-sm rounded-xl px-4 w-full sm:w-auto"
+                          className="btn bg-error text-white btn-sm rounded-xl px-4 w-full sm:w-auto"
                           disabled={profile?.is_superuser}
                         >
                           <Trash2 size={16} />
@@ -482,40 +539,104 @@ const ProfilePage = () => {
                     </div>
                   </div>
                 </div>
-                {canManageTargetRoles && (
-                  <div className="card bg-base-200/40 backdrop-blur-xl border border-white/10 mt-4">
-                    <div className="card-body">
-                      <p className="text-xs font-bold uppercase tracking-widest opacity-60">
-                        Role Management
-                      </p>
-                      <div className="flex flex-col sm:flex-row gap-2">
-                        <select
-                          className="select select-bordered w-full"
-                          value={selectedRole}
-                          onChange={(e) => setSelectedRole(e.target.value)}
-                        >
-                          <option value="">Select role</option>
-                          {availableRoles.map((role) => (
-                            <option key={role.id} value={role.role_name}>
-                              {role.role_name}
-                            </option>
-                          ))}
-                        </select>
-                        <button onClick={handleAssignRole} className="btn btn-primary">
-                          Add Role
-                        </button>
-                        <button onClick={handleRemoveRole} className="btn btn-outline">
-                          Remove Role
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </Animate>
             )}
 
           </div>
         </div>
+
+        {/* Full-width below user card + info grid — matches ManageUsers rules */}
+        {showAdministrationPanel && (
+          <Animate variant="fade-up" delay={260}>
+            <div className="max-w-6xl mx-auto mt-8 px-0 w-full">
+
+              {/* Grid Container - No Background */}
+              <div
+                className={`grid gap-6 lg:gap-8 items-stretch ${canManageTargetRoles && canToggleProfileBan
+                  ? "grid-cols-1 lg:grid-cols-2"
+                  : "grid-cols-1 w-full" // Full width if only one is shown
+                  }`}
+              >
+                {/* ROLE MANAGEMENT CARD - Has BG */}
+                {canManageTargetRoles && (
+                  <div className="card bg-base-200/40 backdrop-blur-xl border border-white/10 shadow-xl min-w-0">
+                    <div className="card-body p-4 sm:p-5 space-y-3">
+                      <p className="text-[10px] font-black uppercase tracking-widest opacity-50 text-center">
+                        Role management
+                      </p>
+                      <select
+                        className="select select-bordered select-sm w-full rounded-xl bg-base-100/50"
+                        value={selectedRole}
+                        onChange={(e) => setSelectedRole(e.target.value)}
+                      >
+                        <option value="">Select role</option>
+                        {availableRoles.map((role) => (
+                          <option key={role.id} value={role.role_name}>
+                            {role.role_name}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <button
+                          type="button"
+                          onClick={handleAssignRole}
+                          className="btn btn-sm btn-primary flex-1 rounded-xl"
+                          disabled={noRoleSelected || selectedRoleAlreadyAssigned}
+                        >
+                          {selectedRoleAlreadyAssigned ? "Has role" : "Add"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleRemoveRole}
+                          className={`btn btn-sm flex-1 rounded-xl border-none ${selectedRoleAlreadyAssigned && !noRoleSelected
+                            ? "btn-error text-white"
+                            : "btn-outline opacity-60"
+                            }`}
+                          disabled={noRoleSelected || !selectedRoleAlreadyAssigned}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ACCOUNT STATUS CARD - Has BG */}
+                {canToggleProfileBan && (
+                  <div className="card bg-base-200/40 backdrop-blur-xl border border-white/10 shadow-xl min-w-0">
+                    <div className="card-body p-4 sm:p-5 flex flex-col justify-center gap-3">
+                      <p className="text-[10px] font-black uppercase tracking-widest opacity-50 text-center">
+                        Account status
+                      </p>
+
+                      {/* Buttons Container: Max width + Centered + Responsive Flex */}
+                      <div className="flex flex-col sm:flex-row lg:flex-col gap-2 w-full max-w-[200px] mx-auto">
+                        <button
+                          type="button"
+                          onClick={handleToggleProfileActive}
+                          disabled={profile?.is_active}
+                          className="btn btn-sm btn-success rounded-xl gap-2 w-full disabled:opacity-40 disabled:pointer-events-none text-white"
+                        >
+                          <UserCheck size={16} />
+                          Activate user
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleToggleProfileActive}
+                          disabled={!profile?.is_active}
+                          className="btn btn-sm bg-transparent border border-error/40 text-error hover:bg-error hover:text-white rounded-xl gap-2 w-full transition-colors disabled:opacity-40 disabled:pointer-events-none"
+                        >
+                          <UserMinus size={16} />
+                          Ban user
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Animate>
+        )}
 
         {/* MODALS (own profile only) */}
         {isOwnProfile && (
