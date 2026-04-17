@@ -660,7 +660,8 @@ const ManageUsers = () => {
                             {isManageable ? (
                               <div className="flex flex-row items-start justify-center gap-2">
                                 {/* Role Control (Keep as is) */}
-                                {(currentUser?.is_staff || currentUser?.is_superuser) && (
+                                {/* Added check: !(currentUser.is_superuser && user.is_staff) */}
+                                {(currentUser?.is_staff || currentUser?.is_superuser) && !(currentUser?.is_superuser && user?.is_staff) && (
                                   <div className={`glasscard w-52 p-2 rounded-xl border ${isBanned ? "opacity-70 border-error/30" : "border-base-300/30"}`}>
                                     <div className="text-[9px] font-black uppercase tracking-widest opacity-50 text-center mb-1">
                                       Role Control
@@ -701,8 +702,8 @@ const ManageUsers = () => {
                                       <button
                                         onClick={() => handleRemoveRole(user)}
                                         className={`btn btn-xs h-7 min-h-7 rounded-lg border-none flex-1 ${selectedRoleAlreadyAssigned
-                                          ? "bg-warning text-white"
-                                          : "bg-base-300 text-base-content"
+                                            ? "bg-warning text-white"
+                                            : "bg-base-300 text-base-content"
                                           }`}
                                         disabled={isBanned || !selectedRole || !selectedRoleAlreadyAssigned}
                                       >
