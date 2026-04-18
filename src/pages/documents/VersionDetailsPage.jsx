@@ -30,6 +30,7 @@ import MissingArtifact from "@/components/widgets/MissingArtifact.jsx";
 import api from "@/components/api/api.js";
 import { useAuth } from "@/context/AuthContext.jsx";
 import DiffViewer from "@/components/diff/DiffViewer.jsx";
+import FluidBackground from "@/components/background/FluidBackground.jsx";
 
 const STATUS_CONFIG = {
   approved: {
@@ -447,7 +448,8 @@ const VersionDetailsPage = () => {
     );
 
   return (
-    <section className="px-6 py-20 min-h-screen bg-base-100 overflow-x-hidden">
+    <FluidBackground blobCount={6}>
+    <section className="px-6 py-12 min-h-screen overflow-x-hidden">
       <div className="max-w-7xl mx-auto space-y-16">
         {/* TOP LEVEL NAVIGATION */}
         <Animate variant="fade-down">
@@ -1312,6 +1314,7 @@ const VersionDetailsPage = () => {
         </dialog>
       )}
     </section>
+    </FluidBackground>
   );
 };
 

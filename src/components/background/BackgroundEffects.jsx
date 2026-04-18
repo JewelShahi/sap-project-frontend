@@ -1,7 +1,24 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const BackgroundEffects = ({ length = 12 }) => {
   const canvasRef = useRef(null);
+  const [isDark, setIsDark] = useState(true);
+
+  // Detect theme changes
+  useEffect(() => {
+    const checkTheme = () => {
+      const html = document.documentElement;
+      const theme = html.getAttribute('data-theme');
+      setIsDark(theme !== 'light');
+    };
+    
+    checkTheme();
+    
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,7 +48,8 @@ const BackgroundEffects = ({ length = 12 }) => {
     const customViolet = '#8B5CF6';
     const customTeal = '#14B8A6';
 
-    const weightedColors = [
+    // Theme-aware color palettes
+    const darkColors = [
       primary, primary, primary, primary, primary, primary, primary,
       accent, accent, accent, accent, 
       secondary, secondary, secondary, secondary,
@@ -39,6 +57,21 @@ const BackgroundEffects = ({ length = 12 }) => {
       customIndigo, customIndigo, customViolet, customViolet, customTeal, customTeal,
       '#06B6D4', '#3B82F6', '#2DD4BF', '#06B6D4', '#3B82F6', '#2DD4BF', '#6366F1', '#8B5CF6', '#0EA5E9'
     ];
+
+    // Light mode: softer, more professional colors
+    const lightColors = [
+      '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', // Blue primary
+      '#6366f1', '#6366f1', '#6366f1', // Indigo
+      '#8b5cf6', '#8b5cf6', // Violet
+      '#0ea5e9', '#0ea5e9', '#0ea5e9', // Sky blue
+      '#06b6d4', '#06b6d4', // Cyan
+      '#14b8a6', '#14b8a6', // Teal
+      '#a855f7', '#a855f7', // Purple
+      '#ec4899', '#ec4899', // Pink
+      '#10b981', '#10b981', // Emerald
+    ];
+
+    const weightedColors = isDark ? darkColors : lightColors;
 
     const cssColorToRgba = (cssColor, alpha = 1) => {
       const offscreen = document.createElement('canvas');
@@ -170,14 +203,18 @@ const BackgroundEffects = ({ length = 12 }) => {
       resizeObserver.disconnect();
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
-  }, [length]);
+  }, [length, isDark]);
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-transparent">
       <canvas
         ref={canvasRef}
-        // CSS blur is applied here for performance
-        className="block w-full h-full contrast-[1.1] brightness-[1.02] blur-[40px]"
+        // CSS blur is applied here for performance - adjusted for theme
+        className={`block w-full h-full blur-[40px] transition-all duration-500 ${
+          isDark 
+            ? 'contrast-[1.1] brightness-[1.02]' 
+            : 'contrast-[1.05] brightness-[1.0] saturate-[0.85] opacity-80'
+        }`}
       />
       <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none" />
     </div>

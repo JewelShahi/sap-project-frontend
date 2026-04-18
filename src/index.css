@@ -6,7 +6,7 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Modern Slim Scrollbar */
+/* Modern Slim Scrollbar - Theme Aware */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -30,10 +30,23 @@ html {
   background-clip: content-box;
 }
 
+/* Light theme scrollbar */
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.25);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.45);
+}
+
 /* Firefox Support */
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(155, 155, 155, 0.2) transparent;
+}
+
+[data-theme="light"] * {
+  scrollbar-color: rgba(100, 116, 139, 0.25) transparent;
 }
 
 .badge {

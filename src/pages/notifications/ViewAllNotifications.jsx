@@ -10,7 +10,8 @@ import Animate from "@/components/animation/Animate.jsx";
 import Loader from "@/components/widgets/Loader.jsx";
 import notify from "@/components/toaster/notify";
 import GetGreeting from "@/components/greetings/GetGreeting";
-import LoadingTableData from "@/components/widgets/LoadingTableData"; // NEW IMPORT
+import LoadingTableData from "@/components/widgets/LoadingTableData";
+import FluidBackground from "@/components/background/FluidBackground.jsx";
 
 import api from "@/components/api/api.js";
 import { useAuth } from "@/context/AuthContext";
@@ -243,7 +244,8 @@ const ViewAllNotifications = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base-100 px-6 pb-20 pt-20 overflow-hidden">
+    <FluidBackground blobCount={6}>
+    <div className="min-h-screen px-6 pb-20 pt-12 overflow-hidden">
       {/* Header */}
       <Animate variant="fade-down">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -518,6 +520,7 @@ const ViewAllNotifications = () => {
         </div>
       </Animate>
     </div>
+    </FluidBackground>
   );
 };
 

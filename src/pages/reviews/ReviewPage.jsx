@@ -5,6 +5,7 @@ import FileStatus from "@/components/widgets/FileStatus.jsx";
 import GlassCard from "@/components/widgets/GlassCard.jsx";
 import Loader from "@/components/widgets/Loader.jsx"; // Import Full Page Loader
 import LoadingTableData from "@/components/widgets/LoadingTableData"; // Import Table Overlay
+import FluidBackground from "@/components/background/FluidBackground.jsx";
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import api from "@/components/api/api";
 import { useAuth } from "@/context/AuthContext";
@@ -163,7 +164,8 @@ const ReviewPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-base-100 px-6 pb-12 pt-20 overflow-hidden">
+    <FluidBackground blobCount={6}>
+    <div className="min-h-screen px-6 pb-12 pt-12 overflow-hidden">
       {/* Header Section */}
       <Animate variant="fade-down" className="overflow-hidden">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -473,6 +475,7 @@ const ReviewPage = () => {
         </div>
       </Animate>
     </div>
+    </FluidBackground>
   );
 };
 

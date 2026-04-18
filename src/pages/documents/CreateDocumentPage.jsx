@@ -16,6 +16,7 @@ import {
 import Animate from "@/components/animation/Animate.jsx";
 import api from "@/components/api/api.js";
 import notify from "@/components/toaster/notify";
+import FluidBackground from "@/components/background/FluidBackground.jsx";
 
 
 const CreateDocumentPage = () => {
@@ -101,7 +102,8 @@ const CreateDocumentPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base-100 px-6 pb-12 pt-20 overflow-hidden font-sans">
+    <FluidBackground blobCount={6}>
+    <div className="min-h-screen px-6 pb-12 pt-12 overflow-hidden font-sans">
 
       <Animate variant="fade-down">
         <div className="max-w-7xl mx-auto flex flex-col gap-4 mb-12">

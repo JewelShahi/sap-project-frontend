@@ -9,7 +9,8 @@ import api from "@/components/api/api";
 import notify from "@/components/toaster/notify";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext.jsx";
-import LoadingTableData from "@/components/widgets/LoadingTableData"; // NEW IMPORT
+import LoadingTableData from "@/components/widgets/LoadingTableData";
+import FluidBackground from "@/components/background/FluidBackground.jsx";
 
 const ManageUsers = () => {
   const { user: currentUser, refreshUser } = useAuth();
@@ -318,7 +319,8 @@ const ManageUsers = () => {
   // }
 
   return (
-    <div className="relative min-h-screen px-6 pb-12 pt-20 overflow-hidden font-sans bg-base-100">
+    <FluidBackground blobCount={6}>
+    <div className="relative min-h-screen px-6 pb-12 pt-12 overflow-hidden font-sans">
 
       {/* STAFF TOGGLE SECURITY MODAL */}
       <dialog ref={staffModalRef} className="modal backdrop-blur-md">
@@ -847,6 +849,7 @@ const ManageUsers = () => {
         </div>
       </Animate>
     </div>
+    </FluidBackground>
   );
 }
 

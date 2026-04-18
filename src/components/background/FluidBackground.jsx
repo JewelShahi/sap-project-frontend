@@ -1,7 +1,24 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const FluidBackground = ({ blobCount = 12, children }) => {
   const canvasRef = useRef(null);
+  const [isDark, setIsDark] = useState(true);
+
+  // Detect theme changes
+  useEffect(() => {
+    const checkTheme = () => {
+      const html = document.documentElement;
+      const theme = html.getAttribute('data-theme');
+      setIsDark(theme !== 'light');
+    };
+    
+    checkTheme();
+    
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -12,10 +29,15 @@ const FluidBackground = ({ blobCount = 12, children }) => {
     let animationFrameId;
     let mouse = { x: -1500, y: -1500, active: false };
 
-    const palettes = {
+    // Theme-aware palettes - softer for light mode
+    const palettes = isDark ? {
       warm: ['#ff0055', '#f59e0b', '#ea580c', '#f43f5e', '#fbbf24'],
       cold: ['#7c3aed', '#00d2ff', '#06b6d4', '#3b82f6', '#2dd4bf'],
       neon: ['#39ff14', '#b6ff00', '#ffe600', '#ff9f1c', '#ffcc00']
+    } : {
+      warm: ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#ec4899'],
+      cold: ['#0ea5e9', '#06b6d4', '#14b8a6', '#10b981', '#22c55e'],
+      neon: ['#2563eb', '#7c3aed', '#c026d3', '#db2777', '#f43f5e']
     };
 
     const resize = () => {
@@ -206,14 +228,18 @@ const FluidBackground = ({ blobCount = 12, children }) => {
       window.removeEventListener('mouseleave', ml);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [blobCount]);
+  }, [blobCount, isDark]);
 
   return (
     <div className="relative min-h-screen w-full bg-base-100 overflow-hidden">
       <div className="fixed inset-0 pointer-events-none z-0">
         <canvas
           ref={canvasRef}
-          className="block w-full h-full opacity-75 blur-[75px] contrast-[1.4]"
+          className={`block w-full h-full blur-[75px] transition-all duration-500 ${
+            isDark 
+              ? 'opacity-75 contrast-[1.4]' 
+              : 'opacity-50 contrast-[1.2] saturate-[0.8]'
+          }`}
         />
       </div>
       <div className="relative z-10 w-full min-h-screen">

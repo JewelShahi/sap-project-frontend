@@ -4,7 +4,8 @@ import Animate from "@/components/animation/Animate.jsx";
 import api from "@/components/api/api";
 import notify from "@/components/toaster/notify";
 import { Link } from "react-router-dom";
-import LoadingTableData from "@/components/widgets/LoadingTableData"; // IMPORT THE NEW COMPONENT
+import LoadingTableData from "@/components/widgets/LoadingTableData";
+import FluidBackground from "@/components/background/FluidBackground.jsx";
 
 const GLOBAL_GROUPS = [
   { id: "CREATE", label: "Creations", icon: <UserPlus size={14} />, values: ["create document", "create user", "create version"], color: "bg-success" },
@@ -127,7 +128,8 @@ const AuditLogPage = () => {
   // if (loading && logs.length === 0) return <Loader message="Loading audit logs..." />;
 
   return (
-    <div className="relative min-h-screen px-6 pb-12 pt-20 overflow-hidden font-sans bg-base-100">
+    <FluidBackground blobCount={6}>
+    <div className="relative min-h-screen px-6 pb-12 pt-12 overflow-hidden font-sans">
       <Animate variant="fade-down">
         <div className="max-w-7xl mx-auto mb-12">
           {/* Header Row */}
@@ -364,6 +366,7 @@ const AuditLogPage = () => {
         </div>
       </Animate>
     </div>
+    </FluidBackground>
   );
 }
 

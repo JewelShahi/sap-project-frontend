@@ -24,6 +24,7 @@ import api from "@/components/api/api";
 import Loader from "@/components/widgets/Loader.jsx";
 import MissingArtifact from "@/components/widgets/MissingArtifact";
 import DiffViewer from "@/components/diff/DiffViewer.jsx";
+import FluidBackground from "@/components/background/FluidBackground.jsx";
 
 /* Helpers */
 const formatDate = (dateStr) => {
@@ -190,7 +191,8 @@ const VersionReviewPage = () => {
   }
 
   return (
-    <section className="min-h-screen w-full bg-base-100 flex flex-col items-center pt-16 lg:pt-20 pb-8 px-4 sm:px-6">
+    <FluidBackground blobCount={6}>
+    <section className="min-h-screen w-full flex flex-col items-center pt-8 lg:pt-12 pb-8 px-4 sm:px-6">
       <div
         className="w-full max-w-7xl flex flex-col gap-4"
       >
@@ -409,6 +411,7 @@ const VersionReviewPage = () => {
         </div>
       </div>
     </section>
+    </FluidBackground>
   );
 };
 

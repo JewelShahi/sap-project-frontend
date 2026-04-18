@@ -24,6 +24,7 @@ import notify from "@/components/toaster/notify";
 import Loader from "@/components/widgets/Loader.jsx";
 import GetGreeting from "@/components/greetings/GetGreeting";
 import LoadingTableData from "@/components/widgets/LoadingTableData";
+import FluidBackground from "@/components/background/FluidBackground.jsx";
 
 import api from "@/components/api/api";
 import { useAuth } from "@/context/AuthContext";
@@ -208,7 +209,8 @@ const DocumentsPage = () => {
     );
 
   return (
-    <div className="min-h-[230vh] md:min-h-[200vh] bg-base-100 px-6 pb-12 pt-20 overflow-hidden">
+    <FluidBackground blobCount={8}>
+    <div className="min-h-[230vh] md:min-h-[200vh] px-6 pb-12 pt-12 overflow-hidden">
       {/* Header Section */}
       <Animate variant="fade-down" className="overflow-hidden">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -536,6 +538,7 @@ const DocumentsPage = () => {
         </div>
       </Animate>
     </div>
+    </FluidBackground>
   );
 };
 
