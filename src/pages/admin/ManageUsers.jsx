@@ -678,11 +678,13 @@ const ManageUsers = () => {
                                       disabled={isBanned}
                                     >
                                       <option value="">Select role</option>
-                                      {availableRoles.map((role) => (
-                                        <option key={role.id} value={role.role_name}>
-                                          {role.role_name}
-                                        </option>
-                                      ))}
+                                      {availableRoles
+                                        .filter(role => role.role_name !== "writer") // hide writer
+                                        .map((role) => (
+                                          <option key={role.id} value={role.role_name}>
+                                            {role.role_name}
+                                          </option>
+                                        ))}
                                     </select>
                                     <div className="text-[9px] opacity-60 text-center truncate">
                                       Can add:{" "}
@@ -702,8 +704,8 @@ const ManageUsers = () => {
                                       <button
                                         onClick={() => handleRemoveRole(user)}
                                         className={`btn btn-xs h-7 min-h-7 rounded-lg border-none flex-1 ${selectedRoleAlreadyAssigned
-                                            ? "bg-warning text-white"
-                                            : "bg-base-300 text-base-content"
+                                          ? "bg-warning text-white"
+                                          : "bg-base-300 text-base-content"
                                           }`}
                                         disabled={isBanned || !selectedRole || !selectedRoleAlreadyAssigned}
                                       >

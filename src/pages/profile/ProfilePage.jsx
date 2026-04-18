@@ -570,11 +570,13 @@ const ProfilePage = () => {
                         onChange={(e) => setSelectedRole(e.target.value)}
                       >
                         <option value="">Select role</option>
-                        {availableRoles.map((role) => (
-                          <option key={role.id} value={role.role_name}>
-                            {role.role_name}
-                          </option>
-                        ))}
+                        {availableRoles
+                          .filter(role => role.role_name !== "writer") // hide writer
+                          .map((role) => (
+                            <option key={role.id} value={role.role_name}>
+                              {role.role_name}
+                            </option>
+                          ))}
                       </select>
                       <div className="flex flex-col sm:flex-row gap-2">
                         <button
