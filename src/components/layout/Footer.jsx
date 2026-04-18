@@ -1,11 +1,15 @@
 import React from "react";
-import { Zap, Github, Linkedin, ExternalLink, Mail } from "lucide-react";
+import { NavLink, Link } from "react-router-dom";
+import { Zap, Mail } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { canAccessReviews } from "@/utils/canAccessReviews";
 
-const LINKS = [
-  { name: "Documentation", url: "#" },
-  { name: "API Reference", url: "#" },
-  { name: "System Status", url: "#", external: true },
-  { name: "Community", url: "#" },
+const RESOURCE_LINKS = [
+  { name: "Home", url: "/", public: true },
+  { name: "Documents", url: "/documents", protected: true },
+  { name: "Reviews", url: "/reviews", protected: true, reviewsOnly: true },
+  { name: "Users", url: "/manage-users", adminOnly: true },
+  { name: "Audit Log", url: "/audit-log", adminOnly: true },
 ];
 
 const LEGAL = [
@@ -13,19 +17,6 @@ const LEGAL = [
   { name: "Terms of Service", url: "#" },
   { name: "Cookie Policy", url: "#" },
 ];
-
-const XIcon = ({ size = 18, className }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className={className}
-  >
-    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932L18.901 1.153ZM17.61 20.644h2.039L6.486 3.24H4.298L17.61 20.644Z" />
-  </svg>
-);
-
 
 const TEAM = [
   { name: "Jewel Shahi", url: "https://github.com/JewelShahi" },
@@ -36,54 +27,65 @@ const TEAM = [
 ];
 
 const Footer = () => {
-  return (
-    <footer className="relative w-full border-t border-base-300 bg-base-200/50 backdrop-blur-md text-base-content pt-20 pb-8 transition-all duration-500">
-      <div className="max-w-7xl mx-auto px-6">
+  const { user, isAuthenticated } = useAuth();
 
-        {/* Main Grid: Changed sm:grid-cols-2 to md:grid-cols-4 for better control */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20 text-center md:text-left">
+  const filteredResources = RESOURCE_LINKS.filter(link => {
+    if (!isAuthenticated) return link.public;
+    if (link.adminOnly && !user?.is_superuser && !user?.is_staff) return false;
+    if (link.reviewsOnly && !canAccessReviews(user)) return false;
+    return true;
+  });
+
+  return (
+    <footer className="relative w-full border-t border-base-300 bg-base-200/50 backdrop-blur-md text-base-content pt-16 pb-8 transition-all duration-500 shadow-[0_-15px_25px_-5px_rgba(0,0,0,0.1)]">
+      <div className="w-full mx-auto px-6">
+
+        {/* Main Grid: Reduced gap and bottom margin */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12 text-center md:text-left w-full">
 
           {/* 1. Branding Section */}
-          <div className="flex flex-col items-center md:items-start space-y-6">
-            <div className="flex items-center gap-3 group cursor-pointer">
-              <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-content transition-transform duration-500 group-hover:rotate-[10deg]">
-                <Zap size={20} className="fill-current" />
+          <div className="flex flex-col items-center space-y-4">
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-content transition-transform duration-500 group-hover:rotate-[10deg]">
+                <Zap size={18} className="fill-current" />
               </div>
-              <span className="text-2xl font-black tracking-tight">
+              <span className="text-xl font-black tracking-tight">
                 SAP <span className="text-primary not-italic">Hub</span>
               </span>
-            </div>
-
-            <p className="text-sm text-base-content/60 leading-relaxed max-w-[240px]">
+            </Link>
+            <p className="text-sm text-base-content/60 leading-relaxed max-w-[240px] text-center">
               The professional standard for document lifecycle management and secure versioning.
             </p>
           </div>
 
-          {/* 2. Resources */}
-          <div className="flex flex-col items-center md:items-start space-y-6">
+          {/* 2. Resources: Reduced vertical spacing between links */}
+          <div className="flex flex-col items-center space-y-4">
             <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary/80">Resources</h4>
-            <ul className="w-full space-y-4 flex flex-col items-center md:items-start">
-              {LINKS.map((link) => (
-                <li className="w-full text-center" key={link.name}>
-                  <a href={link.url} className="group flex items-center justify-center md:justify-start text-sm font-medium text-base-content/60 transition-all hover:text-primary">
-                    <div className="relative">
-                      {link.name}
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-                    </div>
-                    {link.external && <ExternalLink size={12} className="ml-2 opacity-40" />}
-                  </a>
+            <ul className="space-y-2 flex flex-col items-center md:items-start">
+              {filteredResources.map((link) => (
+                <li key={link.name} className="leading-none">
+                  <NavLink
+                    to={link.url}
+                    className={({ isActive }) =>
+                      `group relative inline-block py-0.5 text-sm font-medium transition-all hover:text-primary ${isActive ? "text-primary" : "text-base-content/60"
+                      }`
+                    }
+                  >
+                    {link.name}
+                    <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                  </NavLink>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* 3. Company/Legal */}
-          <div className="flex flex-col items-center md:items-start space-y-6">
+          {/* 3. Company/Legal: Reduced vertical spacing */}
+          <div className="flex flex-col items-center space-y-4">
             <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary/80">Company</h4>
-            <ul className="space-y-4">
+            <ul className="space-y-2">
               {LEGAL.map((link) => (
-                <li key={link.name}>
-                  <a href={link.url} className="text-sm font-medium text-base-content/60 transition-colors hover:text-primary">
+                <li key={link.name} className="leading-none">
+                  <a href={link.url} className="inline-block py-0.5 text-sm font-medium text-base-content/60 transition-colors hover:text-primary">
                     {link.name}
                   </a>
                 </li>
@@ -92,46 +94,54 @@ const Footer = () => {
           </div>
 
           {/* 4. Support Info */}
-          <div className="flex flex-col items-center md:items-start space-y-6 w-full">
-            <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary/80">Support</h4>
-            <div className="w-full space-y-4 flex flex-col items-center md:items-start">
+          <div className="flex flex-col items-center space-y-4 w-full">
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary/80">
+              Support
+            </h4>
+
+            {/* Inner Wrapper: Removed md:items-start to maintain centering on desktop */}
+            <div className="space-y-3 flex flex-col items-center">
+
+              {/* Email Link: Added justify-center and mx-auto */}
               <a
                 href="mailto:support@saphub.com"
-                className="group flex items-center gap-4 p-4 rounded-2xl bg-base-100 border border-base-300 transition-all duration-300 hover:border-primary/50 hover:shadow-xl w-full max-w-xs"
+                className="group flex items-center justify-center gap-3 p-3 rounded-xl bg-base-100 border border-base-300 transition-all duration-300 hover:border-primary/50 hover:shadow-lg w-full max-w-xs mx-auto"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-content">
-                  <Mail size={18} />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-content">
+                  <Mail size={16} />
                 </div>
-                <div className="min-w-0 flex-1 text-left">
-                  <span className="block text-[10px] font-bold uppercase text-base-content/40 tracking-tight">
+                <div className="min-w-0 text-left"> {/* Kept text-left for the labels, but the container is centered */}
+                  <span className="block text-[9px] font-bold uppercase text-base-content/40 tracking-tight">
                     Get in touch
                   </span>
-                  <span className="block text-sm font-bold truncate">
+                  <span className="block text-xs font-bold truncate">
                     support@saphub.com
                   </span>
                 </div>
               </a>
 
-              <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-success/5 border border-success/10 w-fit">
-                <span className="relative flex h-2 w-2 shrink-0">
+              {/* Status Badge: Ensure justify-center and w-fit with mx-auto */}
+              <div className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-success/5 border border-success/10 w-fit mx-auto">
+                <span className="relative flex h-1.5 w-1.5 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-success"></span>
                 </span>
-                <span className="text-[10px] font-bold text-success uppercase tracking-wider">
+                <div className="text-[9px] font-bold text-success uppercase tracking-wider">
                   Systems Operational
-                </span>
+                </div>
               </div>
+
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-8 border-t border-base-300 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
-          <div className="flex flex-col items-center md:items-start gap-2">
+        {/* Bottom Bar: Tightened padding */}
+        <div className="pt-6 border-t border-base-300 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+          <div className="flex flex-col items-center md:items-start gap-1">
             <span className="text-[10px] font-bold text-base-content/30 uppercase tracking-[0.3em]">
-              © {new Date().getFullYear()} SAP Hub • Enterprise Grade
+              © {new Date().getFullYear()} SAP Hub
             </span>
-            <p className="text-[11px] text-base-content/50">
+            <p className="text-[10px] text-base-content/50">
               Created by{" "}
               {TEAM.map((member, index) => (
                 <React.Fragment key={member.name}>
@@ -145,7 +155,7 @@ const Footer = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="text-[10px] font-black text-base-content/40 uppercase tracking-widest bg-base-300/30 px-4 py-1.5 rounded-full border border-base-300">
+            <span className="text-[9px] font-black text-base-content/40 uppercase tracking-widest bg-base-300/30 px-3 py-1 rounded-full border border-base-300">
               v1 - stable
             </span>
           </div>

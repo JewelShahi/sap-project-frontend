@@ -148,7 +148,7 @@ const AuditLogPage = () => {
                 <input
                   type="text"
                   placeholder="Search by multiple criteria..."
-                  className="input w-full pl-12 bg-base-200/50 border-base-300/30 focus:border-primary rounded-2xl font-bold placeholder-gray-700"
+                  className="input w-full pl-12 bg-base-200/50 border-base-300/30 focus:border-primary rounded-2xl font-bold placeholder:text-base-content/30"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -160,21 +160,21 @@ const AuditLogPage = () => {
           </div>
 
           {/* Filter Panel */}
-          <div className="bg-base-200/40 border border-base-300/30 rounded-[2.5rem] p-6 lg:p-10 backdrop-blur-xl shadow-2xl flex flex-col gap-10">
+          <div className="bg-base-200/40 border border-base-300/30 rounded-[2.5rem] p-6 lg:p-10 backdrop-blur-xl shadow-xl flex flex-col gap-10">
 
-            {/* Filter by Type */}
-            <div className="space-y-4">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 flex items-center gap-2">
+            {/* Filter by Type - Centered on mobile */}
+            <div className="space-y-4 flex flex-col items-center lg:items-start">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 flex items-center justify-center lg:justify-start gap-2 w-full">
                 <Tags size={14} className="text-primary" /> Action Types
               </span>
-              <div className="flex flex-wrap gap-3 flex-col md:flex-row">
+              <div className="flex flex-col md:flex-row flex-wrap gap-3 w-full justify-center lg:justify-start">
                 {GLOBAL_GROUPS.map(opt => (
                   <button
                     key={opt.id}
                     onClick={() => toggleGroup(opt.id)}
-                    className={`btn btn-md rounded-2xl font-black uppercase text-[11px] transition-all px-6 group border-0 ${selectedGroups.includes(opt.id)
-                      ? `${opt.color} text-white shadow-xl scale-105`
-                      : 'bg-base-100 text-base-content/50 hover:bg-base-300 shadow-sm'
+                    className={`btn btn-md w-full md:w-auto rounded-2xl font-black uppercase text-[11px] transition-all px-6 group border-0 ${selectedGroups.includes(opt.id)
+                        ? `${opt.color} text-white shadow-xl scale-105`
+                        : 'bg-base-100 text-base-content/50 hover:bg-base-300 shadow-sm'
                       }`}
                   >
                     <span className="opacity-70 group-hover:scale-110 transition-transform">{opt.icon}</span>
@@ -186,10 +186,10 @@ const AuditLogPage = () => {
 
             <div className="h-px bg-base-content/5 w-full"></div>
 
-            {/* Improved Date Visualization */}
+            {/* Date Visualization - Centered on mobile */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              <div className="space-y-4">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 flex items-center gap-2 text-success">
+              <div className="space-y-4 flex flex-col items-center lg:items-start">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 flex items-center justify-center lg:justify-start gap-2 text-success w-full">
                   <Calendar size={14} /> Entry Point
                 </span>
                 <div className="join w-full shadow-lg border border-base-300/30 rounded-[1.2rem] overflow-hidden">
@@ -205,8 +205,8 @@ const AuditLogPage = () => {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 flex items-center gap-2 text-error">
+              <div className="space-y-4 flex flex-col items-center lg:items-start">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 flex items-center justify-center lg:justify-start gap-2 text-error w-full">
                   <Calendar size={14} /> Exit Point
                 </span>
                 <div className="join w-full shadow-lg border border-base-300/30 rounded-[1.2rem] overflow-hidden">
@@ -230,7 +230,7 @@ const AuditLogPage = () => {
       <Animate>
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Main Table Container */}
-          <div className="relative rounded-[2rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-2xl overflow-hidden min-h-[400px]">
+          <div className="relative rounded-[2rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-xl overflow-hidden min-h-[400px]">
 
             {/* Overlay Loader - Shows when fetching data */}
             {loading && <LoadingTableData message="Loading logs..." />}

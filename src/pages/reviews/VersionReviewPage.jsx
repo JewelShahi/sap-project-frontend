@@ -173,6 +173,7 @@ const VersionReviewPage = () => {
   /* loading / error */
   if (isInitialLoading) return <Loader message="Loading version review..." />;
 
+  console.log(review)
   if (error) {
     return (
       <section className="px-6 py-20 h-screen bg-base-100 flex flex-col">
@@ -209,9 +210,9 @@ const VersionReviewPage = () => {
               <span className="text-[10px] uppercase tracking-[0.2em] font-black">Back</span>
             </Link>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 px-2">
               {diffLabel && (
-                <span className="text-[10px] font-mono opacity-50 bg-base-200/60 px-3 py-1 rounded-lg border border-base-300/30">
+                <span className="text-[10px] font-mono opacity-50 bg-base-200/60 px-3 py-1 rounded-lg border border-base-300/30 shadow-lg">
                   {diffLabel}
                 </span>
               )}
@@ -226,8 +227,18 @@ const VersionReviewPage = () => {
                 <FileCheckCorner size={13} /> Version Review
               </div>
               <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-base-content leading-[0.9]">
-                {newVersion?.title || newVersion?.name || `Version ${newVersion?.version_number}`}
+                {newVersion?.title || newVersion?.name ? (
+                  newVersion?.title || newVersion?.name
+                ) : (
+                  <>
+                    Version <span className="text-primary">№ {newVersion?.version_number}</span>
+                  </>
+                )}
               </h1>
+              <p className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-base-300/30 text-base-content/70 text-[11px] font-bold uppercase tracking-wider border border-base-300/50">
+                <span className="opacity-50 font-black">Ref:</span>
+                {newVersion?.document_title || "Unknown"}
+              </p>
             </div>
 
             <span className="flex items-center gap-2 text-[10px] font-bold opacity-40 w-fit shrink-0">
@@ -330,7 +341,7 @@ const VersionReviewPage = () => {
             </GlassCard>
 
             {/* Summary */}
-            <div className="p-5 rounded-[1.25rem] bg-base-200/20 border border-base-300/20 backdrop-blur-xl shrink-0">
+            <div className="p-5 rounded-[1.25rem] bg-base-200/20 border border-base-300/20 backdrop-blur-xl shadow-lg shrink-0">
               <div className="flex items-center gap-2 text-secondary font-black text-[10px] uppercase tracking-[0.3em] mb-2.5">
                 <Info size={12} /> Summary
               </div>
@@ -339,11 +350,10 @@ const VersionReviewPage = () => {
               </p>
             </div>
 
-            {/* FIX: Fixed but check */}
             <div className="space-y-4">
               {/* Release Info Block */}
               {newVersion?.version_number && (
-                <div className="p-4 rounded-[1.25rem] bg-primary/8 border border-primary/15 flex items-center justify-between shrink-0">
+                <div className="p-4 rounded-[1.25rem] bg-primary/8 border border-primary/15 flex items-center justify-between shrink-0 shadow-lg">
                   <div className="flex flex-col">
                     <span className="text-[8px] uppercase font-black text-primary tracking-[0.2em]">
                       Release Candidate
@@ -362,7 +372,7 @@ const VersionReviewPage = () => {
               <div className={`grid ${review.old_version ? "grid-cols-2" : "grid-cols-1"} gap-4`}>
                 {/* Old Version Type - Only renders if old_version exists */}
                 {review.old_version && (
-                  <div className="p-3 rounded-2xl bg-base-300/10 border border-base-300/10">
+                  <div className="p-3 rounded-2xl bg-base-300/10 border border-base-300/10 shadow-lg">
                     <span className="text-[7px] uppercase font-bold opacity-40 tracking-widest block mb-1">
                       Legacy Format (v{review.old_version?.version_number})
                     </span>
@@ -377,7 +387,7 @@ const VersionReviewPage = () => {
 
                 {/* New Version Type - Always renders if new_version exists */}
                 {review.new_version && (
-                  <div className={`p-3 rounded-2xl bg-success/5 border border-success/10 ${!review.old_version ? "flex flex-col justify-center" : ""}`}>
+                  <div className={`p-3 rounded-2xl bg-success/5 border border-success/10 shadow-lg ${!review.old_version ? "flex flex-col justify-center" : ""}`}>
                     <span className="text-[7px] uppercase font-bold text-success/60 tracking-widest block mb-1">
                       {review.old_version ? `Target Format (v${review.new_version?.version_number})` : `Initial Format (v${review.new_version?.version_number})`}
                     </span>

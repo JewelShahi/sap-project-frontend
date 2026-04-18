@@ -191,7 +191,7 @@ const ReviewPage = () => {
             <GlassCard
               bg={stat.glass}
               border={`border-${stat.color}/20`}
-              className="h-full hover:translate-y-[-6px] transition-all duration-500 group"
+              className="h-full hover:translate-y-[-6px] transition-all duration-500 group shadow-xl"
             >
               <div className="py-6 lg:py-12 px-4 flex flex-col items-center justify-center text-center relative overflow-hidden h-full">
                 <div
@@ -219,18 +219,21 @@ const ReviewPage = () => {
 
       {/* Toolbar */}
       <Animate>
-        <div className="max-w-7xl mx-auto px-6 py-4 bg-base-200/40 border border-base-300/30 rounded-[1.5rem] p-6 lg:p-10 backdrop-blur-xl shadow-2xl flex flex-col gap-10 mb-10">
+        <div className="max-w-7xl mx-auto px-6 py-4 bg-base-200/40 border border-base-300/30 rounded-[1.5rem] p-6 lg:p-10 backdrop-blur-xl shadow-xl flex flex-col gap-10 mb-10">
           {/* Filter Section */}
-          <div className="space-y-4">
-            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-base-content/50 flex items-center gap-2">
+          {/* flex-col items-center: Centered on mobile | lg:items-start: Left-aligned on desktop */}
+          <div className="space-y-4 flex flex-col items-center lg:items-start">
+
+            {/* Label: justify-center on mobile | lg:justify-start on desktop */}
+            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-base-content/50 flex items-center justify-center lg:justify-start gap-2 w-full">
               <FilterX size={14} className="text-primary" /> Status Filters
             </span>
 
-            {/* Responsive Container: Row on Desktop, Column on Mobile */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            {/* Responsive Container */}
+            <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-6 w-full">
 
-              {/* Buttons Group */}
-              <div className="flex flex-wrap gap-3">
+              {/* Buttons Group: Stacked full-width on mobile | Row on lg */}
+              <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center lg:justify-start gap-3 w-full lg:w-auto">
                 {FILTERS.map((f) => {
                   let color = "bg-slate-500";
                   if (f === "approved") color = "bg-success";
@@ -241,9 +244,9 @@ const ReviewPage = () => {
                     <button
                       key={f}
                       onClick={() => handleFilterChange(f)}
-                      className={`btn btn-md rounded-2xl font-bold uppercase text-[11px] transition-all px-6 border-0 ${filter === f
-                        ? `${color} text-white shadow-lg scale-105`
-                        : "bg-base-100 text-base-content/60 hover:bg-base-300 shadow-sm"
+                      className={`btn btn-md w-full sm:w-auto rounded-2xl font-bold uppercase text-[11px] transition-all px-6 border-0 ${filter === f
+                          ? `${color} text-white shadow-lg scale-[1.02] lg:scale-105`
+                          : "bg-base-100 text-base-content/60 hover:bg-base-300 shadow-sm"
                         }`}
                     >
                       {f.replace("_", " ")}
@@ -252,14 +255,14 @@ const ReviewPage = () => {
                 })}
               </div>
 
-              {/* Search Input Group - Pushed to right on LG screens */}
+              {/* Search Input: Centered on mobile via parent flex-col */}
               <div className="relative w-full lg:max-w-xs shadow-md border border-base-300/30 rounded-2xl overflow-hidden bg-base-100">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40">
                   <Search size={16} />
                 </div>
                 <input
                   type="text"
-                  placeholder="Search reviews..."
+                  placeholder="Search by title, username..."
                   value={search}
                   onChange={handleSearchChange}
                   className="input w-full pl-12 bg-base-100 focus:outline-none border-none font-bold text-xs h-12 placeholder:text-base-content/30"
@@ -310,7 +313,7 @@ const ReviewPage = () => {
         {/* Main Table Container */}
         <div className="max-w-7xl mx-auto">
           <div className="relative rounded-b-[1rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-2xl overflow-hidden">
-            <div className="relative rounded-b-[1rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-2xl overflow-hidden h-[70vh]">
+            <div className="relative rounded-b-[1rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-xl overflow-hidden h-[70vh]">
 
               {/* Table Overlay Loader - Shows only when isTableUpdating is true */}
               {isTableUpdating && <LoadingTableData />}

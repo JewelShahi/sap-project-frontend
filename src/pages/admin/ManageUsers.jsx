@@ -441,8 +441,8 @@ const ManageUsers = () => {
                 <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40" />
                 <input
                   type="text"
-                  placeholder="Identify users..."
-                  className="input w-full pl-12 bg-base-200/50 border-base-300/30 focus:border-primary rounded-2xl font-bold placeholder:text-gray-700"
+                  placeholder="Search users..."
+                  className="input w-full pl-12 bg-base-200/50 border-base-300/30 focus:border-primary rounded-2xl font-bold placeholder:text-base-content/30"
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -457,7 +457,7 @@ const ManageUsers = () => {
           </div>
 
           {/* Filter Panel */}
-          <div className="bg-base-200/40 border border-base-300/30 rounded-[2.5rem] p-6 lg:p-10 backdrop-blur-xl shadow-2xl flex flex-col gap-10">
+          <div className="bg-base-200/40 border border-base-300/30 rounded-[2.5rem] p-6 lg:p-10 backdrop-blur-xl shadow-xl flex flex-col gap-10">
             {/* Status Filters */}
             <div className="space-y-4">
               <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 flex items-center gap-2">
@@ -529,7 +529,7 @@ const ManageUsers = () => {
       {/* Main Table */}
       <Animate>
         <div className="max-w-7xl mx-auto space-y-8">
-          <div className="relative rounded-[2rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-2xl overflow-hidden min-h-[400px]">
+          <div className="relative rounded-[2rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-xl overflow-hidden min-h-[400px]">
 
             {/* Overlay Loader */}
             {loading && <LoadingTableData />}

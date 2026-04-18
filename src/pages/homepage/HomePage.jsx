@@ -71,7 +71,7 @@ const HomePage = () => {
   return (
     <div className="relative min-h-screen flex flex-col items-center px-4 sm:px-6 text-center overflow-hidden bg-base-100">
 
-      <BackgroundEffects length={isMobile ? 35 : 70} />
+      <BackgroundEffects length={isMobile ? 40 : 80} />
 
       {/* ══════════════════════════════════════ */}
       {/* ANNOUNCEMENT BADGE */}
@@ -566,7 +566,7 @@ const HomePage = () => {
         </div>
 
         <BlurReveal y={30} duration={0.6} delay={0.1}>
-          <div className="bg-base-200/40 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-base-content/5 backdrop-blur-xl text-left relative overflow-hidden">
+          <div className="bg-base-200/40 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-base-content/5 backdrop-blur-xl text-left relative overflow-hidden shadow-xl">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-5 sm:mb-6 pb-5 sm:pb-6 border-b border-base-content/5">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary/15 flex items-center justify-center">
@@ -684,7 +684,7 @@ const HomePage = () => {
         </div>
 
         <BlurReveal y={30} duration={0.6} delay={0.1}>
-          <div className="bg-base-200/40 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-base-content/5 backdrop-blur-xl text-left relative overflow-hidden">
+          <div className="bg-base-200/40 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-base-content/5 backdrop-blur-xl text-left relative overflow-hidden shadow-xl">
             <div className="flex items-center gap-3 mb-6 pb-5 border-b border-base-content/5">
               <div className="w-10 h-10 rounded-xl bg-warning/15 flex items-center justify-center">
                 <BellRing size={20} className="text-warning" />
@@ -768,7 +768,7 @@ const HomePage = () => {
         </div>
 
         <BlurReveal y={30} duration={0.6} delay={0.1}>
-          <div className="bg-base-200/40 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-base-content/5 backdrop-blur-xl text-left relative overflow-hidden">
+          <div className="bg-base-200/40 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-base-content/5 backdrop-blur-xl text-left relative overflow-hidden shadow-xl">
             <div className="flex items-center gap-3 mb-6 pb-5 border-b border-base-content/5">
               <div className="w-10 h-10 rounded-xl bg-error/15 flex items-center justify-center">
                 <ClipboardList size={20} className="text-error" />
@@ -876,7 +876,7 @@ const HomePage = () => {
             { icon: <Bell size={24} />, title: "Smart Notifications", desc: "Everyone gets notified about what matters to them. Writers, reviewers, viewers, and owners — each gets relevant alerts." },
             { icon: <ClipboardList size={24} />, title: "Owner Audit Log", desc: "As the owner, access a complete, immutable audit log of every action ever taken on your document." },
           ].map((item, idx) => (
-            <div key={idx} className="group p-5 sm:p-6 border border-base-content/5 rounded-2xl hover:border-primary/60 hover:bg-primary/10 transition-all duration-300 h-full">
+            <div key={idx} className="group p-5 sm:p-6 border border-base-content/5 rounded-2xl hover:border-primary/60 hover:bg-primary/10 transition-all duration-300 h-full shadow-md">
               <div className="flex flex-col items-center justify-center text-center">
                 <div className="text-primary mb-3 sm:mb-4">
                   {item.icon}
@@ -923,7 +923,7 @@ const HomePage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
           {/* Card 1: Without SAP Hub */}
           <BlurReveal x={-30} duration={0.5}>
-            <div className="bg-error/5 border border-error/15 rounded-2xl p-5 sm:p-7 text-center h-full hover:bg-error/15 transition-all duration-300 ease-in-out">
+            <div className="bg-error/5 border border-error/15 rounded-2xl p-5 sm:p-7 text-center h-full hover:bg-error/15 transition-all duration-300 ease-in-out shadow-xl">
               <h4 className="font-bold text-base sm:text-lg text-error/80 mb-4 sm:mb-5 flex items-center justify-center gap-2">
                 <XCircle size={18} /> Without SAP Hub
               </h4>
@@ -949,7 +949,7 @@ const HomePage = () => {
 
           {/* Card 2: With SAP Hub */}
           <BlurReveal x={30} duration={0.5}>
-            <div className="bg-success/5 border border-success/15 rounded-2xl p-5 sm:p-7 text-center h-full hover:bg-success/15 transition-all duration-300 ease-in-out">
+            <div className="bg-success/5 border border-success/15 rounded-2xl p-5 sm:p-7 text-center h-full hover:bg-success/15 transition-all duration-300 ease-in-out shadow-xl">
               <h4 className="font-bold text-base sm:text-lg text-success/80 mb-4 sm:mb-5 flex items-center justify-center gap-2">
                 <CheckCircle size={18} /> With SAP Hub
               </h4>
@@ -1002,7 +1002,7 @@ const HomePage = () => {
         </div>
 
         <ScrollReveal y={30} duration={0.5} delay={0.1}>
-          <div className="bg-base-200/30 border border-base-content/5 rounded-2xl overflow-hidden transform-gpu">
+          <div className="bg-base-200/30 border border-base-content/5 rounded-2xl overflow-hidden transform-gpu shadow-xl">
             <div className="overflow-x-auto">
               <table className="w-full text-xs sm:text-sm min-w-[700px]">
                 <thead>
@@ -1247,7 +1247,7 @@ const HomePage = () => {
       {/* ══════════════════════════════════════ */}
       <div className="mt-8 sm:mt-12 mb-16 sm:mb-24 w-full max-w-5xl relative z-10">
         <ScrollReveal scale={0.95} duration={0.5} start="top 90%">
-          <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-8 sm:p-12 md:p-16 rounded-2xl sm:rounded-[2rem] border border-primary/20 text-center relative overflow-hidden">
+          <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-8 sm:p-12 md:p-16 rounded-2xl sm:rounded-[2rem] border border-primary/20 text-center relative overflow-hidden shadow-xl">
             <div className="absolute top-0 right-0 p-6 sm:p-8 opacity-[0.07] text-primary">
               <Zap size={100} fill="currentColor" />
             </div>

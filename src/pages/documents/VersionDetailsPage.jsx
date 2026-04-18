@@ -529,7 +529,7 @@ const VersionDetailsPage = () => {
               </div>
             )}
 
-            <div className="p-10 rounded-[1.5rem] bg-base-200/20 border border-base-300/40 backdrop-blur-md relative group">
+            <div className="p-10 rounded-[1.5rem] bg-base-200/20 border border-base-300/40 backdrop-blur-md relative group shadow-lg">
               <h3 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-30 mb-6 flex items-center gap-2">
                 <Info size={14} /> Version Remarks
               </h3>
@@ -1088,7 +1088,7 @@ const VersionDetailsPage = () => {
         <Animate delay={0.2}>
           <div className="mt-16 space-y-8">
             {canCompareVersions && (
-              <div className="rounded-[2rem] border border-base-300/20 bg-base-200/10 backdrop-blur-xl p-6 space-y-4">
+              <div className="rounded-[2rem] border border-base-300/20 bg-base-200/10 backdrop-blur-xl p-6 space-y-4 shadow-lg">
                 <div className="flex items-center gap-3">
                   <GitCompare className="text-primary" size={18} />
                   <h2 className="text-lg font-black uppercase tracking-[0.2em]">
@@ -1137,7 +1137,7 @@ const VersionDetailsPage = () => {
               </h2>
             </div>
 
-            <div className="rounded-[2rem] border border-base-300/20 bg-base-200/10 backdrop-blur-xl p-8 min-h-[400px]">
+            <div className="rounded-[2rem] border border-base-300/20 bg-base-200/10 backdrop-blur-xl p-8 min-h-[400px] shadow-xl">
 
               {/* 1. PDF Preview */}
               {fileType === "pdf" && (

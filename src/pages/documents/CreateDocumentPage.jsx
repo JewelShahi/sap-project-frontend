@@ -137,7 +137,7 @@ const CreateDocumentPage = () => {
           <div className="lg:col-span-7 flex flex-col gap-6">
 
             {/* 1. IDENTITY INPUT */}
-            <div className="group backdrop-blur-md bg-base-300/[0.02] border border-base-300/20 p-6 rounded-2xl shadow-sm transition-all hover:bg-base-300/[0.04] hover:border-basse-300/30">
+            <div className="group backdrop-blur-md bg-base-300/[0.02] border border-base-300/20 p-6 rounded-2xl shadow-lg transition-all hover:bg-base-300/[0.04] hover:border-basse-300/30">
               {/* LABEL AREA */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5">
@@ -187,7 +187,7 @@ const CreateDocumentPage = () => {
             </div>
 
             {/* 1b. REMARKS INPUT */}
-            <div className="group backdrop-blur-md bg-base-300/[0.02] border border-base-300/20 p-6 rounded-2xl shadow-sm transition-all hover:bg-base-300/[0.04] hover:border-base-300/30">
+            <div className="group backdrop-blur-md bg-base-300/[0.02] border border-base-300/20 p-6 rounded-2xl shadow-lg transition-all hover:bg-base-300/[0.04] hover:border-base-300/30">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20">
@@ -214,7 +214,7 @@ const CreateDocumentPage = () => {
             </div>
 
             {/* 2. FILE UPLINK */}
-            <div className={`relative flex-1 min-h-[300px] backdrop-blur-md border border-dashed transition-all duration-300 rounded-2xl flex flex-col items-center justify-center p-6 ${file ? 'bg-success/[0.04] border-success/40 shadow-lg shadow-success/[0.02]' : 'bg-base-300/10 border-base-300/20 hover:border-primary/40 hover:bg-base-300/40'}`}>
+            <div className={`relative flex-1 min-h-[300px] backdrop-blur-md border border-dashed transition-all duration-300 rounded-2xl flex flex-col items-center justify-center p-6 ${file ? 'bg-success/[0.04] border-success/40 shadow-lg shadow-success/[0.02]' : 'bg-base-300/10 border-base-300/20 hover:border-primary/40 hover:bg-base-300/40'} shadow-md`}>
               <input
                 type="file"
                 className="absolute inset-0 opacity-0 cursor-pointer z-20"
@@ -279,7 +279,7 @@ const CreateDocumentPage = () => {
             {/* INSTRUCTION CARD */}
             <div className="flex flex-col h-full gap-6">
               {/* 1. THE PROTOCOL PANEL (INSTRUCTIONS) */}
-              <div className="backdrop-blur-xl bg-primary/10 border border-base-300/10 p-8 rounded-[1rem] flex-1 shadow-2xl">
+              <div className="backdrop-blur-xl bg-primary/10 border border-base-300/10 p-8 rounded-[1rem] flex-1 shadow-xl">
                 {/* HEADER */}
                 <div className="flex items-center gap-3 mb-12">
                   <div className="h-8 w-8 rounded-xl bg-primary/20 flex items-center justify-center text-primary shadow-[0_0_15px_rgba(var(--primary),0.3)]">
@@ -333,7 +333,7 @@ const CreateDocumentPage = () => {
               </div>
 
               {/* 2. THE COMMAND DECK (ACTIONS) */}
-              <div className="backdrop-blur-md bg-base-300/[0.01] border border-base-300/20 p-4 rounded-[1rem] space-y-3">
+              <div className="backdrop-blur-md bg-base-300/[0.01] border border-base-300/20 p-4 rounded-[1rem] space-y-3 shadow-xl">
                 <button
                   onClick={handleSubmit}
                   disabled={isSubmitting}

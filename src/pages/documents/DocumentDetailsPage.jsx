@@ -469,7 +469,7 @@ const DocumentDetailsPage = () => {
               </div>
             )}
 
-            <div className="p-10 rounded-[1.5rem] bg-base-200/20 border border-base-300/40 backdrop-blur-md relative group">
+            <div className="p-10 rounded-[1.5rem] bg-base-200/20 border border-base-300/40 backdrop-blur-md relative group shadow-lg">
               <h3 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-30 mb-6 flex items-center gap-2">
                 <Info size={14} /> Manifest Description
               </h3>
@@ -584,7 +584,7 @@ const DocumentDetailsPage = () => {
             {/* 1. CO-AUTHORS TABLE */}
             <div className="relative group">
               <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-[2rem] opacity-0 group-hover:scale-[1.02] transition-opacity duration-500" />
-              <div className="relative p-6 border border-base-content/10 backdrop-blur-2xl bg-base-100/5 shadow-2xl rounded-[1.5rem] flex flex-col h-[60vh]">
+              <div className="relative p-6 border border-base-content/10 backdrop-blur-2xl bg-base-100/5 shadow-xl rounded-[1.5rem] flex flex-col h-[60vh]">
                 {/* Header Section */}
                 <div className="flex items-center justify-between mb-4 px-2 shrink-0">
                   <div className="space-y-1">
@@ -686,7 +686,7 @@ const DocumentDetailsPage = () => {
             {/* 2. REVIEWERS TABLE */}
             <div className="relative group">
               <div className="absolute inset-0 bg-warning/5 blur-2xl rounded-[2rem] opacity-0 group-hover:scale-[1.02] transition-opacity duration-500" />
-              <div className="relative p-6 border border-base-content/10 backdrop-blur-2xl bg-base-100/5 shadow-2xl rounded-[1.5rem] flex flex-col h-[60vh]">
+              <div className="relative p-6 border border-base-content/10 backdrop-blur-2xl bg-base-100/5 shadow-xl rounded-[1.5rem] flex flex-col h-[60vh]">
                 <div className="flex items-center justify-between mb-4 px-2 shrink-0">
                   <div className="space-y-1">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-warning">
@@ -849,7 +849,7 @@ const DocumentDetailsPage = () => {
               </div>
             </div>
             {/* Table Container */}
-            <div className="rounded-b-[1.5rem] border border-base-300/20 bg-base-200/10 backdrop-blur-3xl overflow-hidden shadow-inner">
+            <div className="rounded-b-[1.5rem] border border-base-300/20 bg-base-200/10 backdrop-blur-3xl overflow-hidden shadow-xl">
               <div className="overflow-x-auto">
                 <table className="table w-full border-separate border-spacing-0">
                   <thead className="bg-base-300/30">
@@ -882,7 +882,7 @@ const DocumentDetailsPage = () => {
                                   v{v.version_number}
                                 </span>
                                 {v.is_active && (
-                                  <span className="bg-primary text-[9px] px-2 py-0.5 rounded-md font-black uppercase shadow-sm shadow-primary/20">
+                                  <span className="bg-primary text-[9px] px-2 py-0.5 rounded-md font-black uppercase shadow-sm shadow-primary/20 text-white">
                                     Live
                                   </span>
                                 )}

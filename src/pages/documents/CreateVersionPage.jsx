@@ -308,7 +308,7 @@ const CreateVersionPage = () => {
               <div className="flex flex-col gap-6 h-full">
 
                 {/* PAYLOAD UPLINK - flex-1 here forces it to expand to match the Left column */}
-                <div className="bg-base-200 border border-base-300/10 rounded-xl p-6 shadow-2xl flex flex-col flex-1 min-h-0 relative group/container">
+                <div className="bg-base-200 border border-base-300/10 rounded-xl p-6 shadow-xl flex flex-col flex-1 min-h-0 relative group/container">
                   {/* TOP HEADER - Minimal & Sharp */}
                   <div className="flex items-center justify-between mb-5 shrink-0">
                     <div className="flex items-center gap-2">
@@ -405,7 +405,7 @@ const CreateVersionPage = () => {
                 </div>
 
                 {/* COMMAND DECK - shrink-0 ensures it keeps its height at the bottom */}
-                <div className="bg-base-300/5 border border-base-300/10 p-5 rounded-2xl flex flex-col gap-4 shrink-0">
+                <div className="bg-base-300/5 border border-base-300/10 p-5 rounded-2xl flex flex-col gap-4 shrink-0 shadow-xl">
                   {/* Commit Button */}
                   <button
                     type="submit" // Keep submit type for form handling

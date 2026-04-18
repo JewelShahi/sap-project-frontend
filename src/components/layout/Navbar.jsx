@@ -76,7 +76,7 @@ const Navbar = ({ theme, toggleTheme }) => {
 
   return (
     <nav className="sticky top-0 z-[100] w-full">
-      <div className="relative w-full h-20 border-b border-white/10 bg-base-300/50 backdrop-blur-2xl flex items-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+      <div className="relative w-full h-20 border-b border-white/10 bg-base-300/50 backdrop-blur-2xl flex items-center shadow-[0_15px_30px_-5px_rgba(0,0,0,0.1)]">
         <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-8 flex items-center justify-between">
 
           {/* ── Brand ── */}
@@ -97,7 +97,7 @@ const Navbar = ({ theme, toggleTheme }) => {
                 to={to}
                 end={to === "/"}
                 className={({ isActive }) =>
-                  `group relative flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-500 hover:bg-primary/20 ${isActive ? "text-primary bg-primary/5" : "text-base-content/40 hover:text-base-content hover:bg-white/[0.05]"
+                  `group relative flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-500 hover:bg-primary/20 ${isActive ? "text-primary bg-primary/5 shadow-sm" : "text-base-content/40 hover:text-base-content hover:bg-white/[0.05]"
                   }`
                 }
               >

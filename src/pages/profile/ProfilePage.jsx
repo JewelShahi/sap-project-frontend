@@ -416,7 +416,7 @@ const ProfilePage = () => {
 
                 {/* Email - Purple */}
                 {(profile?.email) && (
-                  <div className="card bg-glass-purple/20 backdrop-blur-md border-purple/20 p-4 rounded-2xl hover:bg-glass-purple/30 transition-all shadow-sm">
+                  <div className="card bg-glass-purple/20 backdrop-blur-md border-purple/20 p-4 rounded-2xl hover:bg-glass-purple/30 transition-all shadow-xl">
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-full bg-purple/10">
                         <Mail size={20} className="text-purple" />
@@ -430,7 +430,7 @@ const ProfilePage = () => {
                 )}
 
                 {/* Joined - Teal */}
-                <div className="card bg-glass-teal/20 backdrop-blur-md border-teal/20 p-4 rounded-2xl hover:bg-glass-teal/30 transition-all shadow-sm">
+                <div className="card bg-glass-teal/20 backdrop-blur-md border-teal/20 p-4 rounded-2xl hover:bg-glass-teal/30 transition-all shadow-xl">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-full bg-teal/10">
                       <Calendar size={20} className="text-teal" />
@@ -445,7 +445,7 @@ const ProfilePage = () => {
                 </div>
 
                 {/* ID - Primary */}
-                <div className="card bg-primary/5 backdrop-blur-md border-primary/20 p-4 rounded-2xl hover:bg-primary/10 transition-all shadow-sm">
+                <div className="card bg-primary/5 backdrop-blur-md border-primary/20 p-4 rounded-2xl hover:bg-primary/10 transition-all shadow-xl">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-full bg-primary/10">
                       <Fingerprint size={20} className="text-primary" />
@@ -458,7 +458,7 @@ const ProfilePage = () => {
                 </div>
 
                 {/* Status - Dynamic */}
-                <div className={`card backdrop-blur-md border p-4 rounded-2xl hover:opacity-90 transition-all shadow-sm ${profile?.is_active
+                <div className={`card backdrop-blur-md border p-4 rounded-2xl hover:opacity-90 transition-all shadow-xl ${profile?.is_active
                   ? "bg-success/5 border-success/20 hover:bg-success/20"
                   : "bg-error/5 border-error/20 hover:bg-error/20"
                   }`}>
@@ -497,7 +497,7 @@ const ProfilePage = () => {
             {/* DELETION SECTION (Same right div) */}
             {isOwnProfile ? (
               <Animate variant="fade-up" delay={200}>
-                <div className="card bg-base-200/40 backdrop-blur-xl border border-white/10">
+                <div className="card bg-base-200/40 backdrop-blur-xl border border-white/10 shadow-xl">
                   <div className="card-body">
                     <h3 className="card-title text-lg mb-4 flex items-center gap-2">
                       <ShieldCheck size={20} className="text-secondary" />
@@ -525,7 +525,7 @@ const ProfilePage = () => {
               </Animate>
             ) : (
               <Animate variant="fade-up" delay={200}>
-                <div className="card bg-base-200/40 backdrop-blur-xl border border-white/10">
+                <div className="card bg-base-200/40 backdrop-blur-xl border border-white/10 shadow-xl">
                   <div className="card-body flex flex-row items-center gap-4">
                     <div className="p-3 rounded-2xl bg-base-300/40 border border-white/10">
                       <Lock size={20} className="text-base-content/40" />
@@ -612,7 +612,7 @@ const ProfilePage = () => {
                       </p>
 
                       {/* Buttons Container: Max width + Centered + Responsive Flex */}
-                      <div className="flex flex-col sm:flex-row lg:flex-col gap-2 w-full max-w-[200px] mx-auto">
+                      <div className="flex flex-wrap items-center justify-center gap-2 w-full max-w-[200px] mx-auto">
                         <button
                           type="button"
                           onClick={handleToggleProfileActive}

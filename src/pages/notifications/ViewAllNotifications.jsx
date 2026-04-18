@@ -268,29 +268,39 @@ const ViewAllNotifications = () => {
 
       {/* Toolbar */}
       <Animate variant="fade-up">
-        <div className="max-w-7xl mx-auto mb-8 rounded-2xl border border-base-300/30 bg-base-200/40 backdrop-blur-md p-2 lg:p-3">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
-            <div className="grid grid-cols-3 lg:flex gap-1 w-full lg:w-auto">
+        <div className="max-w-7xl mx-auto mb-8 rounded-[1.5rem] border border-base-300/30 bg-base-200/40 backdrop-blur-md p-4 lg:p-3 shadow-xl">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+
+            {/* Buttons Group: Stacked & Centered on mobile, row on LG */}
+            <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center lg:justify-start gap-2 w-full lg:w-auto">
               {FILTERS.map((f) => (
                 <button
                   key={f}
                   onClick={() => { setFilter(f); setCurrentPage(1); }}
-                  className={`btn btn-xs sm:btn-sm rounded-xl px-5 border-none uppercase text-[9px] lg:text-[10px] font-black tracking-widest ${filter === f ? "btn-primary " : "btn-ghost text-secondary hover:bg-base-300"}`}
+                  className={`btn btn-md w-full sm:w-auto rounded-xl px-6 border-0 uppercase text-[10px] font-black tracking-widest transition-all ${filter === f
+                      ? "btn-primary shadow-lg scale-[1.02] lg:scale-105 text-white"
+                      : "bg-base-100 text-secondary hover:bg-base-300 shadow-sm"
+                    }`}
                 >
                   {f}
                 </button>
               ))}
             </div>
-            <div className="relative w-full lg:max-w-[280px]">
-              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 opacity-20" />
+
+            {/* Search Input: Matches the high-end design */}
+            <div className="relative w-full lg:max-w-[280px] shadow-md border border-base-300/30 rounded-2xl overflow-hidden bg-base-100">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-base-content/20">
+                <Search size={16} />
+              </div>
               <input
                 type="text"
                 placeholder="Search logs..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="input w-full pl-12 bg-base-100/50 border-base-300/30 focus:border-primary rounded-2xl"
+                className="input w-full pl-12 bg-base-100 focus:outline-none border-none font-bold text-xs h-11 placeholder:opacity-30"
               />
             </div>
+
           </div>
         </div>
       </Animate>
@@ -298,8 +308,8 @@ const ViewAllNotifications = () => {
       {/* Table Content */}
       <Animate variant="fade-up">
         <div className="max-w-7xl mx-auto space-y-8">
-          <div className="relative rounded-[1rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-2xl overflow-hidden">
-            
+          <div className="relative rounded-[1rem] border border-base-300/30 bg-base-200/20 backdrop-blur-2xl shadow-xl overflow-hidden">
+
             {/* Overlay Loader */}
             {loading && <LoadingTableData />}
 
