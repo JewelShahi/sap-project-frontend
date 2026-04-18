@@ -144,10 +144,18 @@ const Navbar = ({ theme, toggleTheme }) => {
                   </button>
                 </div>
               ) : (
-                <>
-                  <NavLink to="/login" className="px-4 py-2 rounded-xl text-sm font-bold bg-base-100 text-base-content/60">Login</NavLink>
-                  <NavLink to="/register" className="px-4 py-2 rounded-xl text-sm font-bold bg-primary text-primary-content">Register</NavLink>
-                </>
+                <div className="flex gap-4 items-center">
+                  <NavLink to="/login" className="group">
+                    <div className="px-4 py-2 rounded-xl text-sm font-bold bg-base-100/80 text-base-content/60 transition-all duration-200 group-hover:scale-105 group-hover:bg-base-300 active:scale-95">
+                      Login
+                    </div>
+                  </NavLink>
+                  <NavLink to="/register" className="group">
+                    <div className="px-4 py-2 rounded-xl text-sm font-bold bg-primary/80 text-primary-content transition-all duration-200 group-hover:scale-105 group-hover:bg-primary active:scale-95">
+                      Register
+                    </div>
+                  </NavLink>
+                </div>
               )}
             </div>
 
@@ -202,8 +210,21 @@ const Navbar = ({ theme, toggleTheme }) => {
               </div>
             ) : (
               <div className="flex gap-4">
-                <NavLink to="/login" onClick={closeMenu} className="flex-1 text-center py-3 rounded-xl font-bold bg-base-100">Login</NavLink>
-                <NavLink to="/register" onClick={closeMenu} className="flex-1 text-center py-3 bg-primary text-primary-content rounded-xl font-bold">Register</NavLink>
+                <NavLink
+                  to="/login"
+                  onClick={closeMenu}
+                  className="flex-1 text-center py-3 rounded-xl font-bold bg-base-100/80 text-base-content/70 transition-all duration-200 hover:scale-105 hover:bg-base-300 active:scale-95"
+                >
+                  Login
+                </NavLink>
+
+                <NavLink
+                  to="/register"
+                  onClick={closeMenu}
+                  className="flex-1 text-center py-3 bg-primary/80 text-primary-content rounded-xl font-bold transition-all duration-200 hover:scale-105 hover:bg-primary active:scale-95"
+                >
+                  Register
+                </NavLink>
               </div>
             )}
           </div>
