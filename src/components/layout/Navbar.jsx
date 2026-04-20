@@ -36,14 +36,17 @@ const Navbar = ({ theme, toggleTheme }) => {
 
   // Logic to filter links based on Auth Status and Roles
   const filteredLinks = NAV_LINKS.filter(link => {
-    // 1. If not logged in, only show public links
+    // If not logged in, only show public links
     if (!isAuthenticated) return link.public;
 
-    // 2. "Users" and "Audit" (adminOnly) for staff or superuser (Django is_staff / is_superuser)
+    // Superuser can see evrything
+    if (user?.is_superuser) return true;
+
+    // "Users" and "Audit" (adminOnly) for staff and superuser 
     if (link.adminOnly && !user?.is_superuser && !user?.is_staff) return false;
 
-    // 3. "Reviews" — reader-only users (no staff)cannot see the link
-    if (link.reviewsOnly && !canAccessReviews(user) && link.adminOnly) return false;
+    // "Reviews" — reader-only users (no staff ) cannot see the link
+    if (link.reviewsOnly && !canAccessReviews(user) && !user?.is_staff) return false;  
 
     return true;
   });
