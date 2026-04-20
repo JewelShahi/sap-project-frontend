@@ -11,11 +11,10 @@ import Notifications from "./Notifications";
 
 const NAV_LINKS = [
   { icon: House, label: "Home", to: "/", public: true },
-  { icon: Files, label: "Documents", to: "/documents", public: false },
-  { icon: UserRound, label: "Profile", to: "/profile", public: false }, // Added based on your "Home, Docs, Profile" rule
-  { icon: ClipboardCheck, label: "Reviews", to: "/reviews", public: false, reviewsOnly: true },
-  { icon: UserRound, label: "Users", to: "/manage-users", public: false, adminOnly: true },
-  { icon: MonitorCog, label: "Audit", to: "/audit-log", public: false, adminOnly: true },
+  { icon: Files, label: "Documents", to: "/documents", protected: true },
+  { icon: ClipboardCheck, label: "Reviews", to: "/reviews", protected: true, reviewsOnly: true },
+  { icon: UserRound, label: "Users", to: "/manage-users", adminOnly: true },
+  { icon: MonitorCog, label: "Audit", to: "/audit-log", adminOnly: true },
 ];
 
 const BREAKPOINT = 1000;
@@ -33,31 +32,26 @@ const Navbar = ({ theme, toggleTheme }) => {
       setStickyAvatar(user.avatar);
       localStorage.setItem("cached_avatar", user.avatar);
     }
+
+    const filteredLinks = NAV_LINKS.filter(link => {
+      // 1. If not logged in, only show public links
+      if (!isAuthenticated) return link.public;
+
+      // 2. Admin Links: Visible ONLY to Staff or Superuser
+      if (link.adminOnly && !user?.is_superuser && !user?.is_staff) return false;
+
+      // 3. Reviews: BLOCK Staff/Superuser, ALLOW only specific role
+      if (link.reviewsOnly) {
+        // Explicitly block admins
+        if (user?.is_staff) return false;
+        // Check for specific role permission
+        return canAccessReviews(user);
+      }
+
+      return true;
+    });
   }, [user]);
 
-    // Logic to filter links based on Auth Status and Roles
-  const filteredLinks = NAV_LINKS.filter(link => {
-    // NOT LOGGED IN: Only show public links (Homepage)
-    if (!isAuthenticated) return link.public;
-
-    // REVIEWS: Strict Role Check
-    // We place this BEFORE the Superuser check. 
-    // This ensures that even Admins/Superusers must have the specific role to see Reviews.
-    if (link.reviewsOnly) {
-      return canAccessReviews(user);
-    }
-
-    // SUPERUSER: God mode (for everything else like Audit, Users, etc)
-    if (user?.is_superuser) return true;
-
-    // ADMIN LINKS: Only Staff can see these
-    if (link.adminOnly) {
-      return !!user?.is_staff;
-    }
-
-    // LOGGED IN BASE: (Home, Docs, Profile)
-    return true;
-  });
 
   const showLoggedInUI = isAuthenticated || (isLoading && localStorage.getItem("cached_avatar"));
 
