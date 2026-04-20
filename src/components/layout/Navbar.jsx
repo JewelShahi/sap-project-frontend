@@ -36,18 +36,25 @@ const Navbar = ({ theme, toggleTheme }) => {
 
   // Logic to filter links based on Auth Status and Roles
   const filteredLinks = NAV_LINKS.filter(link => {
-    // If not logged in, only show public links
+    // 1. NOT LOGGED IN: Only show public links (Homepage)
     if (!isAuthenticated) return link.public;
 
-    // Superuser can see evrything
+    // 2. SUPERUSER: God mode, sees everything
     if (user?.is_superuser) return true;
 
-    // "Users" and "Audit" (adminOnly) for staff and superuser 
-    if (link.adminOnly && !user?.is_superuser && !user?.is_staff) return false;
+    // 3. REVIEWS: Staff AND regular users MUST have explicit permission
+    // If the link is reviewsOnly, we ONLY care about canAccessReviews
+    if (link.reviewsOnly) {
+      return canAccessReviews(user);
+    }
 
-    // "Reviews" — reader-only users (no staff ) cannot see the link
-    if (link.reviewsOnly && !canAccessReviews(user) && !user?.is_staff) return false;  
+    // 4. ADMIN LINKS: Only Staff can see these
+    if (link.adminOnly) {
+      return !!user?.is_staff;
+    }
 
+    // 5. LOGGED IN BASE: (Home, Docs, Profile)
+    // If it's not adminOnly and not reviewsOnly, it's a standard link
     return true;
   });
 
