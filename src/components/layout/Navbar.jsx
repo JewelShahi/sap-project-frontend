@@ -33,26 +33,27 @@ const Navbar = ({ theme, toggleTheme }) => {
       localStorage.setItem("cached_avatar", user.avatar);
     }
 
-    const filteredLinks = NAV_LINKS.filter(link => {
-      // 1. If not logged in, only show public links
-      if (!isAuthenticated) return link.public;
 
-      // 2. Admin Links: Visible ONLY to Staff or Superuser
-      if (link.adminOnly && !user?.is_superuser && !user?.is_staff) return false;
-
-      // 3. Reviews: BLOCK Staff/Superuser, ALLOW only specific role
-      if (link.reviewsOnly) {
-        // Explicitly block admins
-        if (user?.is_staff) return false;
-        // Check for specific role permission
-        return canAccessReviews(user);
-      }
-
-      return true;
-    });
   }, [user]);
 
+  const filteredLinks = NAV_LINKS.filter(link => {
+    // 1. If not logged in, only show public links
+    if (!isAuthenticated) return link.public;
 
+    // 2. Admin Links: Visible ONLY to Staff or Superuser
+    if (link.adminOnly && !user?.is_superuser && !user?.is_staff) return false;
+
+    // 3. Reviews: BLOCK Staff/Superuser, ALLOW only specific role
+    if (link.reviewsOnly) {
+      // Explicitly block admins
+      if (user?.is_staff) return false;
+      // Check for specific role permission
+      return canAccessReviews(user);
+    }
+
+    return true;
+  });
+  
   const showLoggedInUI = isAuthenticated || (isLoading && localStorage.getItem("cached_avatar"));
 
   const handleLogout = async () => {
