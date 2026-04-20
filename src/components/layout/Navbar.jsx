@@ -42,8 +42,8 @@ const Navbar = ({ theme, toggleTheme }) => {
     // 2. "Users" and "Audit" (adminOnly) for staff or superuser (Django is_staff / is_superuser)
     if (link.adminOnly && !user?.is_superuser && !user?.is_staff) return false;
 
-    // 3. "Reviews" — reader-only users (no staff / not superuser) cannot see the link
-    if (link.reviewsOnly && !canAccessReviews(user)) return false;
+    // 3. "Reviews" — reader-only users (no staff)cannot see the link
+    if (link.reviewsOnly && !canAccessReviews(user) && link.adminOnly) return false;
 
     return true;
   });
