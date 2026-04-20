@@ -12,7 +12,7 @@ import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import ProtectedRoute from "@/components/protected-route/ProtectedRoute";
 import RoleProtectedRoute from "@/components/protected-route/RoleProtectedRoute";
-import ReviewsProtectedRoute from "@/components/protected-route/ReviewsProtectedRoute";
+// Removed ReviewsProtectedRoute as we are now blocking staff instead
 import NotStaffRoute from "@/components/protected-route/NotStaffRoute";
 
 // Hooks
@@ -144,15 +144,20 @@ export default function App() {
               </ProtectedRoute>
             } />
 
-            {/* --- REVIEWS: not reader-only (staff / elevated global roles / superuser) --- */}
+            {/* --- REVIEWS (Non-Staff Only) --- */}
+            {/* Staff users (is_staff: true) are blocked from accessing these pages */}
             <Route path="/reviews" element={
               <ProtectedRoute>
-                <ReviewsProtectedRoute><ReviewPage /></ReviewsProtectedRoute>
+                <NotStaffRoute>
+                  <ReviewPage />
+                </NotStaffRoute>
               </ProtectedRoute>
             } />
             <Route path="/version-review/:id" element={
               <ProtectedRoute>
-                <ReviewsProtectedRoute><VersionReviewPage /></ReviewsProtectedRoute>
+                <NotStaffRoute>
+                  <VersionReviewPage />
+                </NotStaffRoute>
               </ProtectedRoute>
             } />
 

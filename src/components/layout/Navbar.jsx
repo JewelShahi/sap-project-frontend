@@ -36,6 +36,7 @@ const Navbar = ({ theme, toggleTheme }) => {
 
   }, [user]);
 
+  // FIX:
   const filteredLinks = NAV_LINKS.filter(link => {
     // 1. If not logged in, only show public links
     if (!isAuthenticated) return link.public;
@@ -53,7 +54,7 @@ const Navbar = ({ theme, toggleTheme }) => {
 
     return true;
   });
-  
+
   const showLoggedInUI = isAuthenticated || (isLoading && localStorage.getItem("cached_avatar"));
 
   const handleLogout = async () => {
