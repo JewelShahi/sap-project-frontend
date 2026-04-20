@@ -12,7 +12,7 @@ import Notifications from "./Notifications";
 const NAV_LINKS = [
   { icon: House, label: "Home", to: "/", public: true },
   { icon: Files, label: "Documents", to: "/documents", protected: true },
-  { icon: ClipboardCheck, label: "Reviews", to: "/reviews", protected: true, reviewsOnly: true },
+  { icon: ClipboardCheck, label: "Reviews", to: "/reviews", protected: true, adminOnly: false, reviewsOnly: true },
   { icon: UserRound, label: "Users", to: "/manage-users", adminOnly: true },
   { icon: MonitorCog, label: "Audit", to: "/audit-log", adminOnly: true },
 ];

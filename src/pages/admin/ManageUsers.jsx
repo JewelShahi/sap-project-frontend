@@ -443,6 +443,7 @@ const ManageUsers = () => {
                   type="text"
                   placeholder="Search users..."
                   className="input w-full pl-12 bg-base-200/50 border-base-300/30 focus:border-primary rounded-2xl font-bold placeholder:text-base-content/30"
+                  autoComplete="off"
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -679,7 +680,7 @@ const ManageUsers = () => {
                                     >
                                       <option value="">Select role</option>
                                       {availableRoles
-                                        .filter(role => role.role_name !== "writer") // hide writer
+                                        .filter(role => role.role_name !== "writer") // Hide writer
                                         .map((role) => (
                                           <option key={role.id} value={role.role_name}>
                                             {role.role_name}
