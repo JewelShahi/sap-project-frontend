@@ -170,10 +170,9 @@ const VersionReviewPage = () => {
     return `v${diffData.old_v} → v${diffData.new_v}`;
   }, [diffData]);
 
-  /* loading / error */
+  /* Loading */
   if (isInitialLoading) return <Loader message="Loading version review..." />;
 
-  console.log(review)
   if (error) {
     return (
       <section className="px-6 py-20 h-screen bg-base-100 flex flex-col">

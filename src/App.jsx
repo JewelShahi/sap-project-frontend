@@ -18,26 +18,26 @@ import NotStaffRoute from "@/components/protected-route/NotStaffRoute";
 // Hooks
 import useTheme from "@/hooks/useTheme";
 
-// Pages: General
+// General Pages
 import HomePage from "@/pages/homepage/HomePage";
 import ProfilePage from "@/pages/profile/ProfilePage";
 
-// Pages: Documents
+// Documents and Versions
 import DocumentsPage from "@/pages/documents/DocumentsPage";
 import DocumentDetailsPage from "@/pages/documents/DocumentDetailsPage";
 import CreateDocumentPage from "@/pages/documents/CreateDocumentPage";
 import CreateVersionPage from "@/pages/documents/CreateVersionPage";
 import VersionDetailsPage from "@/pages/documents/VersionDetailsPage";
 
-// Pages: Reviews
+// Reviews
 import VersionReviewPage from "@/pages/reviews/VersionReviewPage";
 import ReviewPage from "@/pages/reviews/ReviewPage";
 
-// Pages: Admin
+// Management & Admin
 import ManageUsers from "@/pages/admin/ManageUsers";
 import AuditLogPage from "@/pages/admin/AuditLogPage";
 
-// Pages: Error Handling
+// Error Handling
 import NotFoundPage from "@/pages/error-pages/NotFoundPage";
 import ServerErrorPage from "@/pages/error-pages/ServerErrorPage";
 import ForbiddenPage from "@/pages/error-pages/ForbiddenPage";
@@ -45,9 +45,7 @@ import ForbiddenPage from "@/pages/error-pages/ForbiddenPage";
 // Notifications
 import ViewAllNotifications from "@/pages/notifications/ViewAllNotifications";
 
-/**
- * 1. Detailed Page Title Logic
- */
+// Component to dynamically update the page title based on the current route
 const PageTitleUpdater = () => {
   const location = useLocation();
 
@@ -132,7 +130,7 @@ export default function App() {
             <Route path="/documents/:id" element={<ProtectedRoute><DocumentDetailsPage /></ProtectedRoute>} />
             <Route path="/versions/:id" element={<ProtectedRoute><VersionDetailsPage /></ProtectedRoute>} />
 
-            {/* --- CREATION (Auth + Not Staff) --- */}
+            {/* CREATION (auth with protection against staff (admin users)) */}
             <Route path="/documents/create" element={
               <ProtectedRoute>
                 <NotStaffRoute><CreateDocumentPage /></NotStaffRoute>
@@ -144,8 +142,7 @@ export default function App() {
               </ProtectedRoute>
             } />
 
-            {/* --- REVIEWS (Non-Staff Only) --- */}
-            {/* Staff users (is_staff: true) are blocked from accessing these pages */}
+            {/* REVIEWS (protection against staff (admin users)) */}
             <Route path="/reviews" element={
               <ProtectedRoute>
                 <NotStaffRoute>
@@ -161,7 +158,7 @@ export default function App() {
               </ProtectedRoute>
             } />
 
-            {/* --- ADMIN ONLY (is_staff & is_superuser) --- */}
+            {/* ADMIN ONLY (is_staff & is_superuser) */}
             <Route path="/manage-users" element={
               <RoleProtectedRoute roleRequired="admin">
                 <ManageUsers />
@@ -173,7 +170,7 @@ export default function App() {
               </RoleProtectedRoute>
             } />
 
-            {/* --- ERRORS --- */}
+            {/* ERRORS */}
             <Route path="/forbidden" element={<ForbiddenPage />} />
             <Route path="/server-error" element={<ServerErrorPage />} />
             <Route path="*" element={<NotFoundPage />} />

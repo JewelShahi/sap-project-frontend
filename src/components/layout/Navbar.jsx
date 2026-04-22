@@ -36,15 +36,14 @@ const Navbar = ({ theme, toggleTheme }) => {
 
   }, [user]);
 
-  // FIX:
   const filteredLinks = NAV_LINKS.filter(link => {
-    // 1. If not logged in, only show public links
+    // If not logged in, only show public links
     if (!isAuthenticated) return link.public;
 
-    // 2. Admin Links: Visible ONLY to Staff or Superuser
+    // Admin Links: Visible ONLY to Staff or Superuser
     if (link.adminOnly && !user?.is_superuser && !user?.is_staff) return false;
 
-    // 3. Reviews: BLOCK Staff/Superuser, ALLOW only specific role
+    // Reviews: BLOCK Staff/Superuser, ALLOW only specific role
     if (link.reviewsOnly) {
       // Explicitly block admins
       if (user?.is_staff) return false;

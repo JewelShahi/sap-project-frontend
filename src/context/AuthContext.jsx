@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUserState] = useState(null);
   const [ready, setReady] = useState(false);
 
-  // --- HELPER: CLEAR ALL STORAGE ---
+  // CLEAR ALL STORAGE AND CONTEXT (FIXED LOGOUT FREEZING)
   const clearLocalAuth = useCallback(() => {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");

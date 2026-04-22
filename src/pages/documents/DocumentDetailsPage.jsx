@@ -27,6 +27,7 @@ import api from "@/components/api/api.js";
 import { useAuth } from "@/context/AuthContext.jsx";
 import Loader from "@/components/widgets/Loader.jsx";
 import MissingArtifact from "@/components/widgets/MissingArtifact.jsx";
+import notify from "@/components/toaster/notify";
 
 const STATUS_CONFIG = {
   approved: {
@@ -245,7 +246,9 @@ const DocumentDetailsPage = () => {
           }
         }
       } catch {
-        setError("Database Linkage Failure.");
+        const message = "Failed to load document. Please try again.";
+        setError(message);
+        notify.error(message);
       } finally {
         setLoading(false);
       }

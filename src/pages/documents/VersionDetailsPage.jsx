@@ -192,7 +192,6 @@ const VersionDetailsPage = () => {
   const getFileType = (url) => {
     if (!url) return "unknown";
     if (url.endsWith(".pdf")) return "pdf";
-    if (url.endsWith(".md")) return "markdown";
     if (url.endsWith(".txt")) return "text";
     return "unknown";
   };
@@ -200,17 +199,16 @@ const VersionDetailsPage = () => {
   useEffect(() => {
     if (!version?.signed_file_path) return;
 
-    // 1. Get the extension using your function
+    // Get the extension using your function
     const ext = getExtension(version.signed_file_path);
     setFileType(ext);
 
-    // 2. Define our Category Groups
-    const imageTypes = ["jpg", "jpeg", "png", "gif", "webp", "svg"];
+    // Define our Category Groups
     const pdfTypes = ["pdf"];
     const docTypes = ["doc", "docx"];
 
-    // 3. Logic: If it's an image, PDF, or Word Doc, we don't need to fetch text
-    const isSpecialView = [...imageTypes, ...pdfTypes, ...docTypes].includes(ext);
+    // Logic: If it's an image, PDF, or Word Doc, we don't need to fetch text
+    const isSpecialView = [...pdfTypes, ...docTypes].includes(ext);
 
     if (!isSpecialView) {
       // Treat everything else (text/*, binary, code) as a text stream
@@ -281,8 +279,12 @@ const VersionDetailsPage = () => {
 
       setSelectedReviewers([]);
       setReviewerSearch("");
+
+      notify.success("Review request sent successfully.");
+
     } catch (err) {
       console.error("Failed to create reviews", err);
+      notify.error("Review request failed. Please retry.");
     } finally {
       setSubmitting(false);
     }
@@ -301,14 +303,20 @@ const VersionDetailsPage = () => {
       const fileNameFromHeader = contentDisposition.match(/filename="?([^"]+)"?/i)?.[1];
       const fallbackName = `${documentData?.title || "version"} v${version.version_number}.${format}`;
 
-      const a = window.document.createElement("a"); // extra safety
+      const a = window.document.createElement("a");
       a.href = url;
       a.download = fileNameFromHeader || fallbackName;
       a.click();
 
       window.URL.revokeObjectURL(url);
+
+      // Success toast
+      notify.success(`Exported successfully as ${format.toUpperCase()}.`);
+
     } catch (err) {
       console.error("Export failed", err);
+      // Error toast
+      notify.error("Failed to export document. Please try again.");
     }
   };
 

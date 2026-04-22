@@ -60,7 +60,7 @@ const Notifications = () => {
       if (document.visibilityState === "visible") {
         fetchNotifications(true);
       }
-    }, 40000);
+    }, 20000);
 
     return () => {
       clearInterval(interval);

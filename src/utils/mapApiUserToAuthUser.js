@@ -1,7 +1,6 @@
-/**
- * Normalizes `/users/me/` and login API user payloads into AuthContext user shape.
- */
-export function mapApiUserToAuthUser(apiUser) {
+// Normalize the user data from the API to match our AuthUser structure
+
+const mapApiUserToAuthUser = (apiUser) => {
   if (!apiUser) return null;
   return {
     id: apiUser.id,
@@ -19,3 +18,5 @@ export function mapApiUserToAuthUser(apiUser) {
     global_roles: Array.isArray(apiUser.global_roles) ? apiUser.global_roles : [],
   };
 }
+
+export default mapApiUserToAuthUser;

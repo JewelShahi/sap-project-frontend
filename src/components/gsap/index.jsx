@@ -4,11 +4,11 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ── Global performance tuning ──
+// Global performance tuning
 gsap.ticker.lagSmoothing(0);
 gsap.defaults({ force3D: true, overwrite: "auto" });
 
-// ── Reduced-motion check (computed once) ──
+// Reduced-motion check (computed once)
 const REDUCED_MOTION =
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;

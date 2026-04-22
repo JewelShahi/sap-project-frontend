@@ -26,11 +26,11 @@ const ReviewPage = () => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
 
-  // 1. isInitialLoading: Controls the Full Page Loader.
+  // isInitialLoading: Controls the Full Page Loader.
   //    Stays true until the VERY FIRST fetch completes successfully.
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  // 2. isTableUpdating: Controls the Table Overlay.
+  // isTableUpdating: Controls the Table Overlay.
   //    Only true for filter/search/page changes AFTER the initial load.
   const [isTableUpdating, setIsTableUpdating] = useState(false);
 
@@ -56,13 +56,11 @@ const ReviewPage = () => {
 
     const fetchData = async () => {
       // If this is NOT the first mount (e.g. user clicked a filter), show the table overlay.
-      // If it IS the first mount, we keep isInitialLoading true (so the full page loader stays).
       if (!isInitialMount.current) {
         setIsTableUpdating(true);
       }
 
       try {
-        // Fetch Reviews
         const res = await api.get("/reviews/inbox/?all=true", {
           signal: controller.signal,
         });
@@ -70,35 +68,37 @@ const ReviewPage = () => {
         const data = res.data || [];
         setReviews(data);
 
-        // CRITICAL: Only turn off the full page loader here, inside the try block,
-        // AFTER the data has been successfully fetched and set.
+        // Success: Turn off the appropriate loader
         if (isInitialMount.current) {
           isInitialMount.current = false;
           setIsInitialLoading(false);
         } else {
-          // If it's not the initial mount, we finish the table update here
           setIsTableUpdating(false);
         }
 
       } catch (err) {
+        // Ignore errors caused by component unmounting/cleanup
         if (err.name !== "CanceledError") {
           console.error("Failed to fetch reviews:", err);
-          // You could add a toast notification here
+          notify.error("Failed to load reviews. Please try again.");
         }
 
-        // ERROR HANDLING:
-        // If this is an update (filter/page), we want to stop the spinner so the UI isn't frozen.
-        if (!isInitialMount.current) {
+        // ERROR HANDLING: ALWAYS stop the spinners, even on initial mount.
+        // Otherwise, the user gets permanently stuck on a blank loading screen.
+        if (isInitialMount.current) {
+          isInitialMount.current = false;
+          setIsInitialLoading(false);
+        } else {
           setIsTableUpdating(false);
         }
-        // If this is the Initial Mount and it fails, we do NOT set isInitialLoading to false.
-        // The user stays on the Full Page Loader.
       }
     };
 
     fetchData();
+
+    // Abort the request if the component unmounts or dependencies change
     return () => controller.abort();
-  }, [filter, debouncedSearch, currentPage]); // Removed isInitialLoading from deps to prevent loops
+  }, [filter, debouncedSearch, currentPage]);
 
   // Stats Data Calculation
   const statsData = useMemo(
@@ -156,7 +156,6 @@ const ReviewPage = () => {
     setCurrentPage(1);
   };
 
-  // LOGIC: 
   // Show Full Page Loader ONLY if it is the initial load.
   if (isInitialLoading) {
     return <Loader message="Loading reviews..." />;
@@ -245,8 +244,8 @@ const ReviewPage = () => {
                       key={f}
                       onClick={() => handleFilterChange(f)}
                       className={`btn btn-md w-full sm:w-auto rounded-2xl font-bold uppercase text-[11px] transition-all px-6 border-0 ${filter === f
-                          ? `${color} text-white shadow-lg scale-[1.02] lg:scale-105`
-                          : "bg-base-100 text-base-content/60 hover:bg-base-300 shadow-sm"
+                        ? `${color} text-white shadow-lg scale-[1.02] lg:scale-105`
+                        : "bg-base-100 text-base-content/60 hover:bg-base-300 shadow-sm"
                         }`}
                     >
                       {f.replace("_", " ")}
