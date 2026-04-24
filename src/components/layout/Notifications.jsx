@@ -16,6 +16,7 @@ const Notifications = () => {
   const isFetchingRef = useRef(false);
   const abortControllerRef = useRef(null);
 
+  // NOTE: Optimized fetch with cancellatiion 
   const fetchNotifications = useCallback(async (isSilent = false) => {
     if (isFetchingRef.current) return;
     if (abortControllerRef.current) {
@@ -27,6 +28,7 @@ const Notifications = () => {
     isFetchingRef.current = true;
 
     try {
+      // NOTE: Used signal for request cancellation
       const res = await api.get("/notifications/", {
         signal: controller.signal
       });

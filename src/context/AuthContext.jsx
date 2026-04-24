@@ -4,8 +4,10 @@ import api from "@/components/api/api";
 import Loader from "@/components/widgets/Loader";
 import { mapApiUserToAuthUser } from "@/utils/mapApiUserToAuthUser";
 
+// NOTE: Creates a global authentication context for access across the app
 const AuthContext = createContext();
 
+// NOTE: Check if JWT token is expired
 const isTokenExpired = (token) => {
   try {
     const decoded = jwtDecode(token);
@@ -15,6 +17,7 @@ const isTokenExpired = (token) => {
   }
 };
 
+// NOTE: Provider body
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUserState] = useState(null);
@@ -30,6 +33,7 @@ export const AuthProvider = ({ children }) => {
     setUserState(null);
   }, []);
 
+  // NOTE: Add user info to local torage and sync with state if changes occur
   const syncUserToStorage = (userData) => {
     if (userData) {
       localStorage.setItem("user", JSON.stringify(userData));
@@ -50,7 +54,7 @@ export const AuthProvider = ({ children }) => {
     });
   }, []);
 
-  /** Re-fetch `/users/me/` and update context + localStorage (roles, is_staff, etc.). */
+  // Re-fetch `/users/me/` and update context and localStorage (roles, is_staff).
   const refreshUser = useCallback(async () => {
     const token = localStorage.getItem("access");
     if (!token || isTokenExpired(token)) return;
@@ -59,17 +63,16 @@ export const AuthProvider = ({ children }) => {
       const next = mapApiUserToAuthUser(data);
       if (next) setUser(next);
     } catch {
-      // Ignore: offline or session invalid; other flows handle logout.
+      // Offline or session invalid, other flows handle logout
     }
   }, [setUser]);
 
-  // --- REFRESH LOGIC ---
+  // Refresh token logic
   const refreshAccessToken = async () => {
     const refresh = localStorage.getItem("refresh");
     if (!refresh) return null;
 
     try {
-      // Note: We use a raw axios call or a flag to avoid interceptor loops here if needed
       const res = await api.post("/token/refresh/", { refresh }, { _retry: true });
       localStorage.setItem("access", res.data.access);
       if (res.data.refresh) {
@@ -81,7 +84,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // --- INTERCEPTORS ---
+  // INTERCEPTORS - adds JWT token to request, refreshes tokens and manages logging
   useEffect(() => {
     const requestInterceptor = api.interceptors.request.use(async (config) => {
       // If the request has our custom _retry flag, skip refresh logic
@@ -111,12 +114,11 @@ export const AuthProvider = ({ children }) => {
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
             return api(originalRequest);
           } else {
-            // Stop the loop here!
+            // Stop the loop here
             console.error("Auth Refresh Failed");
-            // clearLocalAuth();
             setIsAuthenticated(false);
             setUserState(null);
-            return Promise.reject(err); // This tells the app Stop trying to refresh and fail the request
+            return Promise.reject(err); // This tells the app stop refreshing and fail the request
           }
         }
         return Promise.reject(err);
@@ -129,7 +131,6 @@ export const AuthProvider = ({ children }) => {
     };
   }, [clearLocalAuth]);
 
-  // --- INITIALIZATION (FIXED INFINITE LOADING) ---
   useEffect(() => {
     const init = async () => {
       const token = localStorage.getItem("access");
@@ -151,14 +152,13 @@ export const AuthProvider = ({ children }) => {
           clearLocalAuth();
         }
       }
-      // CRITICAL: Always set ready to true, even if logic fails
       setReady(true);
     };
 
     init();
   }, [clearLocalAuth]);
 
-  // After restore from localStorage, sync permissions from server (staff, roles).
+  // After restore from localStorage, sync permissions from server (staff, roles)
   useEffect(() => {
     if (!ready || !isAuthenticated) return;
     refreshUser();
@@ -189,15 +189,13 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
   };
 
-  // --- LOGOUT (FIXED FREEZING) ---
   const logout = async (redirectPath = "/login") => {
     const access = localStorage.getItem("access");
     const refresh = localStorage.getItem("refresh");
 
     try {
       if (access && refresh) {
-        // We add _retry: true so the interceptor doesn't try 
-        // to refresh a token while we are trying to kill the session.
+        // Add _retry: true so the interceptor doesn't try to refresh a token while we are trying to kill the session.
         await api.post(
           "/users/logout/",
           { refresh },

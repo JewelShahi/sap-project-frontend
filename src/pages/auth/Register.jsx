@@ -3,21 +3,9 @@ import { Eye, EyeOff, Mail, Lock, Loader2, ArrowRight, User, CheckCircle2, AtSig
 import { NavLink, useNavigate } from "react-router-dom";
 import Animate from "@/components/animation/Animate";
 import BackgroundEffects from "@/components/background/BackgroundEffects";
-import { useAuth } from "@/context/AuthContext"; // ← adjust path to match your project
-import api from "@/components/api/api"; // ← adjust path to match your project
+import { useAuth } from "@/context/AuthContext";
+import api from "@/components/api/api"; 
 import InputField from "./components/InputField";
-
-/**
- * Register
- *
- * Behaviour:
- *  • If the user is already authenticated, immediately redirect to "/".
- *  • On submit, POST to your registration endpoint.
- *  • On success, redirect to "/login" with a success flash so the user
- *    knows they can now sign in.
- *  • On API error, surface the server message in the form.
- */
-
 
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
@@ -54,7 +42,7 @@ const Register = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // Guard: kick out logged-in users immediately
+  // Kick out logged-in users immediately
   useEffect(() => {
     if (isAuthenticated) navigate("/", { replace: true });
   }, [isAuthenticated, navigate]);

@@ -4,7 +4,7 @@ import Animate from "@/components/animation/Animate.jsx";
 import api from "@/components/api/api";
 import notify from "@/components/toaster/notify";
 import { Link } from "react-router-dom";
-import LoadingTableData from "@/components/widgets/LoadingTableData"; // IMPORT THE NEW COMPONENT
+import LoadingTableData from "@/components/widgets/LoadingTableData";
 
 const GLOBAL_GROUPS = [
   { id: "CREATE", label: "Creations", icon: <UserPlus size={14} />, values: ["create document", "create user", "create version"], color: "bg-success" },
@@ -101,7 +101,6 @@ const AuditLogPage = () => {
   useEffect(() => {
     const controller = new AbortController();
 
-    // Increased slightly to 400ms for better server mercy
     const delayDebounceFn = setTimeout(() => {
       fetchLogs(controller.signal);
     }, 400);
@@ -122,9 +121,6 @@ const AuditLogPage = () => {
     if (a.includes('approve') || a.includes('reject')) return 'badge-accent';
     return 'badge-primary';
   };
-
-  // REMOVED THE EARLY RETURN LOADER TO ALLOW SITE TO SHOW IMMEDIATELY
-  // if (loading && logs.length === 0) return <Loader message="Loading audit logs..." />;
 
   return (
     <div className="relative min-h-screen px-6 pb-12 pt-20 overflow-hidden font-sans bg-base-100">

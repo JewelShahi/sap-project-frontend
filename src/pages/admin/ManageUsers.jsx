@@ -4,12 +4,13 @@ import {
   FilterX, Funnel, UserCheck, UserMinus,
   Trash2, Lock, ShieldAlert, X, AlertTriangle, Shield, UserCog
 } from "lucide-react";
+
 import Animate from "@/components/animation/Animate.jsx";
 import api from "@/components/api/api";
 import notify from "@/components/toaster/notify";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext.jsx";
-import LoadingTableData from "@/components/widgets/LoadingTableData"; // NEW IMPORT
+import LoadingTableData from "@/components/widgets/LoadingTableData";
 
 const ManageUsers = () => {
   const { user: currentUser, refreshUser } = useAuth();
@@ -42,7 +43,7 @@ const ManageUsers = () => {
   const pageSize = 10;
   const totalPages = Math.ceil(paginationInfo.count / pageSize) || 1;
 
-  /** Roles, staff toggle, terminate: same rules — no self, no targeting superusers (for superuser viewer: can target admins + normal users). */
+
   const canModify = (targetUser) => {
     if (!currentUser || !targetUser) return false;
     if (currentUser.id === targetUser.id) return false;
@@ -53,10 +54,6 @@ const ManageUsers = () => {
     return false;
   };
 
-  /**
-   * Ban / activate (toggle active): superuser can affect any non–super-user (including admins).
-   * Staff (non–super-user) can only ban/activate normal users — not other admins or superusers.
-   */
   const canToggleBan = (targetUser) => {
     if (!currentUser || !targetUser) return false;
     if (currentUser.id === targetUser.id) return false;
@@ -312,10 +309,6 @@ const ManageUsers = () => {
     setCurrentPage(1);
   };
 
-  // REMOVED FULL PAGE LOADER TO SHOW SITE IMMEDIATELY
-  // if (loading && users.length === 0) {
-  //   return <Loader message="Loading user registry..." />;
-  // }
 
   return (
     <div className="relative min-h-screen px-6 pb-12 pt-20 overflow-hidden font-sans bg-base-100">
@@ -735,7 +728,7 @@ const ManageUsers = () => {
                                     </button>
                                   )}
 
-                                  {/* 2. Active/Ban Toggle Button - FIXED CLICK HANDLER */}
+                                  {/* Active/Ban Toggle Button - FIXED CLICK HANDLER */}
                                   <button
                                     onClick={() => handleToggle(user)} // FIXED: Passing 'user' object instead of 'user.id'
                                     className={`btn btn-xs h-9 rounded-xl border-none font-bold uppercase text-[10px] gap-2 px-4 shadow-sm w-36 transition-all active:scale-95 
@@ -748,7 +741,7 @@ const ManageUsers = () => {
                                     <span>{user.is_active ? 'Active' : 'Banned'}</span>
                                   </button>
 
-                                  {/* 3. Terminate Button */}
+                                  {/* Terminate Button */}
                                   <button
                                     onClick={() => openDeleteModal(user)}
                                     className="btn btn-xs h-9 rounded-xl bg-error/10 text-error border border-error/20 hover:bg-error hover:text-white font-bold uppercase text-[10px] gap-2 px-4 w-36 transition-all active:scale-95 shadow-sm"
