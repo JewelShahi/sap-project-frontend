@@ -15,7 +15,7 @@ import BackgroundEffects from "@/components/background/BackgroundEffects";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/components/api/api";
 import notify from "@/components/toaster/notify";
-import { mapApiUserToAuthUser } from "@/utils/mapApiUserToAuthUser";
+import mapApiUserToAuthUser from "@/utils/mapApiUserToAuthUser";
 import InputField from "./components/InputField";
 
 

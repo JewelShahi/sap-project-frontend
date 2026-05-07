@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef } f
 import { jwtDecode } from "jwt-decode";
 import api from "@/components/api/api";
 import Loader from "@/components/widgets/Loader";
-import { mapApiUserToAuthUser } from "@/utils/mapApiUserToAuthUser";
+import mapApiUserToAuthUser from "@/utils/mapApiUserToAuthUser";
 
 // NOTE: Creates a global authentication context for access across the app
 const AuthContext = createContext();
@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUserState] = useState(null);
   const [ready, setReady] = useState(false);
 
-  // CLEAR ALL STORAGE AND CONTEXT (FIXED LOGOUT FREEZING)
+  // CLEAR ALL STORAGE AND CONTEXT
   const clearLocalAuth = useCallback(() => {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");

@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink, Link } from "react-router-dom";
 import { Zap, Mail } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { canAccessReviews } from "@/utils/canAccessReviews";
+import canAccessReviews from "@/utils/canAccessReviews";
 
 const RESOURCE_LINKS = [
   { name: "Home", url: "/", public: true },

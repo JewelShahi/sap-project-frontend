@@ -5,7 +5,7 @@ import {
   UserRound, Menu, X, MonitorCog, LogOut
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { canAccessReviews } from "@/utils/canAccessReviews";
+import canAccessReviews from "@/utils/canAccessReviews";
 import notify from "@/components/toaster/notify";
 import Notifications from "./Notifications";
 
